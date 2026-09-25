@@ -1,7 +1,19 @@
 {
   "common": {
     "back": "رجوع",
-    "home": "الرئيسية"
+    "home": "الرئيسية",
+    "retry": "إعادة المحاولة",
+    "browseGyms": "تصفّح الصالات",
+    "exploreGyms": "استكشف الصالات",
+    "continue": "متابعة",
+    "verified": "موثّق",
+    "reviewsCount": "{{count}} تقييم",
+    "perMonth": "{{price}} / شهريًا",
+    "perSession": "{{price}} / للجلسة",
+    "fromPerSession": "ابتداءً من {{price}} / للجلسة",
+    "fromPerMonth": "ابتداءً من {{price}} / شهريًا",
+    "addFavorite": "إضافة إلى المفضلة",
+    "removeFavorite": "إزالة من المفضلة"
   },
   "tabs": {
     "home": "الرئيسية",
@@ -9,15 +21,292 @@
     "favorites": "المفضلة",
     "profile": "الملف الشخصي"
   },
-  "screens": {
-    "plans": "اختر خطة",
-    "trainers": "اختر مدربك",
-    "booking": "الحجز",
-    "guest": "كيف تود المتابعة؟",
-    "checkout": "الدفع",
-    "success": "تم الحجز!",
-    "bookingDetails": "تفاصيل الحجز",
+  "greeting": {
+    "morning": "صباح الخير",
+    "afternoon": "مساء الخير",
+    "evening": "مساء الخير"
+  },
+  "home": {
+    "headline": "اعثر على تمرينك المثالي",
+    "searchPlaceholder": "ابحث عن صالة أو منطقة",
+    "clearSearch": "مسح البحث",
+    "categories": {
+      "all": "الكل",
+      "gyms": "الصالات",
+      "classes": "الحصص",
+      "trainers": "المدربون"
+    },
+    "featured": "صالات مميزة",
+    "nearYou": "بالقرب منك",
+    "gyms": "الصالات",
+    "results": "النتائج",
+    "trainersHint": "اختر صالة لاستكشاف مدربيها.",
+    "classesTitle": "الحصص",
+    "classesBody1": "تجارب التدريب الجماعي قادمة قريبًا.",
+    "classesBody2": "اكتشف الصالات والمدربين الشخصيين في هذه الأثناء.",
+    "noResultsTitle": "لم يتم العثور على صالات",
+    "noResultsBody": "جرّب بحثًا آخر أو تصفّح الصالات المميزة.",
+    "errorTitle": "تعذّر تحميل الصالات",
+    "errorBody": "يرجى المحاولة مرة أخرى بعد قليل."
+  },
+  "gym": {
+    "chooseHow": "اختر طريقة تدريبك",
+    "membershipTitle": "عضوية الصالة",
+    "membershipSubtitle": "تدرّب باستقلالية مع وصول كامل إلى الصالة",
+    "trainerTitle": "تدرّب مع مدرب شخصي",
+    "trainerSubtitle": "اختر من المدربين المتاحين في هذه الصالة",
+    "tabs": {
+      "overview": "نظرة عامة",
+      "reviews": "التقييمات",
+      "memberships": "العضويات"
+    },
+    "about": "نبذة",
+    "facilities": "المرافق",
+    "openingHours": "ساعات العمل",
+    "location": "الموقع",
+    "morePhotos": "المزيد من الصور",
+    "noReviews": "لا توجد تقييمات بعد.",
+    "reviewsErrorTitle": "تعذّر تحميل التقييمات",
+    "reviewsErrorBody": "لم نتمكن من تحميل التقييمات.",
+    "plansError": "تعذّر تحميل الخطط",
+    "viewAllPlans": "عرض كل الخطط",
+    "notFoundTitle": "الصالة غير موجودة",
+    "notFoundBody": "ربما أُزيلت من الدليل.",
+    "errorTitle": "الصالة غير متاحة",
+    "errorBody": "تعذّر تحميل هذه الصالة."
+  },
+  "amenities": {
+    "weights": "الأوزان",
+    "cardio": "الكارديو",
+    "pool": "المسبح",
+    "sauna": "الساونا",
+    "lockers": "غرف تبديل الملابس",
+    "parking": "مواقف السيارات"
+  },
+  "days": {
+    "Saturday": "السبت",
+    "Sunday": "الأحد",
+    "Monday": "الاثنين",
+    "Tuesday": "الثلاثاء",
+    "Wednesday": "الأربعاء",
+    "Thursday": "الخميس",
+    "Friday": "الجمعة"
+  },
+  "plans": {
+    "title": "اختر خطة",
+    "subtitle": "اختر عضوية في {{gym}}",
+    "monthly": {
+      "name": "شهري",
+      "description": "وصول كامل إلى الصالة، يُدفع كل شهر."
+    },
+    "3m": {
+      "name": "3 أشهر",
+      "description": "التزام أهدأ بسعر شهري أقل."
+    },
+    "6m": {
+      "name": "6 أشهر",
+      "description": "الطريقة الأمثل للالتزام بروتين ثابت."
+    },
+    "badges": {
+      "Save 10%": "وفّر 10%",
+      "Most Popular": "الأكثر طلبًا"
+    },
+    "perMonthEquivalent": "{{price}}/شهريًا",
+    "error": "تعذّر تحميل الخطط.",
+    "unavailable": "هذه العضوية لم تعد متاحة."
+  },
+  "trainers": {
+    "title": "اختر مدربك",
+    "subtitle": "متاح في {{gym}}",
+    "yearsPrice": "{{years}} سنوات · {{price}} / للجلسة",
+    "emptyTitle": "لم يتم العثور على مدربين",
+    "emptyBody": "جرّب تخصصًا آخر",
+    "errorTitle": "تعذّر تحميل المدربين",
+    "errorBody": "يرجى المحاولة بعد قليل.",
+    "notFoundTitle": "الصالة غير موجودة",
+    "notFoundBody": "يرجى الرجوع والمحاولة مرة أخرى."
+  },
+  "specialtyChips": {
+    "All": "الكل",
+    "Strength": "القوة",
+    "Weight Loss": "إنقاص الوزن",
+    "Mobility": "المرونة",
+    "Functional Training": "التدريب الوظيفي"
+  },
+  "specialties": {
+    "Strength Training": "تدريب القوة",
+    "Weight Loss": "إنقاص الوزن",
+    "Mobility": "المرونة",
+    "Functional Training": "التدريب الوظيفي"
+  },
+  "languages": {
+    "Arabic": "العربية",
+    "English": "الإنجليزية",
+    "Italian": "الإيطالية",
+    "French": "الفرنسية",
+    "Urdu": "الأردية",
+    "Portuguese": "البرتغالية"
+  },
+  "trainer": {
+    "reviews": "التقييمات",
+    "experience": "الخبرة",
+    "rating": "التقييم",
+    "yearsShort": "{{count}} سنوات",
+    "yearsLong": "{{count}} سنوات",
+    "about": "نبذة",
+    "specialties": "التخصصات",
+    "experienceCerts": "الخبرة والشهادات",
+    "certification": "الشهادة",
+    "languages": "اللغات",
+    "clientReviews": "آراء العملاء",
+    "book": "احجز جلسة · {{price}}",
+    "notFoundTitle": "المدرب غير موجود",
+    "notFoundBody": "هذا الملف لم يعد متاحًا.",
+    "errorTitle": "المدرب غير متاح",
+    "errorBody": "يرجى العودة إلى الصالة والمحاولة مرة أخرى."
+  },
+  "booking": {
+    "title": "احجز مع {{name}}",
+    "availableTimes": "الأوقات المتاحة",
+    "unavailable": "غير متاح",
+    "closed": "مغلق",
+    "summary": "ملخص الحجز",
+    "gym": "الصالة",
+    "trainer": "المدرب",
+    "date": "التاريخ",
+    "time": "الوقت",
+    "selectTime": "اختر وقتًا",
+    "sessions": "الجلسات",
+    "oneSession": "جلسة واحدة",
+    "price": "السعر",
+    "nothingTitle": "لا يوجد ما يُحجز",
+    "nothingBody": "اختر صالة ومدربًا للمتابعة.",
+    "timesError": "تعذّر تحميل الأوقات."
+  },
+  "guest": {
+    "title": "كيف تود المتابعة؟",
+    "guestOption": "المتابعة كضيف",
+    "guestOptionBody": "لا حاجة إلى حساب.",
+    "signInOption": "تسجيل الدخول",
+    "signInOptionBody": "استخدم حساب OneQ الحالي.",
+    "fullName": "الاسم الكامل",
+    "phone": "رقم الهاتف",
+    "phoneHint": "3000 0000",
+    "email": "البريد الإلكتروني (اختياري)",
+    "continueToPayment": "المتابعة إلى الدفع",
+    "signIn": "تسجيل الدخول"
+  },
+  "signIn": {
+    "title": "مرحبًا بعودتك",
+    "body": "سجّل الدخول لإدارة حجوزاتك ومفضلتك وحسابك.",
+    "identifier": "البريد الإلكتروني أو رقم الهاتف",
+    "password": "كلمة المرور",
+    "showPassword": "إظهار كلمة المرور",
+    "hidePassword": "إخفاء كلمة المرور",
+    "forgot": "نسيت كلمة المرور؟",
+    "submit": "تسجيل الدخول",
+    "createAccount": "إنشاء حساب"
+  },
+  "checkout": {
+    "title": "الدفع",
+    "plan": "الخطة",
+    "guest": "الضيف",
+    "total": "الإجمالي",
+    "paymentMethod": "طريقة الدفع",
+    "card": "بطاقة",
+    "applePay": "Apple Pay",
+    "googlePay": "Google Pay",
+    "pay": "ادفع {{price}}",
+    "unavailableTitle": "الدفع غير متاح",
+    "unavailableBody": "أكمل تفاصيل حجزك أولًا."
+  },
+  "success": {
+    "title": "تم الحجز!",
+    "membership": "تم تأكيد عضويتك في {{gym}}.",
+    "session": "تم تأكيد جلستك مع {{name}}.",
+    "viewBooking": "عرض الحجز",
+    "addToCalendar": "إضافة إلى التقويم",
+    "backToHome": "العودة إلى الرئيسية",
+    "calendarSoon": "ستتوفر إضافة المواعيد إلى التقويم قريبًا."
+  },
+  "bookings": {
+    "title": "الحجوزات",
+    "upcoming": "القادمة",
+    "past": "السابقة",
+    "membership": "عضوية",
+    "status": {
+      "confirmed": "مؤكد",
+      "completed": "مكتمل",
+      "cancelled": "ملغى"
+    },
+    "upcomingEmptyTitle": "لا توجد حجوزات قادمة",
+    "upcomingEmptyBody": "ستظهر جلسة تدريبك القادمة هنا.",
+    "pastEmptyTitle": "لا توجد حجوزات سابقة",
+    "pastEmptyBody": "ستُحفظ زياراتك المكتملة هنا.",
+    "errorTitle": "تعذّر تحميل الحجوزات",
+    "errorBody": "يرجى المحاولة مرة أخرى."
+  },
+  "bookingDetails": {
+    "title": "الحجز",
+    "location": "الموقع",
+    "phone": "الهاتف",
+    "status": "الحالة",
+    "notFoundTitle": "الحجز غير موجود",
+    "notFoundBody": "ربما أُزيل من هذا الجهاز.",
+    "bookingsButton": "الحجوزات",
+    "errorTitle": "تعذّر تحميل الحجز",
+    "errorBody": "يرجى المحاولة مرة أخرى من تبويب الحجوزات."
+  },
+  "favorites": {
+    "title": "المفضلة",
+    "subtitle": "الصالات التي حفظتها لوقت لاحق.",
+    "emptyTitle": "لا توجد مفضلات بعد",
+    "emptyBody": "احفظ الصالات التي تحبها وستجدها هنا.",
+    "errorTitle": "تعذّر تحميل المفضلة"
+  },
+  "profile": {
+    "title": "الملف الشخصي",
+    "welcome": "مرحبًا بك في OneQ",
+    "welcomeBody": "سجّل الدخول لإدارة حجوزاتك وتفضيلاتك.",
     "signIn": "تسجيل الدخول",
+    "createAccount": "إنشاء حساب",
+    "member": "عضو",
+    "signedIn": "تم تسجيل الدخول",
+    "signOut": "تسجيل الخروج",
+    "support": "الدعم",
+    "settings": "الإعدادات",
+    "legal": "القانونية",
+    "help": "المساعدة والدعم",
+    "language": "اللغة",
+    "terms": "الشروط والأحكام",
+    "privacy": "سياسة الخصوصية"
+  },
+  "info": {
+    "help": {
+      "title": "المساعدة والدعم",
+      "body": "يمكن لفريقنا مساعدتك في الحجوزات والعضويات والزيارات. تواصل معنا وسنرد عليك قريبًا."
+    },
+    "language": {
+      "title": "اللغة"
+    },
+    "terms": {
+      "title": "الشروط والأحكام",
+      "body": "بالحجز عبر OneQ فإنك توافق على شروط العضوية والجلسات الخاصة بالصالة التي اخترتها، بما في ذلك قواعد المكان ومواعيد الإلغاء وسياسات الاستوديو."
+    },
+    "privacy": {
+      "title": "سياسة الخصوصية",
+      "body": "يستخدم OneQ بياناتك فقط لإتمام الحجوزات وتأكيد الزيارات ودعم حسابك. نحن لا نبيع معلوماتك الشخصية."
+    },
+    "fallback": {
+      "title": "OneQ",
+      "body": "اعثر على الصالات والمدربين الشخصيين في الدوحة، ثم احجز بثقة."
+    }
+  },
+  "languageNames": {
+    "en": "English",
+    "ar": "العربية"
+  },
+  "screens": {
     "signUp": "إنشاء حساب",
     "forgotPassword": "نسيت كلمة المرور؟"
   },

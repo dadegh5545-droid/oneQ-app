@@ -1,13 +1,3 @@
-import { useTranslation } from 'react-i18next';
+import { FavoritesScreen } from '@/features/favorites/FavoritesScreen';
 
-import { AppText } from '@/components/AppText';
-import { Screen } from '@/components/Screen';
-
-export default function FavoritesRoute() {
-  const { t } = useTranslation();
-  return (
-    <Screen>
-      <AppText variant="titleL">{t('tabs.favorites')}</AppText>
-    </Screen>
-  );
-}
+export default FavoritesScreen;

@@ -1,5 +1,3 @@
-import { Screen } from '@/components/Screen';
+import { CheckoutScreen } from '@/features/checkout/CheckoutScreen';
 
-export default function CheckoutRoute() {
-  return <Screen edges={[]}>{null}</Screen>;
-}
+export default CheckoutScreen;

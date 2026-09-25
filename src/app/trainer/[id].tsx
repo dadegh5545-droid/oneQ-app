@@ -1,5 +1,8 @@
-import { Screen } from '@/components/Screen';
+import { useLocalSearchParams } from 'expo-router';
 
-export default function TrainerRoute() {
-  return <Screen edges={[]}>{null}</Screen>;
+import { TrainerScreen } from '@/features/trainers/TrainerScreen';
+
+export default function Route() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  return <TrainerScreen id={id} />;
 }

@@ -1,13 +1,8 @@
-import { useTranslation } from 'react-i18next';
+import { useLocalSearchParams } from 'expo-router';
 
-import { AppText } from '@/components/AppText';
-import { Screen } from '@/components/Screen';
+import { SuccessScreen } from '@/features/checkout/SuccessScreen';
 
-export default function SuccessRoute() {
-  const { t } = useTranslation();
-  return (
-    <Screen>
-      <AppText variant="titleL">{t('screens.success')}</AppText>
-    </Screen>
-  );
+export default function Route() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  return <SuccessScreen id={id} />;
 }

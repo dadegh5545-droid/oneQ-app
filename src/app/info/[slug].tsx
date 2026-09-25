@@ -1,5 +1,8 @@
-import { Screen } from '@/components/Screen';
+import { useLocalSearchParams } from 'expo-router';
 
-export default function InfoRoute() {
-  return <Screen edges={[]}>{null}</Screen>;
+import { InfoScreen } from '@/features/info/InfoScreen';
+
+export default function Route() {
+  const { slug } = useLocalSearchParams<{ slug: string }>();
+  return <InfoScreen slug={slug} />;
 }

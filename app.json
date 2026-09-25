@@ -29,9 +29,22 @@
     },
     "plugins": [
       "expo-router",
-      ["expo-localization", { "supportsRTL": true }],
+      [
+        "expo-localization",
+        {
+          "supportsRTL": true
+        }
+      ],
       "expo-font",
-      ["expo-splash-screen", { "image": "./assets/splash-icon.png", "backgroundColor": "#5A0020", "imageWidth": 200 }]
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "backgroundColor": "#5A0020",
+          "imageWidth": 200
+        }
+      ],
+      "expo-image"
     ]
   }
 }

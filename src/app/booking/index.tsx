@@ -1,5 +1,3 @@
-import { Screen } from '@/components/Screen';
+import { BookSessionScreen } from '@/features/booking/BookSessionScreen';
 
-export default function BookSessionRoute() {
-  return <Screen edges={[]}>{null}</Screen>;
-}
+export default BookSessionScreen;

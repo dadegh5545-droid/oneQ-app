@@ -1,13 +1,3 @@
-import { useTranslation } from 'react-i18next';
+import { BookingsScreen } from '@/features/bookings/BookingsScreen';
 
-import { AppText } from '@/components/AppText';
-import { Screen } from '@/components/Screen';
-
-export default function BookingsRoute() {
-  const { t } = useTranslation();
-  return (
-    <Screen>
-      <AppText variant="titleL">{t('tabs.bookings')}</AppText>
-    </Screen>
-  );
-}
+export default BookingsScreen;

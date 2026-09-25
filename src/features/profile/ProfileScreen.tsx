@@ -1,0 +1,104 @@
+import { router, type Href } from 'expo-router';
+import { useTranslation } from 'react-i18next';
+import { Pressable, StyleSheet, View } from 'react-native';
+
+import { AppText } from '@/components/AppText';
+import { Button } from '@/components/Button';
+import { Icon } from '@/components/Icon';
+import { Screen } from '@/components/Screen';
+import { useSession } from '@/features/auth/sessionStore';
+import { currentLanguage, type Language } from '@/i18n';
+import { colors, radius, space } from '@/theme';
+
+// S19
+export function ProfileScreen() {
+  const { t } = useTranslation();
+  const { signedIn, displayName, signOut } = useSession();
+
+  return (
+    <Screen scroll contentStyle={styles.content}>
+      <AppText variant="titleL">{t('profile.title')}</AppText>
+      <View style={styles.card}>
+        {signedIn ? (
+          <>
+            <AppText variant="titleM" color={colors.primary} style={styles.wordmark}>
+              OneQ
+            </AppText>
+            <AppText variant="headline">{displayName ?? t('profile.member')}</AppText>
+            <AppText color={colors.textSecondary}>{t('profile.signedIn')}</AppText>
+            <Button variant="outlined" label={t('profile.signOut')} onPress={signOut} style={styles.signOut} />
+          </>
+        ) : (
+          <>
+            <AppText variant="titleM" style={styles.wordmark}>
+              {t('profile.welcome')}
+            </AppText>
+            <AppText color={colors.textSecondary}>{t('profile.welcomeBody')}</AppText>
+            <View style={styles.actions}>
+              <Button label={t('profile.signIn')} onPress={() => router.push('/auth/sign-in')} />
+              <Button variant="outlined" label={t('profile.createAccount')} onPress={() => router.push('/auth/sign-up')} />
+            </View>
+          </>
+        )}
+      </View>
+
+      <Group label={t('profile.support')}>
+        <Row label={t('profile.help')} href="/info/help" />
+      </Group>
+      <Group label={t('profile.settings')}>
+        <Row label={t('profile.language')} value={t(`languageNames.${currentLanguage()}`)} valueLang={currentLanguage()} href="/info/language" />
+      </Group>
+      <Group label={t('profile.legal')}>
+        <Row label={t('profile.terms')} href="/info/terms" />
+        <Row label={t('profile.privacy')} href="/info/privacy" />
+      </Group>
+    </Screen>
+  );
+}
+
+function Group({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <View style={styles.group}>
+      <AppText variant="overline" color={colors.textTertiary}>
+        {label}
+      </AppText>
+      <View style={styles.rows}>{children}</View>
+    </View>
+  );
+}
+
+function Row({ label, value, valueLang, href }: { label: string; value?: string; valueLang?: Language; href: Href }) {
+  return (
+    <Pressable accessibilityRole="button" accessibilityLabel={value ? `${label}, ${value}` : label} onPress={() => router.push(href)} style={styles.row}>
+      <AppText variant="bodyL" style={styles.flex}>
+        {label}
+      </AppText>
+      {value ? (
+        <AppText color={colors.textSecondary} lang={valueLang}>
+          {value}
+        </AppText>
+      ) : null}
+      <Icon name="chevron-right" directional color={colors.textSecondary} />
+    </Pressable>
+  );
+}
+
+const styles = StyleSheet.create({
+  content: { gap: space.xxl },
+  card: { gap: space.sm, padding: space.xl, borderRadius: radius.md, borderWidth: 1, borderColor: colors.outline, backgroundColor: colors.surface },
+  wordmark: { fontSize: 22 },
+  actions: { gap: space.md, marginTop: space.md },
+  signOut: { height: 44, marginTop: space.md },
+  group: { gap: space.sm },
+  rows: { borderRadius: radius.md, borderWidth: 1, borderColor: colors.outline, backgroundColor: colors.surface, overflow: 'hidden' },
+  row: {
+    height: 56,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.sm,
+    paddingHorizontal: space.lg,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.outline,
+  },
+  flex: { flex: 1 },
+});

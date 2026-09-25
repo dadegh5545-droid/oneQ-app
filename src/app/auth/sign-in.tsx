@@ -1,13 +1,3 @@
-import { useTranslation } from 'react-i18next';
+import { SignInScreen } from '@/features/auth/SignInScreen';
 
-import { AppText } from '@/components/AppText';
-import { Screen } from '@/components/Screen';
-
-export default function SignInRoute() {
-  const { t } = useTranslation();
-  return (
-    <Screen edges={[]}>
-      <AppText variant="titleL">{t('screens.signIn')}</AppText>
-    </Screen>
-  );
-}
+export default SignInScreen;

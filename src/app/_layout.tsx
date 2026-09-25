@@ -6,6 +6,7 @@ import {
 } from '@expo-google-fonts/ibm-plex-sans-arabic';
 import { Outfit_400Regular, Outfit_500Medium, Outfit_600SemiBold, Outfit_700Bold } from '@expo-google-fonts/outfit';
 import { PlayfairDisplay_600SemiBold, PlayfairDisplay_700Bold } from '@expo-google-fonts/playfair-display';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -14,10 +15,13 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { ToastProvider } from '@/components/Toast';
 import { currentLanguage, initI18n } from '@/i18n';
 import { arabicFonts, colors, fonts } from '@/theme';
 
 SplashScreen.preventAutoHideAsync();
+
+const queryClient = new QueryClient();
 
 export default function RootLayout() {
   const [i18nReady, setI18nReady] = useState(false);
@@ -47,10 +51,14 @@ export default function RootLayout() {
   if (!ready) return null;
 
   return (
-    <SafeAreaProvider>
-      <StatusBar style="dark" />
-      <RootStack />
-    </SafeAreaProvider>
+    <QueryClientProvider client={queryClient}>
+      <SafeAreaProvider>
+        <ToastProvider>
+          <StatusBar style="dark" />
+          <RootStack />
+        </ToastProvider>
+      </SafeAreaProvider>
+    </QueryClientProvider>
   );
 }
 
@@ -73,17 +81,17 @@ function RootStack() {
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="gym/[id]/index" options={{ headerShown: false }} />
-      <Stack.Screen name="gym/[id]/plans" options={{ title: t('screens.plans') }} />
-      <Stack.Screen name="gym/[id]/trainers" options={{ title: t('screens.trainers') }} />
+      <Stack.Screen name="gym/[id]/plans" options={{ title: '' }} />
+      <Stack.Screen name="gym/[id]/trainers" options={{ title: '' }} />
       <Stack.Screen name="trainer/[id]" options={{ title: '' }} />
-      <Stack.Screen name="booking/index" options={{ title: t('screens.booking') }} />
+      <Stack.Screen name="booking/index" options={{ title: '' }} />
       <Stack.Screen name="checkout/guest" options={{ title: '' }} />
-      <Stack.Screen name="checkout/index" options={{ title: t('screens.checkout') }} />
+      <Stack.Screen name="checkout/index" options={{ title: t('checkout.title') }} />
       <Stack.Screen
         name="checkout/success/[id]"
         options={{ headerShown: false, gestureEnabled: false, presentation: 'fullScreenModal' }}
       />
-      <Stack.Screen name="bookings/[id]" options={{ title: t('screens.bookingDetails') }} />
+      <Stack.Screen name="bookings/[id]" options={{ title: t('bookingDetails.title') }} />
       <Stack.Screen name="auth/sign-in" options={{ title: '', presentation: 'modal' }} />
       <Stack.Screen name="auth/sign-up" options={{ title: '', presentation: 'modal' }} />
       <Stack.Screen name="auth/forgot-password" options={{ title: '', presentation: 'modal' }} />

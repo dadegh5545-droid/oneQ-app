@@ -1,7 +1,19 @@
 {
   "common": {
     "back": "Back",
-    "home": "Home"
+    "home": "Home",
+    "retry": "Retry",
+    "browseGyms": "Browse Gyms",
+    "exploreGyms": "Explore Gyms",
+    "continue": "Continue",
+    "verified": "Verified",
+    "reviewsCount": "{{count}} reviews",
+    "perMonth": "{{price}} / month",
+    "perSession": "{{price}} / session",
+    "fromPerSession": "From {{price}} / session",
+    "fromPerMonth": "From {{price}} / month",
+    "addFavorite": "Add to favorites",
+    "removeFavorite": "Remove from favorites"
   },
   "tabs": {
     "home": "Home",
@@ -9,15 +21,292 @@
     "favorites": "Favorites",
     "profile": "Profile"
   },
-  "screens": {
-    "plans": "Choose a plan",
-    "trainers": "Choose Your Trainer",
-    "booking": "Booking",
-    "guest": "How would you like to continue?",
-    "checkout": "Checkout",
-    "success": "You're booked!",
-    "bookingDetails": "Booking Details",
+  "greeting": {
+    "morning": "Good morning",
+    "afternoon": "Good afternoon",
+    "evening": "Good evening"
+  },
+  "home": {
+    "headline": "Find your perfect workout",
+    "searchPlaceholder": "Search gyms or locations",
+    "clearSearch": "Clear search",
+    "categories": {
+      "all": "All",
+      "gyms": "Gyms",
+      "classes": "Classes",
+      "trainers": "Trainers"
+    },
+    "featured": "Featured Gyms",
+    "nearYou": "Near You",
+    "gyms": "Gyms",
+    "results": "Results",
+    "trainersHint": "Choose a gym to explore its trainers.",
+    "classesTitle": "Classes",
+    "classesBody1": "Group training experiences are coming soon.",
+    "classesBody2": "Discover gyms and personal trainers in the meantime.",
+    "noResultsTitle": "No gyms found",
+    "noResultsBody": "Try another search or browse featured gyms.",
+    "errorTitle": "Unable to load gyms",
+    "errorBody": "Please try again in a moment."
+  },
+  "gym": {
+    "chooseHow": "Choose how you want to train",
+    "membershipTitle": "Gym Membership",
+    "membershipSubtitle": "Train independently with full gym access",
+    "trainerTitle": "Train with a Personal Trainer",
+    "trainerSubtitle": "Choose from trainers available at this gym",
+    "tabs": {
+      "overview": "Overview",
+      "reviews": "Reviews",
+      "memberships": "Memberships"
+    },
+    "about": "About",
+    "facilities": "Facilities",
+    "openingHours": "Opening Hours",
+    "location": "Location",
+    "morePhotos": "More photos",
+    "noReviews": "No reviews yet.",
+    "reviewsErrorTitle": "Unable to load reviews",
+    "reviewsErrorBody": "Reviews could not be loaded.",
+    "plansError": "Unable to load plans",
+    "viewAllPlans": "View all plans",
+    "notFoundTitle": "Gym not found",
+    "notFoundBody": "It may have been removed from the directory.",
+    "errorTitle": "Gym unavailable",
+    "errorBody": "This gym could not be loaded."
+  },
+  "amenities": {
+    "weights": "Weights",
+    "cardio": "Cardio",
+    "pool": "Pool",
+    "sauna": "Sauna",
+    "lockers": "Locker Rooms",
+    "parking": "Parking"
+  },
+  "days": {
+    "Saturday": "Saturday",
+    "Sunday": "Sunday",
+    "Monday": "Monday",
+    "Tuesday": "Tuesday",
+    "Wednesday": "Wednesday",
+    "Thursday": "Thursday",
+    "Friday": "Friday"
+  },
+  "plans": {
+    "title": "Choose a plan",
+    "subtitle": "Select a membership at {{gym}}",
+    "monthly": {
+      "name": "Monthly",
+      "description": "Full gym access, billed every month."
+    },
+    "3m": {
+      "name": "3 Months",
+      "description": "A calmer commitment with a quieter monthly rate."
+    },
+    "6m": {
+      "name": "6 Months",
+      "description": "The most considered way to settle into a routine."
+    },
+    "badges": {
+      "Save 10%": "Save 10%",
+      "Most Popular": "Most Popular"
+    },
+    "perMonthEquivalent": "{{price}}/mo",
+    "error": "Plans could not be loaded.",
+    "unavailable": "This membership is no longer available."
+  },
+  "trainers": {
+    "title": "Choose your trainer",
+    "subtitle": "Available at {{gym}}",
+    "yearsPrice": "{{years}} yrs · {{price}} / session",
+    "emptyTitle": "No trainers found",
+    "emptyBody": "Try another specialty",
+    "errorTitle": "Unable to load trainers",
+    "errorBody": "Please try again shortly.",
+    "notFoundTitle": "Gym not found",
+    "notFoundBody": "Please go back and try again."
+  },
+  "specialtyChips": {
+    "All": "All",
+    "Strength": "Strength",
+    "Weight Loss": "Weight Loss",
+    "Mobility": "Mobility",
+    "Functional Training": "Functional Training"
+  },
+  "specialties": {
+    "Strength Training": "Strength Training",
+    "Weight Loss": "Weight Loss",
+    "Mobility": "Mobility",
+    "Functional Training": "Functional Training"
+  },
+  "languages": {
+    "Arabic": "Arabic",
+    "English": "English",
+    "Italian": "Italian",
+    "French": "French",
+    "Urdu": "Urdu",
+    "Portuguese": "Portuguese"
+  },
+  "trainer": {
+    "reviews": "Reviews",
+    "experience": "Experience",
+    "rating": "Rating",
+    "yearsShort": "{{count}} yrs",
+    "yearsLong": "{{count}} years",
+    "about": "About",
+    "specialties": "Specialties",
+    "experienceCerts": "Experience & certifications",
+    "certification": "Certification",
+    "languages": "Languages",
+    "clientReviews": "Client Reviews",
+    "book": "Book a Session · {{price}}",
+    "notFoundTitle": "Trainer not found",
+    "notFoundBody": "This profile is no longer available.",
+    "errorTitle": "Trainer unavailable",
+    "errorBody": "Please return to the gym and try again."
+  },
+  "booking": {
+    "title": "Book with {{name}}",
+    "availableTimes": "Available Times",
+    "unavailable": "unavailable",
+    "closed": "closed",
+    "summary": "Booking Summary",
+    "gym": "Gym",
+    "trainer": "Trainer",
+    "date": "Date",
+    "time": "Time",
+    "selectTime": "Select a time",
+    "sessions": "Sessions",
+    "oneSession": "1 Session",
+    "price": "Price",
+    "nothingTitle": "Nothing to book",
+    "nothingBody": "Choose a gym and trainer to continue.",
+    "timesError": "Times could not be loaded."
+  },
+  "guest": {
+    "title": "How would you like to continue?",
+    "guestOption": "Continue as Guest",
+    "guestOptionBody": "No account required.",
+    "signInOption": "Sign In",
+    "signInOptionBody": "Use an existing OneQ account.",
+    "fullName": "Full Name",
+    "phone": "Phone Number",
+    "phoneHint": "3000 0000",
+    "email": "Email (optional)",
+    "continueToPayment": "Continue to Payment",
+    "signIn": "Sign In"
+  },
+  "signIn": {
+    "title": "Welcome back",
+    "body": "Sign in to manage your bookings, favorites and account.",
+    "identifier": "Email or phone number",
+    "password": "Password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "forgot": "Forgot password?",
+    "submit": "Sign In",
+    "createAccount": "Create Account"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "plan": "Plan",
+    "guest": "Guest",
+    "total": "Total",
+    "paymentMethod": "Payment method",
+    "card": "Card",
+    "applePay": "Apple Pay",
+    "googlePay": "Google Pay",
+    "pay": "Pay {{price}}",
+    "unavailableTitle": "Checkout unavailable",
+    "unavailableBody": "Complete your booking details first."
+  },
+  "success": {
+    "title": "You're booked!",
+    "membership": "Your membership at {{gym}} is confirmed.",
+    "session": "Your session with {{name}} has been confirmed.",
+    "viewBooking": "View Booking",
+    "addToCalendar": "Add to Calendar",
+    "backToHome": "Back to Home",
+    "calendarSoon": "Calendar integration will be available soon."
+  },
+  "bookings": {
+    "title": "Bookings",
+    "upcoming": "Upcoming",
+    "past": "Past",
+    "membership": "Membership",
+    "status": {
+      "confirmed": "Confirmed",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "upcomingEmptyTitle": "No upcoming bookings",
+    "upcomingEmptyBody": "Your next training session will appear here.",
+    "pastEmptyTitle": "No past bookings",
+    "pastEmptyBody": "Completed visits will be kept here.",
+    "errorTitle": "Unable to load bookings",
+    "errorBody": "Please try again."
+  },
+  "bookingDetails": {
+    "title": "Booking",
+    "location": "Location",
+    "phone": "Phone",
+    "status": "Status",
+    "notFoundTitle": "Booking not found",
+    "notFoundBody": "It may have been removed from this device.",
+    "bookingsButton": "Bookings",
+    "errorTitle": "Unable to load booking",
+    "errorBody": "Please try again from your bookings tab."
+  },
+  "favorites": {
+    "title": "Favorites",
+    "subtitle": "Gyms you have saved for later.",
+    "emptyTitle": "No favorites yet",
+    "emptyBody": "Save gyms you love and find them here.",
+    "errorTitle": "Unable to load favorites"
+  },
+  "profile": {
+    "title": "Profile",
+    "welcome": "Welcome to OneQ",
+    "welcomeBody": "Sign in to manage your bookings and preferences.",
     "signIn": "Sign In",
+    "createAccount": "Create Account",
+    "member": "Member",
+    "signedIn": "Signed in",
+    "signOut": "Sign out",
+    "support": "Support",
+    "settings": "Settings",
+    "legal": "Legal",
+    "help": "Help & Support",
+    "language": "Language",
+    "terms": "Terms & Conditions",
+    "privacy": "Privacy Policy"
+  },
+  "info": {
+    "help": {
+      "title": "Help & Support",
+      "body": "Our team can help with bookings, memberships, and visits. Reach out and we will get back to you shortly."
+    },
+    "language": {
+      "title": "Language"
+    },
+    "terms": {
+      "title": "Terms & Conditions",
+      "body": "By booking through OneQ you agree to the membership and session terms of your selected gym, including house rules, cancellation windows, and studio policies."
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "body": "OneQ uses your details only to complete bookings, confirm visits, and support your account. We do not sell your personal information."
+    },
+    "fallback": {
+      "title": "OneQ",
+      "body": "Find gyms and personal trainers across Doha, then book with confidence."
+    }
+  },
+  "languageNames": {
+    "en": "English",
+    "ar": "العربية"
+  },
+  "screens": {
     "signUp": "Create Account",
     "forgotPassword": "Forgot password?"
   },

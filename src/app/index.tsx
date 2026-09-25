@@ -1,6 +1,3 @@
-import { Redirect } from 'expo-router';
+import { SplashScreen } from '@/features/home/SplashScreen';
 
-// The animated splash (S01) is built in Phase 2.
-export default function Index() {
-  return <Redirect href="/home" />;
-}
+export default SplashScreen;

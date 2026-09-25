@@ -1,5 +1,8 @@
-import { Screen } from '@/components/Screen';
+import { useLocalSearchParams } from 'expo-router';
 
-export default function GymDetailRoute() {
-  return <Screen>{null}</Screen>;
+import { GymDetailScreen } from '@/features/gyms/GymDetailScreen';
+
+export default function Route() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  return <GymDetailScreen id={id} />;
 }

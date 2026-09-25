@@ -1,5 +1,8 @@
-import { Screen } from '@/components/Screen';
+import { useLocalSearchParams } from 'expo-router';
 
-export default function BookingDetailsRoute() {
-  return <Screen edges={[]}>{null}</Screen>;
+import { BookingDetailsScreen } from '@/features/bookings/BookingDetailsScreen';
+
+export default function Route() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  return <BookingDetailsScreen id={id} />;
 }
