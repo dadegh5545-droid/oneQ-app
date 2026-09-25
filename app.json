@@ -1,17 +1,20 @@
 {
   "expo": {
-    "name": "oneQ",
+    "name": "OneQ",
     "slug": "oneQ",
+    "scheme": "oneq",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "qa.oneq.app"
     },
     "android": {
+      "package": "qa.oneq.app",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#5A0020",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -20,6 +23,15 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "experiments": {
+      "typedRoutes": true
+    },
+    "plugins": [
+      "expo-router",
+      ["expo-localization", { "supportsRTL": true }],
+      "expo-font",
+      ["expo-splash-screen", { "image": "./assets/splash-icon.png", "backgroundColor": "#5A0020", "imageWidth": 200 }]
+    ]
   }
 }

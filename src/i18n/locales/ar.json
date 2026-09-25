@@ -1,0 +1,28 @@
+{
+  "common": {
+    "back": "رجوع",
+    "home": "الرئيسية"
+  },
+  "tabs": {
+    "home": "الرئيسية",
+    "bookings": "الحجوزات",
+    "favorites": "المفضلة",
+    "profile": "الملف الشخصي"
+  },
+  "screens": {
+    "plans": "اختر خطة",
+    "trainers": "اختر مدربك",
+    "booking": "الحجز",
+    "guest": "كيف تود المتابعة؟",
+    "checkout": "الدفع",
+    "success": "تم الحجز!",
+    "bookingDetails": "تفاصيل الحجز",
+    "signIn": "تسجيل الدخول",
+    "signUp": "إنشاء حساب",
+    "forgotPassword": "نسيت كلمة المرور؟"
+  },
+  "notFound": {
+    "title": "حدث خطأ ما",
+    "body": "لم نتمكن من العثور على هذه الصفحة."
+  }
+}

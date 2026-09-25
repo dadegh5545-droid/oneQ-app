@@ -1,0 +1,28 @@
+{
+  "common": {
+    "back": "Back",
+    "home": "Home"
+  },
+  "tabs": {
+    "home": "Home",
+    "bookings": "Bookings",
+    "favorites": "Favorites",
+    "profile": "Profile"
+  },
+  "screens": {
+    "plans": "Choose a plan",
+    "trainers": "Choose Your Trainer",
+    "booking": "Booking",
+    "guest": "How would you like to continue?",
+    "checkout": "Checkout",
+    "success": "You're booked!",
+    "bookingDetails": "Booking Details",
+    "signIn": "Sign In",
+    "signUp": "Create Account",
+    "forgotPassword": "Forgot password?"
+  },
+  "notFound": {
+    "title": "Something went wrong",
+    "body": "We couldn't find that page."
+  }
+}
