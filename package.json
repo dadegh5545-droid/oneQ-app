@@ -66,7 +66,8 @@
     "backend:check": "node scripts/backend-check.mjs",
     "admin:grant": "node scripts/admin-access.mjs grant",
     "admin:revoke": "node scripts/admin-access.mjs revoke",
-    "eas-build-pre-install": "node scripts/eas-select-backend.mjs"
+    "eas-build-pre-install": "node scripts/eas-select-backend.mjs",
+    "lockfile:sync": "npm install --package-lock-only --ignore-scripts"
   },
   "private": true,
   "overrides": {

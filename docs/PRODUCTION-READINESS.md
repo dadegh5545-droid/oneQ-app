@@ -26,6 +26,8 @@ AWS_PROFILE=oneq-dev npm run admin:revoke -- a@b.qa
 AWS_PROFILE=oneq-dev npm run backend:check           # regression + security checks (admin checks need AWS_PROFILE)
 ```
 
+After installing packages, run `npm run lockfile:sync`: a full npm 11 install can write a lock that `npm ci` (EAS, Amplify CI) rejects because of bundled dependencies inside the Amplify CLI packages.
+
 Management UI: Profile → Management (admins only) — gyms, plans, trainers, all bookings, cancel booking (releases the trainer slot). The backend enforces the `admin` group; the admin-access function has no GraphQL operation and is invokable only with IAM `lambda:InvokeFunction`. Availability is rule-based (slot templates, Sunday closed); per-trainer schedule editing would need a new model and is not built.
 
 ## Notifications and calendar
