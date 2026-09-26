@@ -2,7 +2,7 @@ import type { OpeningHours } from '@/domain/models';
 import { buildPlans, PLAN_MONTHS } from '@/domain/rules';
 
 import type { AdminRepository } from '../repository';
-import { data, listAll, newestFirst, required, run, toBooking } from './amplifyRepository';
+import { data, listAll, newestFirst, required, run, toBooking, toReview } from './amplifyRepository';
 
 // Every call uses the signed-in user's Cognito token; the backend accepts writes only from the `admin` group.
 const asUser = { authMode: 'userPool' } as const;
@@ -29,7 +29,8 @@ export const adminRepository: AdminRepository = {
     }
     const gyms = await listAll((nextToken) => data().models.Gym.list({ ...asUser, nextToken, limit: 100 }));
     const gymId = newId(input.name, 'gym', gyms.map((g) => g.id));
-    await run(data().models.Gym.create({ id: gymId, ...input, rating: 0, reviewCount: 0, openingHours: DEFAULT_HOURS, sortOrder: gyms.length }, asUser));
+    // Ratings start empty: rating/reviewCount are written only by the reviews function.
+    await run(data().models.Gym.create({ id: gymId, ...input, openingHours: DEFAULT_HOURS, sortOrder: gyms.length }, asUser));
     // A new gym gets the standard three plans (04 §3 formula); prices can then be edited per plan.
     for (const { id: planId, kind, name, price, description, badge } of buildPlans(gymId, input.monthlyPrice)) {
       await run(data().models.MembershipPlan.create({ id: planId, gymId, kind, name, price, description, badge, durationMonths: PLAN_MONTHS[kind] }, asUser));
@@ -47,7 +48,7 @@ export const adminRepository: AdminRepository = {
     const all = await listAll((nextToken) => data().models.Trainer.list({ ...asUser, nextToken, limit: 100 }));
     const trainerId = newId(input.name, 'trainer', all.map((t) => t.id));
     const sortOrder = all.filter((t) => t.gymId === input.gymId).length;
-    await run(data().models.Trainer.create({ id: trainerId, ...input, rating: 0, reviewCount: 0, sortOrder }, asUser));
+    await run(data().models.Trainer.create({ id: trainerId, ...input, sortOrder }, asUser));
     return trainerId;
   },
   async listAllBookings() {
@@ -57,5 +58,20 @@ export const adminRepository: AdminRepository = {
   async cancelBooking(id) {
     const { data: view } = await run(data().mutations.adminCancelBooking({ id }, asUser));
     return toBooking(required(view));
+  },
+  async listAllReviews() {
+    const reviews = await listAll((nextToken) => data().models.Review.list({ ...asUser, nextToken, limit: 200 }));
+    return reviews.map(toReview).sort((x, y) => y.date.localeCompare(x.date));
+  },
+  async listAvailabilityRules(trainerId) {
+    const rules = await listAll((nextToken) => data().models.AvailabilityRule.list({ trainerId, ...asUser, nextToken }));
+    return rules.map((r) => ({ trainerId: r.trainerId, key: r.key, closed: r.closed, slots: r.slots.filter((m): m is number => m != null) }));
+  },
+  async saveAvailabilityRule(rule) {
+    const exists = (await run(data().models.AvailabilityRule.get({ trainerId: rule.trainerId, key: rule.key }, asUser))).data;
+    await run(exists ? data().models.AvailabilityRule.update(rule, asUser) : data().models.AvailabilityRule.create(rule, asUser));
+  },
+  async deleteAvailabilityRule(trainerId, key) {
+    await run(data().models.AvailabilityRule.delete({ trainerId, key }, asUser));
   },
 };

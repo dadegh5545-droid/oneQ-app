@@ -115,7 +115,7 @@ const isConditionalFailure = (e: unknown) =>
 type GymRecord = Schema['Gym']['type'];
 type PlanRecord = Schema['MembershipPlan']['type'];
 type TrainerRecord = Schema['Trainer']['type'];
-type ReviewRecord = Schema['Review']['type'];
+type ReviewRecord = Schema['Review']['type'] | Schema['ReviewView']['type'];
 type BookingRecord = Schema['Booking']['type'] | Schema['BookingView']['type'];
 
 const toGym = (g: GymRecord): Gym => ({
@@ -124,8 +124,9 @@ const toGym = (g: GymRecord): Gym => ({
   area: g.area,
   description: g.description,
   address: g.address,
-  rating: g.rating,
-  reviewCount: g.reviewCount,
+  // Aggregates are server-owned; a gym or trainer without reviews yet has none.
+  rating: g.rating ?? 0,
+  reviewCount: g.reviewCount ?? 0,
   monthlyPrice: g.monthlyPrice,
   trainerFromMonthly: g.trainerFromMonthly,
   images: [...g.images],
@@ -151,8 +152,8 @@ const toTrainer = (t: TrainerRecord): Trainer => ({
   title: t.title,
   bio: t.bio,
   image: t.image,
-  rating: t.rating,
-  reviewCount: t.reviewCount,
+  rating: t.rating ?? 0,
+  reviewCount: t.reviewCount ?? 0,
   yearsExperience: t.yearsExperience,
   languages: [...t.languages],
   specialties: t.specialties as Specialty[],
@@ -160,7 +161,7 @@ const toTrainer = (t: TrainerRecord): Trainer => ({
   pricePerSession: t.pricePerSession,
 });
 
-const toReview = (r: ReviewRecord): Review => ({
+export const toReview = (r: ReviewRecord): Review => ({
   id: r.id,
   authorName: r.authorName,
   date: r.date,
@@ -349,6 +350,23 @@ export const amplifyRepository: Repository = {
     // A guest booking made on this device (e.g. its Success screen).
     const token = (await readGuestTokens()).find((t) => t.startsWith(`${id}.`));
     return token ? ((await fetchGuestBookings([token], s.mode))[0] ?? null) : null;
+  },
+
+  async getReviewStatus(target) {
+    await signedInSession();
+    const { data: status } = await run(data().queries.reviewStatus({ targetType: target.type, targetId: target.id }, { authMode: 'userPool' }));
+    const { eligible, review } = required(status);
+    return { eligible, review: review ? toReview(review) : null };
+  },
+  async submitReview({ target, rating, text, reviewId }) {
+    await signedInSession();
+    const args = { targetType: target.type, targetId: target.id, rating, text, ...(reviewId ? { reviewId } : {}) };
+    const { data: review } = await run(data().mutations.submitReview(args, { authMode: 'userPool' }));
+    return toReview(required(review));
+  },
+  async removeReview(id) {
+    await signedInSession();
+    await run(data().mutations.removeReview({ id }, { authMode: 'userPool' }));
   },
 
   async listFavorites() {

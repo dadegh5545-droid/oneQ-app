@@ -18,6 +18,7 @@ import { EmptyState, LoadingState } from '@/components/StateView';
 import { useGym, useGymReviews, usePlans, useTrainers } from '@/data';
 import { gymLocation, type AmenityKey, type Gym } from '@/domain/models';
 import { FavoriteButton } from '@/features/favorites/FavoriteButton';
+import { ReviewPrompt } from '@/features/reviews/ReviewPrompt';
 import { track } from '@/services/analytics';
 import { colors, radius, screenPadding, space } from '@/theme';
 import { qar } from '@/utils/format';
@@ -106,7 +107,7 @@ function GymDetail({ gym }: { gym: Gym }) {
           onChange={setTab}
           options={(['overview', 'reviews', 'memberships'] as const).map((v) => ({ value: v, label: t(`gym.tabs.${v}`) }))}
         />
-        {tab === 'overview' ? <Overview gym={gym} /> : tab === 'reviews' ? <Reviews gymId={gym.id} /> : <Memberships gymId={gym.id} />}
+        {tab === 'overview' ? <Overview gym={gym} /> : tab === 'reviews' ? <Reviews gymId={gym.id} gymName={gym.name} /> : <Memberships gymId={gym.id} />}
       </View>
     </ScrollView>
   );
@@ -224,14 +225,16 @@ function Overview({ gym }: { gym: Gym }) {
   );
 }
 
-function Reviews({ gymId }: { gymId: string }) {
+function Reviews({ gymId, gymName }: { gymId: string; gymName: string }) {
   const { t } = useTranslation();
   const reviews = useGymReviews(gymId);
+  const prompt = <ReviewPrompt target={{ type: 'gym', id: gymId }} name={gymName} />;
   if (reviews.isPending) return <LoadingState />;
   if (reviews.isError) return <EmptyState icon="alert-circle-outline" title={t('gym.reviewsErrorTitle')} body={t('gym.reviewsErrorBody')} />;
-  if (reviews.data.length === 0) return <AppText color={colors.textSecondary}>{t('gym.noReviews')}</AppText>;
   return (
     <View style={styles.tabBody}>
+      {prompt}
+      {reviews.data.length === 0 ? <AppText color={colors.textSecondary}>{t('gym.noReviews')}</AppText> : null}
       {reviews.data.map((r) => (
         <ReviewCard key={r.id} review={r} />
       ))}

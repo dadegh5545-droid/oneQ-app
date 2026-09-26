@@ -338,6 +338,9 @@
     "UNAUTHORIZED": "You do not have access to this. Please sign in and try again.",
     "SESSION_EXPIRED": "Your session has expired. Please sign in again.",
     "PAYMENT_FAILED": "Payment could not be verified. You have not been charged.",
+    "REVIEW_NOT_ELIGIBLE": "You can rate after a completed visit or session.",
+    "DUPLICATE_REVIEW": "You have already reviewed this. Edit your review instead.",
+    "CONFLICT": "Something changed at the same time. Please try again.",
     "payment": "Payment could not be completed.",
     "generic": "Something went wrong. Please try again."
   },
@@ -429,7 +432,48 @@
       "languages": "Languages (comma separated)",
       "certifications": "Certifications (one per line)",
       "specialties": "Specialties",
-      "gym": "Gym"
-    }
+      "gym": "Gym",
+      "date": "Date (YYYY-MM-DD)"
+    },
+    "reviews": "Reviews",
+    "availability": "Availability",
+    "removeReview": "Remove review",
+    "scope": "Applies to",
+    "allTrainers": "All trainers",
+    "weekly": "Weekly schedule",
+    "dateOverride": "Date override (holiday or blocked times)",
+    "customRule": "Custom",
+    "inheritedRule": "Default schedule",
+    "closed": "Closed",
+    "addTime": "Add time (HH:MM)",
+    "add": "Add",
+    "removeRule": "Remove override"
+  },
+  "reviews": {
+    "rate": {
+      "gym": "Rate this gym",
+      "trainer": "Rate this trainer"
+    },
+    "signInTo": {
+      "gym": "Sign in to rate this gym",
+      "trainer": "Sign in to rate this trainer"
+    },
+    "notEligible": {
+      "gym": "You can rate this gym after your membership starts or a session there.",
+      "trainer": "You can rate this trainer after a completed session."
+    },
+    "editYours": "Edit your review",
+    "editTitle": "Edit your review",
+    "yourRating": "Your rating",
+    "ratingRequired": "Choose from 1 to 5 stars.",
+    "comment": "Review (optional)",
+    "commentHint": "What stood out?",
+    "submit": "Submit review",
+    "saveEdit": "Save changes",
+    "submitted": "Thank you for your review.",
+    "updated": "Your review has been updated.",
+    "remove": "Delete review",
+    "removed": "Your review has been deleted.",
+    "stars": "{{count}} of 5 stars"
   }
 }

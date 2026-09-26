@@ -30,7 +30,7 @@ export function ReviewCard({ review }: { review: Review }) {
           <Icon key={i} name={i <= review.rating ? 'star' : 'star-outline'} size={14} color={colors.accent} />
         ))}
       </View>
-      <AppText variant="bodyM">{review.text}</AppText>
+      {review.text ? <AppText variant="bodyM">{review.text}</AppText> : null}
       <AppText variant="bodyS" color={colors.textSecondary}>
         {shortDate(review.date)}
       </AppText>

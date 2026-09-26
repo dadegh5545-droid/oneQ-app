@@ -62,6 +62,23 @@ export interface Review {
   text: string;
 }
 
+export type ReviewTarget = { type: 'gym' | 'trainer'; id: string };
+
+// The signed-in user's standing for a target: may they rate it (completed booking), and their review if any.
+export interface ReviewStatus {
+  eligible: boolean;
+  review: Review | null;
+}
+
+// Trainer availability rule (admin-managed): trainerId "*" = all trainers; key "weekday:0"…"weekday:6" (0 = Sunday)
+// or "date:yyyy-MM-dd"; slots = start times in minutes after midnight (Asia/Qatar).
+export interface AvailabilityRule {
+  trainerId: string;
+  key: string;
+  closed: boolean;
+  slots: number[];
+}
+
 export interface TimeSlot {
   id: string;
   minutes: number;

@@ -12,14 +12,15 @@ import { Screen } from '@/components/Screen';
 import { EmptyState, LoadingState } from '@/components/StateView';
 import { TextField } from '@/components/TextField';
 import { useToast } from '@/components/Toast';
-import { adminRepository, useGym, useGyms, usePlans, useTrainer, useTrainers } from '@/data';
+import { adminRepository, repository, useGym, useGyms, usePlans, useTrainer, useTrainers } from '@/data';
 import type { GymInput, TrainerInput } from '@/data/repository';
-import type { AmenityKey, Booking, MembershipPlan, Specialty } from '@/domain/models';
+import type { AmenityKey, AvailabilityRule, Booking, MembershipPlan, Review, Specialty } from '@/domain/models';
+import { slotLabel } from '@/domain/rules';
 import { useSession } from '@/features/auth/sessionStore';
 import { ltr } from '@/i18n';
 import { colors, radius, space } from '@/theme';
 import { errorMessage } from '@/utils/errorMessage';
-import { qar } from '@/utils/format';
+import { localizeTime, qar } from '@/utils/format';
 
 // Management screens (catalogue + bookings) for the Cognito `admin` group. Hiding them is only convenience:
 // every write is authorized by the backend (catalogue models: admin group; adminCancelBooking: admin group).
@@ -100,6 +101,8 @@ export function AdminHomeScreen() {
       <Screen scroll edges={[]} contentStyle={styles.content}>
         <Stack.Screen options={{ title: t('admin.title') }} />
         <LinkRow label={t('admin.bookings')} onPress={() => router.push('/admin/bookings')} />
+        <LinkRow label={t('admin.availability')} onPress={() => router.push('/admin/availability')} />
+        <LinkRow label={t('admin.reviews')} onPress={() => router.push('/admin/reviews')} />
         <AppText variant="overline" color={colors.textTertiary}>{t('admin.gyms')}</AppText>
         {gyms.isPending ? <LoadingState /> : null}
         {gyms.isError ? <EmptyState icon="alert-circle-outline" title={t('errors.generic')} action={{ label: t('common.retry'), onPress: () => gyms.refetch() }} /> : null}
@@ -364,6 +367,191 @@ function AdminBookingRow({ booking: b }: { booking: Booking }) {
       </AppText>
       {b.status === 'confirmed' ? (
         <Button variant="outlined" label={t('admin.cancelBooking')} loading={saving} onPress={() => save(() => adminRepository.cancelBooking(b.id))} />
+      ) : null}
+    </View>
+  );
+}
+
+// ── Reviews moderation ──
+
+export function AdminReviewsScreen() {
+  const { t } = useTranslation();
+  const isAdmin = useSession((s) => s.user?.isAdmin === true);
+  const reviews = useQuery({ queryKey: ['admin', 'reviews'], queryFn: () => adminRepository.listAllReviews(), enabled: isAdmin });
+  return (
+    <AdminOnly>
+      <Screen scroll edges={[]} contentStyle={styles.content}>
+        <Stack.Screen options={{ title: t('admin.reviews') }} />
+        {reviews.isPending ? <LoadingState /> : null}
+        {reviews.isError ? <EmptyState icon="alert-circle-outline" title={t('errors.generic')} action={{ label: t('common.retry'), onPress: () => reviews.refetch() }} /> : null}
+        {reviews.data?.map((r) => <AdminReviewRow key={r.id} review={r} />)}
+      </Screen>
+    </AdminOnly>
+  );
+}
+
+function AdminReviewRow({ review: r }: { review: Review }) {
+  const { t } = useTranslation();
+  const { saving, save } = useSaver();
+  return (
+    <View style={styles.card}>
+      <AppText variant="label">
+        {t('reviews.stars', { count: r.rating })} · {r.authorName} · {r.gymId ?? r.trainerId}
+      </AppText>
+      {r.text ? <AppText variant="bodyS">{r.text}</AppText> : null}
+      <AppText variant="bodyS" color={colors.textSecondary}>
+        {r.date}
+      </AppText>
+      <Button variant="outlined" label={t('admin.removeReview')} loading={saving} onPress={() => save(() => repository.removeReview(r.id))} />
+    </View>
+  );
+}
+
+// ── Availability (AvailabilityRule) ──
+
+const WEEKDAYS = [6, 0, 1, 2, 3, 4, 5]; // Saturday first (Qatar week); 0 = Sunday
+const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] as const;
+const DEFAULT_GRID = [540, 630, 720, 960, 1110, 1200];
+
+// "18:30" → 1110 (5-minute steps, as the booking backend requires).
+const parseTime = (value: string) => {
+  const m = /^(\d{1,2}):(\d{2})$/.exec(value.trim());
+  const minutes = m ? Number(m[1]) * 60 + Number(m[2]) : NaN;
+  return minutes >= 0 && minutes < 1440 && minutes % 5 === 0 ? minutes : null;
+};
+
+export function AdminAvailabilityScreen() {
+  const { t } = useTranslation();
+  const isAdmin = useSession((s) => s.user?.isAdmin === true);
+  const gyms = useGyms();
+  const trainers = useQuery({
+    queryKey: ['admin', 'trainers', gyms.data?.length],
+    queryFn: async () => (await Promise.all((gyms.data ?? []).map((g) => repository.listTrainers(g.id)))).flat(),
+    enabled: isAdmin && !!gyms.data,
+  });
+  const [scope, setScope] = useState('*');
+  const rules = useQuery({ queryKey: ['admin', 'availability', scope], queryFn: () => adminRepository.listAvailabilityRules(scope), enabled: isAdmin });
+  const defaults = useQuery({ queryKey: ['admin', 'availability', '*'], queryFn: () => adminRepository.listAvailabilityRules('*'), enabled: isAdmin });
+  const grid = [...new Set([...DEFAULT_GRID, ...(defaults.data ?? []).flatMap((r) => r.slots), ...(rules.data ?? []).flatMap((r) => r.slots)])].sort(
+    (a, b) => a - b,
+  );
+  const find = (list: AvailabilityRule[] | undefined, key: string) => list?.find((r) => r.key === key) ?? null;
+
+  return (
+    <AdminOnly>
+      <Screen scroll edges={[]} contentStyle={styles.content}>
+        <Stack.Screen options={{ title: t('admin.availability') }} />
+        <ChipGroup
+          label={t('admin.scope')}
+          options={['*', ...(trainers.data ?? []).map((tr) => tr.id)]}
+          selected={[scope]}
+          onToggle={setScope}
+          optionLabel={(id) => (id === '*' ? t('admin.allTrainers') : (trainers.data?.find((tr) => tr.id === id)?.name ?? id))}
+        />
+        {rules.isPending ? <LoadingState /> : null}
+        {rules.data ? (
+          <>
+            <AppText variant="overline" color={colors.textTertiary}>
+              {t('admin.weekly')}
+            </AppText>
+            {WEEKDAYS.map((weekday) => {
+              const key = `weekday:${weekday}`;
+              return (
+                <DayEditor
+                  key={`${scope}-${key}`}
+                  title={t(`days.${DAY_NAMES[weekday]}`)}
+                  scope={scope}
+                  ruleKey={key}
+                  own={find(rules.data, key)}
+                  fallback={scope === '*' ? null : find(defaults.data, key)}
+                  grid={grid}
+                />
+              );
+            })}
+            <DateOverride scope={scope} grid={grid} rules={rules.data} fallbackRules={defaults.data ?? []} />
+          </>
+        ) : null}
+      </Screen>
+    </AdminOnly>
+  );
+}
+
+// A date-specific rule (holiday, blocked slot, extra times) that overrides the weekly schedule.
+function DateOverride({ scope, grid, rules, fallbackRules }: { scope: string; grid: number[]; rules: AvailabilityRule[]; fallbackRules: AvailabilityRule[] }) {
+  const { t } = useTranslation();
+  const [date, setDate] = useState('');
+  const day = new Date(`${date}T00:00:00`);
+  const valid = /^\d{4}-\d{2}-\d{2}$/.test(date) && !Number.isNaN(day.getTime());
+  const key = `date:${date}`;
+  const weekdayKey = `weekday:${valid ? day.getDay() : 0}`;
+  const base = rules.find((r) => r.key === weekdayKey) ?? fallbackRules.find((r) => r.key === weekdayKey) ?? null;
+  return (
+    <View style={styles.group}>
+      <AppText variant="overline" color={colors.textTertiary}>
+        {t('admin.dateOverride')}
+      </AppText>
+      <TextField label={t('admin.fields.date')} value={date} onChangeText={setDate} placeholder="2026-12-18" autoCapitalize="none" />
+      {valid ? (
+        <DayEditor key={`${scope}-${key}`} title={date} scope={scope} ruleKey={key} own={rules.find((r) => r.key === key) ?? null} fallback={base} grid={grid} />
+      ) : null}
+    </View>
+  );
+}
+
+// One day's rule: closed, or the start times offered. Saving writes this scope's own rule; removing it falls
+// back to the less specific rule (all-trainers schedule / weekly template).
+function DayEditor({
+  title,
+  scope,
+  ruleKey,
+  own,
+  fallback,
+  grid,
+}: {
+  title: string;
+  scope: string;
+  ruleKey: string;
+  own: AvailabilityRule | null;
+  fallback: AvailabilityRule | null;
+  grid: number[];
+}) {
+  const { t } = useTranslation();
+  const { saving, save } = useSaver();
+  const start = own ?? fallback;
+  const [closed, setClosed] = useState(start?.closed ?? true);
+  const [slots, setSlots] = useState<number[]>(start?.slots ?? []);
+  const [extra, setExtra] = useState('');
+  const times = [...new Set([...grid, ...slots])].sort((a, b) => a - b);
+  const added = parseTime(extra);
+  const addTime = () => {
+    if (added === null) return;
+    setSlots((s) => [...new Set([...s, added])]);
+    setExtra('');
+  };
+  const rule: AvailabilityRule = { trainerId: scope, key: ruleKey, closed, slots: closed ? [] : [...slots].sort((a, b) => a - b) };
+  return (
+    <View style={styles.card}>
+      <AppText variant="label">{title}</AppText>
+      <AppText variant="bodyS" color={colors.textSecondary}>
+        {own ? t('admin.customRule') : t('admin.inheritedRule')}
+      </AppText>
+      <View style={styles.chips}>
+        <Chip label={t('admin.closed')} selected={closed} onPress={() => setClosed((c) => !c)} />
+        {closed
+          ? null
+          : times.map((m) => <Chip key={m} label={localizeTime(slotLabel(m))} selected={slots.includes(m)} onPress={() => setSlots((s) => toggle(s, m))} />)}
+      </View>
+      {closed ? null : (
+        <View style={styles.chips}>
+          <View style={styles.flex}>
+            <TextField label={t('admin.addTime')} value={extra} onChangeText={setExtra} placeholder="07:30" keyboardType="numbers-and-punctuation" />
+          </View>
+          <Button variant="text" label={t('admin.add')} disabled={added === null} onPress={addTime} />
+        </View>
+      )}
+      <Button variant="outlined" label={t('admin.save')} loading={saving} onPress={() => save(() => adminRepository.saveAvailabilityRule(rule))} />
+      {own && (scope !== '*' || ruleKey.startsWith('date:')) ? (
+        <Button variant="text" label={t('admin.removeRule')} onPress={() => save(() => adminRepository.deleteAvailabilityRule(scope, ruleKey))} />
       ) : null}
     </View>
   );

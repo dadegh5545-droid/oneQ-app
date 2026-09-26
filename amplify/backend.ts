@@ -7,9 +7,11 @@ import { data } from './data/resource';
 import { adminAccess } from './functions/admin-access/resource';
 import { bookings } from './functions/bookings/resource';
 import { phoneLogin } from './functions/phone-login/resource';
+import { reviews } from './functions/reviews/resource';
+import { sandboxFixtures } from './functions/sandbox-fixtures/resource';
 import { seedCatalogue } from './functions/seed-catalogue/resource';
 
-const backend = defineBackend({ auth, data, preSignUp, bookings, phoneLogin, seedCatalogue, adminAccess });
+const backend = defineBackend({ auth, data, preSignUp, bookings, reviews, phoneLogin, seedCatalogue, adminAccess, sandboxFixtures });
 
 const { userPool, cfnResources } = backend.auth.resources;
 
@@ -48,4 +50,10 @@ backend.bookings.addEnvironment('PAYMENT_PROVIDER', 'mock');
 // Sandbox only: auto-confirm SES mailbox-simulator test accounts for the backend checks (never in branch deployments).
 if (backend.stack.node.tryGetContext('amplify-backend-type') === 'sandbox') {
   backend.preSignUp.addEnvironment('SANDBOX_TEST_ACCOUNTS', 'true');
+  // Test fixtures (backdate a test session, purge test accounts) exist only here.
+  backend.sandboxFixtures.addEnvironment('SANDBOX_FIXTURES', 'true');
+  backend.sandboxFixtures.addEnvironment('USER_POOL_ID', userPool.userPoolId);
+  backend.sandboxFixtures.resources.lambda.addToRolePolicy(
+    new PolicyStatement({ actions: ['cognito-idp:ListUsers', 'cognito-idp:AdminDeleteUser'], resources: [userPool.userPoolArn] }),
+  );
 }

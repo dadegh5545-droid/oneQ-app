@@ -2,6 +2,8 @@ import { a, defineData, type ClientSchema } from '@aws-amplify/backend';
 
 import { bookings } from '../functions/bookings/resource';
 import { phoneLogin } from '../functions/phone-login/resource';
+import { reviews } from '../functions/reviews/resource';
+import { sandboxFixtures } from '../functions/sandbox-fixtures/resource';
 import { seedCatalogue } from '../functions/seed-catalogue/resource';
 
 // Mirrors src/domain/models.ts. Catalogue ids are the approved Phase 3 slugs, so routes keep working.
@@ -19,6 +21,11 @@ const bookingDraftArgs = {
   guestPhone: a.string().required(),
   guestEmail: a.string(),
 };
+
+// Rating aggregates are computed by the reviews function (IAM, which bypasses these rules). Every client —
+// admins included — can only read them, so nobody can set an average or a count by hand.
+type FieldAllow = Parameters<Parameters<ReturnType<typeof a.string>['authorization']>[0]>[0];
+const serverOwned = (allow: FieldAllow) => [allow.guest().to(['read']), allow.authenticated().to(['read'])];
 
 const schema = a
   .schema({
@@ -42,8 +49,9 @@ const schema = a
         area: a.string().required(),
         description: a.string().required(),
         address: a.string().required(),
-        rating: a.float().required(),
-        reviewCount: a.integer().required(),
+        rating: a.float().authorization(serverOwned),
+        reviewCount: a.integer().authorization(serverOwned),
+        ratingSum: a.float().authorization(serverOwned),
         monthlyPrice: a.integer().required(),
         trainerFromMonthly: a.integer().required(),
         images: a.string().required().array().required(),
@@ -80,8 +88,9 @@ const schema = a
         title: a.string().required(),
         bio: a.string().required(),
         image: a.string().required(),
-        rating: a.float().required(),
-        reviewCount: a.integer().required(),
+        rating: a.float().authorization(serverOwned),
+        reviewCount: a.integer().authorization(serverOwned),
+        ratingSum: a.float().authorization(serverOwned),
         yearsExperience: a.integer().required(),
         languages: a.string().required().array().required(),
         specialties: a.string().required().array().required(),
@@ -100,15 +109,19 @@ const schema = a
         trainerId: a.id(),
         trainer: a.belongsTo('Trainer', 'trainerId'),
         authorName: a.string().required(),
-        rating: a.integer().required(),
+        rating: a.integer().required(), // 1–5
         date: a.date().required(),
-        text: a.string().required(),
+        text: a.string().required(), // may be empty
+        // Verified user reviews (created by the reviews function); null on the imported catalogue reviews.
+        authorKey: a.string(), // hash of the author, never the Cognito id
+        bookingId: a.string(), // the completed booking that made the author eligible
       })
       .secondaryIndexes((index) => [
         index('gymId').sortKeys(['date']).queryField('listReviewsByGym'),
         index('trainerId').sortKeys(['date']).queryField('listReviewsByTrainer'),
       ])
-      .authorization((allow) => [allow.guest().to(['read']), allow.authenticated().to(['read']), allow.group('admin')]),
+      // Writes only through submitReview / removeReview; admins moderate there and cannot author reviews.
+      .authorization((allow) => [allow.guest().to(['read']), allow.authenticated().to(['read'])]),
 
     // ── Per-user data ──
 
@@ -172,6 +185,29 @@ const schema = a
       })
       .identifier(['trainerId', 'startAt'])
       .authorization((allow) => [allow.group('admin').to(['read'])]),
+
+    // One active membership per (phone, gym); the conditional create is the duplicate-membership lock.
+    MembershipLock: a
+      .model({
+        guestPhone: a.string().required(),
+        gymId: a.id().required(),
+        bookingId: a.string().required(),
+        membershipEnd: a.date().required(),
+      })
+      .identifier(['guestPhone', 'gymId'])
+      .authorization((allow) => [allow.group('admin').to(['read'])]),
+
+    // Trainer availability, managed by admins. trainerId "*" applies to every trainer; key is "weekday:0"…"weekday:6"
+    // (0 = Sunday) or "date:yyyy-MM-dd" (override). Users read availability only through trainerAvailability.
+    AvailabilityRule: a
+      .model({
+        trainerId: a.string().required(),
+        key: a.string().required(),
+        closed: a.boolean().required(),
+        slots: a.integer().required().array().required(), // start times, minutes after midnight (Asia/Qatar)
+      })
+      .identifier(['trainerId', 'key'])
+      .authorization((allow) => [allow.group('admin')]),
 
     // ── Custom operations ──
 
@@ -250,6 +286,43 @@ const schema = a
       .authorization((allow) => [allow.group('admin')])
       .handler(a.handler.function(bookings)),
 
+    ReviewView: a.customType({
+      id: a.string().required(),
+      gymId: a.string(),
+      trainerId: a.string(),
+      authorName: a.string().required(),
+      rating: a.integer().required(),
+      text: a.string().required(),
+      date: a.string().required(),
+      mine: a.boolean().required(),
+    }),
+
+    ReviewStatus: a.customType({ eligible: a.boolean().required(), review: a.ref('ReviewView') }),
+
+    // Signed-in users only: may the caller rate this gym/trainer, and their existing review if any.
+    reviewStatus: a
+      .query()
+      .arguments({ targetType: a.string().required(), targetId: a.id().required() })
+      .returns(a.ref('ReviewStatus').required())
+      .authorization((allow) => [allow.authenticated()])
+      .handler(a.handler.function(reviews)),
+
+    // Create (no reviewId) or edit the caller's own review (reviewId). Requires a completed booking.
+    submitReview: a
+      .mutation()
+      .arguments({ targetType: a.string().required(), targetId: a.id().required(), rating: a.integer().required(), text: a.string(), reviewId: a.id() })
+      .returns(a.ref('ReviewView').required())
+      .authorization((allow) => [allow.authenticated()])
+      .handler(a.handler.function(reviews)),
+
+    // The author removes their review; admins remove any review (moderation).
+    removeReview: a
+      .mutation()
+      .arguments({ id: a.id().required() })
+      .returns(a.ref('ReviewView').required())
+      .authorization((allow) => [allow.authenticated()])
+      .handler(a.handler.function(reviews)),
+
     // Phone sign-in: resolves a Qatar mobile number to the Cognito username (null when unknown).
     signInName: a
       .query()
@@ -258,7 +331,12 @@ const schema = a
       .authorization((allow) => [allow.guest()])
       .handler(a.handler.function(phoneLogin)),
   })
-  .authorization((allow) => [allow.resource(bookings).to(['query', 'mutate']), allow.resource(seedCatalogue).to(['query', 'mutate'])]);
+  .authorization((allow) => [
+    allow.resource(bookings).to(['query', 'mutate']),
+    allow.resource(reviews).to(['query', 'mutate']),
+    allow.resource(seedCatalogue).to(['query', 'mutate']),
+    allow.resource(sandboxFixtures).to(['query', 'mutate']),
+  ]);
 
 export type Schema = ClientSchema<typeof schema>;
 

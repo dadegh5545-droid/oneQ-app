@@ -1,5 +1,6 @@
 // Regression + security checks against the deployed sandbox (reads ./amplify_outputs.json).
-//   npm run backend:check        (AWS_PROFILE=oneq-dev enables the admin checks, which grant admin via a Lambda)
+//   npm run backend:check        (AWS_PROFILE=oneq-dev enables the admin, concurrency, availability and review checks,
+//                                 which use the admin-access and sandbox-fixtures Lambdas)
 // Creates two auto-confirmed test users (SES mailbox-simulator addresses, sandbox only), exercises the
 // catalogue, auth, favorites, bookings and authorization rules, then deletes both users.
 // Test bookings stay in the sandbox tables (owners cannot delete bookings by design).
@@ -274,7 +275,8 @@ await check('bookings: invalid drafts rejected server-side', async () => {
   await failsWith(client.mutations.placeBooking(draft({ ...base, type: 'session', gymId: 'oxygen-gym', trainerId: 'noura-abdullah', ...slot }), user), 'INVALID_BOOKING');
   await failsWith(client.mutations.placeBooking(draft({ ...base, type: 'session', gymId: 'power-house', trainerId: 'no-such-trainer', ...slot }), user), 'INVALID_BOOKING');
   await failsWith(client.mutations.placeBooking(draft({ ...base, type: 'session', gymId: 'power-house', trainerId: 'noura-abdullah', date: '2026-02-30', minutes: 540 }), user), 'VALIDATION');
-  await failsWith(client.mutations.placeBooking(draft({ ...base, type: 'session', gymId: 'power-house', trainerId: 'noura-abdullah', date: slot.date, minutes: 545 }), user), 'VALIDATION');
+  await failsWith(client.mutations.placeBooking(draft({ ...base, type: 'session', gymId: 'power-house', trainerId: 'noura-abdullah', date: slot.date, minutes: 543 }), user), 'VALIDATION');
+  await failsWith(client.mutations.placeBooking(draft({ ...base, type: 'session', gymId: 'power-house', trainerId: 'noura-abdullah', date: slot.date, minutes: 545 }), user), 'SLOT_UNAVAILABLE');
   await failsWith(client.mutations.placeBooking(draft({ ...base, type: 'session', gymId: 'power-house', trainerId: 'noura-abdullah', date: '2020-01-01', minutes: 540 }), user), 'SLOT_UNAVAILABLE');
   const { data: days } = await client.queries.trainerAvailability({ trainerId: 'noura-abdullah' }, user);
   const sunday = days.find((d) => d.closed);
@@ -370,16 +372,40 @@ await check('payments: non-mock payment ids are rejected', async () => {
   await failsWith(client.mutations.placeBooking(draft({ type: 'membership', gymId: 'peak-performance', planId: 'peak-performance-monthly', guestPhone: randomPhone(), paymentMethod: 'card', paymentId: `real-${stamp}` }), user), 'PAYMENT_FAILED');
 });
 
-// ── Admin (needs AWS_PROFILE: the admin group is granted through the admin-access Lambda) ──
+// ── Admin, concurrency, availability and reviews (need AWS_PROFILE: admin grant + sandbox fixtures via Lambda) ──
 if (process.env.AWS_PROFILE) {
+  const lambdaError = (fn) => {
+    try {
+      fn();
+    } catch (e) {
+      return e.message;
+    }
+    return 'no error';
+  };
+  // Read as the signed-in user (a signed-in identity is not the guest role).
+  const aggregate = async (model, id) => {
+    const { data } = await client.models[model].get({ id }, user);
+    return { count: data.reviewCount ?? 0, sum: data.ratingSum ?? 0, rating: data.rating ?? 0 };
+  };
+  const gymTarget = { targetType: 'gym', targetId: 'power-house' };
+  let baseGym;
+  let reviewA;
+  let reviewB;
+  let trainerReviewA;
+  let omarBase;
+
   await check('security: regular users and guests cannot cancel bookings (admin only)', async () => {
     await signInAs(A);
     await denied(client.mutations.adminCancelBooking({ id: sessionA.id }, user), 'user adminCancelBooking');
     await Auth.signOut();
     await denied(client.mutations.adminCancelBooking({ id: sessionA.id }, guest), 'guest adminCancelBooking');
   });
+  await check('admin: grant refuses unknown and unconfirmed accounts', () => {
+    assert(/NOT_FOUND/.test(lambdaError(() => invokeSandboxFunction('adminaccess', { action: 'grant', email: `nobody-${stamp}@example.com` }))), 'unknown account granted');
+    const unconfirmed = `success+oneq-manual-${stamp}@simulator.amazonses.com`;
+    assert(/NOT_ELIGIBLE/.test(lambdaError(() => invokeSandboxFunction('adminaccess', { action: 'grant', email: unconfirmed }))), 'unconfirmed account granted');
+  });
   await check('admin: granted through the admin-access function', async () => {
-    await Auth.signOut();
     await signUpAndIn(C);
     invokeSandboxFunction('adminaccess', { action: 'grant', email: C.email });
     await signInAs(C);
@@ -393,7 +419,143 @@ if (process.env.AWS_PROFILE) {
     const reverted = await client.models.Gym.update({ id: 'power-house', description: gym.description }, user);
     assert(reverted.data?.description === gym.description, 'revert failed');
   });
+  await check('security: nobody can set rating aggregates by hand (admin included)', async () => {
+    await denied(client.models.Gym.update({ id: 'power-house', rating: 1 }, user), 'admin sets gym rating');
+    await denied(client.models.Trainer.update({ id: 'noura-abdullah', reviewCount: 999 }, user), 'admin sets trainer count');
+  });
+
+  // Concurrency: the locks are conditional writes, so simultaneous requests cannot both win.
+  await check('concurrency: two simultaneous memberships for one phone → exactly one', async () => {
+    await Auth.signOut();
+    const phone = randomPhone();
+    const attempt = (n) => call(client.mutations.placeBooking(draft({ type: 'membership', gymId: 'arena-fitness', planId: 'arena-fitness-monthly', guestPhone: phone, paymentMethod: 'card', paymentId: `mock-${stamp}-cm${n}` }), guest));
+    const results = await Promise.all([attempt(1), attempt(2), attempt(3)]);
+    const won = results.filter((r) => r.data?.id).length;
+    const duplicates = results.filter((r) => /DUPLICATE_BOOKING/.test(text(r))).length;
+    assert(won === 1 && duplicates === 2, `won ${won}, duplicates ${duplicates}: ${results.map(text).join(' | ')}`);
+  });
+  await check('concurrency: two simultaneous bookings of one trainer slot → exactly one', async () => {
+    const slot = await freeSlot('khalid-rahman', guest);
+    const attempt = (n) => call(client.mutations.placeBooking(draft({ type: 'session', gymId: 'peak-performance', trainerId: 'khalid-rahman', ...slot, guestPhone: randomPhone(), paymentMethod: 'card', paymentId: `mock-${stamp}-cs${n}` }), guest));
+    const results = await Promise.all([attempt(1), attempt(2)]);
+    const won = results.filter((r) => r.data?.id).length;
+    assert(won === 1 && results.some((r) => /SLOT_TAKEN/.test(text(r))), results.map(text).join(' | '));
+  });
+
+  // Availability comes from AvailabilityRule records (admin-managed).
+  await check('availability: admin date override closes a day; booking it is rejected; removal restores it', async () => {
+    await signInAs(C);
+    const slot = await freeSlot('james-mitchell', user);
+    const rule = { trainerId: 'james-mitchell', key: `date:${slot.date}`, closed: true, slots: [] };
+    const created = await client.models.AvailabilityRule.create(rule, user);
+    assert(!created.errors?.length, text(created));
+    const closedDay = (await client.queries.trainerAvailability({ trainerId: 'james-mitchell' }, user)).data.find((d) => d.date === slot.date);
+    assert(closedDay.closed && closedDay.slots.every((s) => !s.available), 'override not applied');
+    await failsWith(client.mutations.placeBooking(draft({ type: 'session', gymId: 'power-house', trainerId: 'james-mitchell', ...slot, paymentMethod: 'card', paymentId: `mock-${stamp}-av` }), user), 'SLOT_UNAVAILABLE');
+    await client.models.AvailabilityRule.delete({ trainerId: rule.trainerId, key: rule.key }, user);
+    const reopened = (await client.queries.trainerAvailability({ trainerId: 'james-mitchell' }, user)).data.find((d) => d.date === slot.date);
+    assert(reopened.slots.some((s) => s.minutes === slot.minutes && s.available), 'override removal not applied');
+  });
+  await check('security: users and guests cannot read or write availability rules', async () => {
+    await signInAs(A);
+    await denied(client.models.AvailabilityRule.create({ trainerId: '*', key: 'weekday:0', closed: false, slots: [540] }, user), 'user writes availability');
+    await denied(client.models.AvailabilityRule.list({ trainerId: '*', ...user }), 'user lists availability rules');
+    await Auth.signOut();
+    await denied(client.models.AvailabilityRule.list({ trainerId: '*', ...guest }), 'guest lists availability rules');
+  });
+
+  // Reviews: verified (completed booking), one per user and target, aggregates computed server-side.
+  await check('reviews: guests cannot review', async () => {
+    await denied(client.mutations.submitReview({ ...gymTarget, rating: 5, text: '' }, guest), 'guest submitReview');
+  });
+  await check('reviews: review without an eligible booking rejected', async () => {
+    await signInAs(B);
+    await failsWith(client.mutations.submitReview({ ...gymTarget, rating: 5, text: 'x' }, user), 'REVIEW_NOT_ELIGIBLE');
+  });
+  await check('reviews: star values outside 1–5 rejected', async () => {
+    await signInAs(A);
+    await failsWith(client.mutations.submitReview({ ...gymTarget, rating: 0, text: '' }, user), 'VALIDATION');
+    await failsWith(client.mutations.submitReview({ ...gymTarget, rating: 6, text: '' }, user), 'VALIDATION');
+  });
+  await check('reviews: verified gym review updates count and average', async () => {
+    baseGym = await aggregate('Gym', 'power-house');
+    const { data, errors } = await client.mutations.submitReview({ ...gymTarget, rating: 4, text: 'Great floors (automated check)' }, user);
+    assert(data?.id && data.rating === 4, text({ errors }));
+    reviewA = data;
+    const after = await aggregate('Gym', 'power-house');
+    assert(after.count === baseGym.count + 1 && Math.abs(after.sum - (baseGym.sum + 4)) < 0.01, JSON.stringify({ baseGym, after }));
+    assert(after.rating === Math.round((after.sum / after.count) * 10) / 10, 'average not derived from sum/count');
+  });
+  await check('reviews: duplicate review rejected (edit instead)', async () => {
+    await failsWith(client.mutations.submitReview({ ...gymTarget, rating: 5, text: '' }, user), 'DUPLICATE_REVIEW');
+  });
+  await check('reviews: editing recalculates the aggregate', async () => {
+    const { data, errors } = await client.mutations.submitReview({ ...gymTarget, rating: 2, text: 'Edited (automated check)', reviewId: reviewA.id }, user);
+    assert(data?.rating === 2, text({ errors }));
+    const after = await aggregate('Gym', 'power-house');
+    assert(after.count === baseGym.count + 1 && Math.abs(after.sum - (baseGym.sum + 2)) < 0.01, JSON.stringify(after));
+    const { data: status } = await client.queries.reviewStatus(gymTarget, user);
+    assert(status.eligible && status.review?.id === reviewA.id && status.review.rating === 2, JSON.stringify(status));
+  });
+  await check('reviews: second verified review; count and average correct', async () => {
+    await signInAs(B);
+    const booked = await client.mutations.placeBooking(draft({ type: 'membership', gymId: 'power-house', planId: 'power-house-monthly', guestPhone: B.phone, paymentMethod: 'card', paymentId: `mock-${stamp}-rb` }), user);
+    assert(booked.data?.id, text(booked));
+    const { data, errors } = await client.mutations.submitReview({ ...gymTarget, rating: 5, text: '' }, user);
+    assert(data?.id, text({ errors }));
+    reviewB = data;
+    const after = await aggregate('Gym', 'power-house');
+    assert(after.count === baseGym.count + 2 && Math.abs(after.sum - (baseGym.sum + 7)) < 0.01, JSON.stringify(after));
+  });
+  await check('security: B cannot edit or delete A review', async () => {
+    await failsWith(client.mutations.submitReview({ ...gymTarget, rating: 1, text: 'hijack', reviewId: reviewA.id }, user), 'UNAUTHORIZED');
+    await failsWith(client.mutations.removeReview({ id: reviewA.id }, user), 'UNAUTHORIZED');
+    await denied(client.models.Review.update({ id: reviewA.id, rating: 1 }, user), 'user updates Review directly');
+    await denied(client.models.Review.create({ gymId: 'power-house', authorName: 'x', rating: 5, date: '2026-01-01', text: 'x' }, user), 'user creates Review directly');
+  });
+  await check('reviews: verified trainer review after a completed session', async () => {
+    await signInAs(A);
+    omarBase = await aggregate('Trainer', 'omar-alkuwari');
+    const slot = await freeSlot('omar-alkuwari', user);
+    const session = await client.mutations.placeBooking(draft({ type: 'session', gymId: 'oxygen-gym', trainerId: 'omar-alkuwari', ...slot, paymentMethod: 'card', paymentId: `mock-${stamp}-rt` }), user);
+    assert(session.data?.id, text(session));
+    await failsWith(client.mutations.submitReview({ targetType: 'trainer', targetId: 'omar-alkuwari', rating: 5, text: '' }, user), 'REVIEW_NOT_ELIGIBLE');
+    const yesterday = new Date(Date.now() - 86_400_000 + 3 * 3_600_000).toISOString().slice(0, 10);
+    invokeSandboxFunction('sandboxfixtures', { action: 'backdate-session', bookingId: session.data.id, date: `${yesterday}T09:00:00` });
+    const { data, errors } = await client.mutations.submitReview({ targetType: 'trainer', targetId: 'omar-alkuwari', rating: 5, text: 'Focused session (automated check)' }, user);
+    assert(data?.trainerId === 'omar-alkuwari', text({ errors }));
+    trainerReviewA = data;
+    const after = await aggregate('Trainer', 'omar-alkuwari');
+    assert(after.count === omarBase.count + 1 && Math.abs(after.sum - (omarBase.sum + 5)) < 0.01, JSON.stringify({ omarBase, after }));
+  });
+  await check('reviews: public users read verified reviews', async () => {
+    await Auth.signOut();
+    const { data } = await client.models.Review.listReviewsByGym({ gymId: 'power-house' }, guest);
+    const mine = data.find((r) => r.id === reviewA.id);
+    assert(mine && mine.rating === 2 && !JSON.stringify(mine).includes(A.email), 'verified review missing or exposes the author email');
+  });
+  await check('admin: moderation removes a review and updates the aggregate', async () => {
+    await signInAs(C);
+    const { errors } = await client.mutations.removeReview({ id: reviewB.id }, user);
+    assert(!errors?.length, text({ errors }));
+    const after = await aggregate('Gym', 'power-house');
+    assert(after.count === baseGym.count + 1 && Math.abs(after.sum - (baseGym.sum + 2)) < 0.01, JSON.stringify(after));
+  });
+  await check('security: admins cannot fabricate reviews', async () => {
+    await failsWith(client.mutations.submitReview({ ...gymTarget, rating: 5, text: 'fake' }, user), 'REVIEW_NOT_ELIGIBLE');
+    await denied(client.models.Review.create({ gymId: 'power-house', authorName: 'Fake', rating: 5, date: '2026-01-01', text: 'fake' }, user), 'admin creates Review directly');
+  });
+  await check('reviews: owner deletes own reviews; aggregates back to baseline', async () => {
+    await signInAs(A);
+    await client.mutations.removeReview({ id: reviewA.id }, user);
+    await client.mutations.removeReview({ id: trainerReviewA.id }, user);
+    const gym = await aggregate('Gym', 'power-house');
+    const omar = await aggregate('Trainer', 'omar-alkuwari');
+    assert(gym.count === baseGym.count && Math.abs(gym.sum - baseGym.sum) < 0.01 && omar.count === omarBase.count, JSON.stringify({ gym, omar }));
+  });
+
   await check('admin: sees all bookings and cancelling releases the trainer slot', async () => {
+    await signInAs(C);
     const all = await client.models.Booking.list({ ...user, limit: 1000 });
     assert(all.data.some((b) => b.id === bookingA.id) && all.data.some((b) => b.id === sessionA.id), 'admin booking overview incomplete');
     const { data, errors } = await client.mutations.adminCancelBooking({ id: sessionA.id }, user);
@@ -402,25 +564,31 @@ if (process.env.AWS_PROFILE) {
     const day = days.find((d) => d.date === sessionA.slot.date);
     assert(day.slots.some((s) => s.minutes === sessionA.slot.minutes && s.available), 'slot not released');
   });
-  await check('hygiene: cancel the bookings created by this run', async () => {
+  await check('hygiene: cancel this run\'s bookings, purge test accounts', async () => {
     const all = await client.models.Booking.list({ ...user, limit: 1000 });
     const mine = all.data.filter((b) => b.paymentId.startsWith(`mock-${stamp}`) && b.status === 'confirmed');
     for (const b of mine) await client.mutations.adminCancelBooking({ id: b.id }, user);
+    // Verified reviews left by automated runs (their booking is a "Test Guest" draft) are moderated away,
+    // which also restores the rating aggregates.
+    const testBookings = new Set(all.data.filter((b) => b.guest.fullName === 'Test Guest').map((b) => b.id));
+    const { data: reviews } = await client.models.Review.list({ ...user, limit: 1000 });
+    for (const r of reviews.filter((x) => x.bookingId && testBookings.has(x.bookingId))) await client.mutations.removeReview({ id: r.id }, user);
     invokeSandboxFunction('adminaccess', { action: 'revoke', email: C.email });
-    await Auth.deleteUser();
+    await signInAs(A);
+    await client.models.Favorite.delete({ owner: A.owner, gymId: 'power-house' }, user);
+    await Auth.signOut();
+    invokeSandboxFunction('sandboxfixtures', { action: 'purge-test-users' });
   });
 } else {
-  results.push({ check: 'admin checks', result: 'SKIP', detail: 'set AWS_PROFILE to run' });
+  results.push({ check: 'admin, concurrency, availability and review checks', result: 'SKIP', detail: 'set AWS_PROFILE to run' });
+  await check('cleanup: remove favorites and delete test users', async () => {
+    await signInAs(A);
+    await client.models.Favorite.delete({ owner: A.owner, gymId: 'power-house' }, user);
+    await Auth.deleteUser();
+    await signInAs(B);
+    await Auth.deleteUser();
+  });
 }
-
-// ── Cleanup ──
-await check('cleanup: remove favorites and delete test users', async () => {
-  await signInAs(A);
-  await client.models.Favorite.delete({ owner: A.owner, gymId: 'power-house' }, user);
-  await Auth.deleteUser();
-  await signInAs(B);
-  await Auth.deleteUser();
-});
 
 console.table(results);
 const failed = results.filter((r) => r.result === 'FAIL').length;

@@ -1,46 +1,36 @@
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 
 import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtime';
-import type { AppSyncResolverEvent } from 'aws-lambda';
 import { Amplify } from 'aws-amplify';
 import { generateClient } from 'aws-amplify/data';
-import { addDays, addMonths, format, startOfDay } from 'date-fns';
+import { addDays, addMonths, startOfDay } from 'date-fns';
 import { env } from '$amplify/env/bookings';
 
 import { gymLocation } from '../../../src/domain/models';
-import { isClosed, isSlotAvailable, isSlotInFuture, next14Days, SLOT_MINUTES, slotLabel } from '../../../src/domain/rules';
+import { isSlotInFuture, next14Days, slotLabel } from '../../../src/domain/rules';
 import { isValidEmail, isValidFullName, toQatarE164 } from '../../../src/domain/validation';
 import type { Schema } from '../../data/resource';
+import {
+  check,
+  fail,
+  isAdmin,
+  isConditionalFailure,
+  mutateIf,
+  ownerOf,
+  qatarNow,
+  sameOwner,
+  sha256,
+  text,
+  unwrap,
+  ymd,
+  type Args,
+  type ResolverEvent,
+} from '../shared/data';
+import { resolveDay, type AvailabilityRuleData } from './availability';
 
 const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env);
 Amplify.configure(resourceConfig, libraryOptions);
 const client = generateClient<Schema>();
-
-type ErrorCode = 'VALIDATION' | 'INVALID_BOOKING' | 'SLOT_TAKEN' | 'SLOT_UNAVAILABLE' | 'DUPLICATE_BOOKING' | 'NOT_FOUND' | 'PAYMENT_FAILED' | 'UNAUTHORIZED';
-
-// The message is the code; the app maps it to RepositoryError.
-function fail(code: ErrorCode): never {
-  throw new Error(code);
-}
-
-type DataErrors = readonly { message: string; errorType?: string | null }[] | undefined;
-
-// Data-client calls resolve with `errors` instead of throwing.
-function check<T extends { errors?: DataErrors }>(result: T): T {
-  if (result.errors?.length) throw new Error(`DATA_ERROR: ${result.errors.map((e) => e.errorType ?? e.message).join(', ')}`);
-  return result;
-}
-
-const unwrap = async <T>(request: Promise<{ data: T; errors?: DataErrors }>) => check(await request).data;
-
-const isConditionalFailure = (errors: DataErrors) =>
-  !!errors?.some((e) => `${e.errorType ?? ''} ${e.message}`.includes('ConditionalCheckFailed'));
-
-// Qatar is UTC+3 all year. The shared rules use device-local time, so they run against a Date whose
-// local wall clock reads Qatar time, whatever the Lambda time zone is.
-const qatarNow = () => new Date(Date.now() + 3 * 3_600_000 + new Date().getTimezoneOffset() * 60_000);
-
-const ymd = (d: Date) => format(d, 'yyyy-MM-dd');
 
 const slotStart = (date: string, minutes: number) =>
   `${date}T${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}:00`;
@@ -52,16 +42,24 @@ const parseDay = (value: unknown) => {
   return ymd(day) === value ? day : null;
 };
 
-const text = (value: unknown, max = 128) => (typeof value === 'string' && value.length > 0 && value.length <= max ? value : null);
-
-const sha256 = (value: string) => createHash('sha256').update(value).digest();
-
 const PAYMENT_METHODS = ['card', 'applePay', 'googlePay'];
 
-type Args = Record<string, unknown>;
-// Payload of the Lambda data source that Amplify generates for custom operations (fieldName at the top level).
-type ResolverEvent = { fieldName: string; arguments: Args; identity: AppSyncResolverEvent<Args>['identity'] };
 type BookingRecord = Schema['Booking']['type'];
+
+// ── Availability (AvailabilityRule) ──
+
+async function loadRules(trainerId: string) {
+  const rules: AvailabilityRuleData[] = [];
+  for (const owner of ['*', trainerId]) {
+    let nextToken: string | null | undefined;
+    do {
+      const page = check(await client.models.AvailabilityRule.list({ trainerId: owner, nextToken }));
+      rules.push(...page.data);
+      nextToken = page.nextToken;
+    } while (nextToken);
+  }
+  return rules;
+}
 
 // ── Draft validation (shared by quote and create) ──
 
@@ -93,6 +91,7 @@ async function validateDraft(args: Args) {
     const planId = text(args.planId, 64) ?? fail('VALIDATION');
     const plan = await unwrap(client.models.MembershipPlan.get({ id: planId }));
     if (!plan || plan.gymId !== gym.id) fail('INVALID_BOOKING');
+    // Fast check for the quote; placeBooking also takes the atomic MembershipLock.
     if (await hasActiveMembership(phone, gym.id, ymd(now))) fail('DUPLICATE_BOOKING');
     return { kind: 'membership' as const, gym, plan, guest, priceQar: plan.price };
   }
@@ -100,15 +99,15 @@ async function validateDraft(args: Args) {
   const trainerId = text(args.trainerId, 64) ?? fail('VALIDATION');
   const day = parseDay(args.date) ?? fail('VALIDATION');
   const minutes = typeof args.minutes === 'number' ? args.minutes : NaN;
-  const index = SLOT_MINUTES.indexOf(minutes);
-  if (index < 0) fail('VALIDATION');
+  if (!Number.isInteger(minutes) || minutes < 0 || minutes >= 1440 || minutes % 5 !== 0) fail('VALIDATION');
 
   const trainer = await unwrap(client.models.Trainer.get({ id: trainerId }));
   if (!trainer || trainer.gymId !== gym.id) fail('INVALID_BOOKING');
 
   const date = ymd(day);
+  const schedule = resolveDay(await loadRules(trainerId), trainerId, date, day.getDay());
   const bookable =
-    next14Days(now).some((d) => ymd(d) === date) && !isClosed(day) && isSlotAvailable(day, index) && isSlotInFuture(day, minutes, now);
+    next14Days(now).some((d) => ymd(d) === date) && !schedule.closed && schedule.slots.includes(minutes) && isSlotInFuture(day, minutes, now);
   if (!bookable) fail('SLOT_UNAVAILABLE');
 
   const startAt = slotStart(date, minutes);
@@ -142,12 +141,6 @@ const toView = (b: BookingRecord, guestToken: string | null) => ({
   guestToken,
 });
 
-// Signed-in callers own their booking; guests (identity-pool unauth role) get a one-time access token instead.
-const ownerOf = (identity: ResolverEvent['identity']) =>
-  identity && 'sub' in identity && 'username' in identity && identity.sub && identity.username
-    ? `${identity.sub}::${identity.username}`
-    : null;
-
 // Payment boundary: the only place a payment is trusted. A real provider verifies paymentId + amount here
 // (and later reconciles via its webhook). Mock payment ids are accepted only when PAYMENT_PROVIDER is "mock".
 async function verifyPayment(paymentId: string, _amountQar: number) {
@@ -164,10 +157,6 @@ const bookingIdFor = (paymentId: string) => {
 
 // Replays an existing booking to the caller that made it. A guest gets a fresh token (the old one was never
 // received), which also invalidates any earlier token.
-// Owner fields are stored as "<sub>::<username>" but read back as the username alone.
-const sameOwner = (stored: string | null | undefined, owner: string | null) =>
-  !stored || !owner ? !stored && !owner : stored === owner || stored === owner.split('::')[1];
-
 async function replay(existing: BookingRecord, owner: string | null) {
   if (!sameOwner(existing.owner, owner)) fail('VALIDATION');
   if (owner) return toView(existing, null);
@@ -175,6 +164,29 @@ async function replay(existing: BookingRecord, owner: string | null) {
   const updated = await unwrap(client.models.Booking.update({ id: existing.id, guestTokenHash: sha256(secret).toString('hex') }));
   return toView(updated ?? existing, `${existing.id}.${secret}`);
 }
+
+// One active membership per phone number and gym, enforced atomically: the MembershipLock item is created
+// with a conditional write, so of two simultaneous requests only one can hold it. A lock whose membership has
+// ended is replaced only if nobody changed it in the meantime. Returns the booking id already holding the lock
+// when it belongs to this same payment (a concurrent retry).
+async function acquireMembershipLock(guestPhone: string, gymId: string, bookingId: string, membershipEnd: string, today: string) {
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const created = await client.models.MembershipLock.create({ guestPhone, gymId, bookingId, membershipEnd });
+    if (!isConditionalFailure(created.errors)) {
+      check(created);
+      return null;
+    }
+    const holder = await unwrap(client.models.MembershipLock.get({ guestPhone, gymId }));
+    if (!holder) continue;
+    if (holder.bookingId === bookingId) return holder.bookingId;
+    if (holder.membershipEnd >= today) fail('DUPLICATE_BOOKING');
+    await mutateIf(client, 'delete', 'MembershipLock', { guestPhone, gymId }, { bookingId: { eq: holder.bookingId } });
+  }
+  fail('DUPLICATE_BOOKING');
+}
+
+const releaseMembershipLock = (guestPhone: string, gymId: string, bookingId: string) =>
+  mutateIf(client, 'delete', 'MembershipLock', { guestPhone, gymId }, { bookingId: { eq: bookingId } });
 
 async function createBooking(args: Args, owner: string | null) {
   // Malformed input is rejected before any lookup.
@@ -191,7 +203,9 @@ async function createBooking(args: Args, owner: string | null) {
   const secret = owner ? null : randomBytes(24).toString('base64url');
   const today = startOfDay(qatarNow());
   const session = draft.kind === 'session';
+  const membershipEnd = session ? null : ymd(addDays(addMonths(today, draft.plan.durationMonths), -1));
 
+  // Atomic locks: the trainer slot, or the (phone, gym) membership.
   if (session) {
     const lock = await client.models.SlotReservation.create({ trainerId: draft.trainer.id, startAt: draft.startAt, bookingId: id });
     if (isConditionalFailure(lock.errors)) {
@@ -202,6 +216,10 @@ async function createBooking(args: Args, owner: string | null) {
       fail('SLOT_TAKEN');
     }
     check(lock);
+  } else if (await acquireMembershipLock(draft.guest.phone, draft.gym.id, id, membershipEnd!, ymd(today))) {
+    const same = await unwrap(client.models.Booking.get({ id }));
+    if (same) return replay(same, owner);
+    fail('CONFLICT'); // the concurrent request with this payment is still writing; a retry replays it
   }
 
   const created = await client.models.Booking.create({
@@ -222,7 +240,7 @@ async function createBooking(args: Args, owner: string | null) {
     guest: draft.guest,
     guestPhone: draft.guest.phone,
     membershipStart: session ? null : ymd(today),
-    membershipEnd: session ? null : ymd(addDays(addMonths(today, draft.plan.durationMonths), -1)),
+    membershipEnd,
     paymentMethod,
     paymentId,
     // Index keys are omitted rather than null for guest bookings.
@@ -235,23 +253,24 @@ async function createBooking(args: Args, owner: string | null) {
       const same = await unwrap(client.models.Booking.get({ id }));
       if (same) return replay(same, owner);
     }
-    // Release the slot so a failed write never blocks it.
+    // Release the lock so a failed write never blocks the slot or the membership.
     if (session) await client.models.SlotReservation.delete({ trainerId: draft.trainer.id, startAt: draft.startAt });
+    else await releaseMembershipLock(draft.guest.phone, draft.gym.id, id);
     check(created);
     throw new Error('DATA_ERROR: booking not created');
   }
   return toView(created.data, secret ? `${id}.${secret}` : null);
 }
 
-// Admin only (resolver rule + this check): mark cancelled and release the trainer slot.
+// Admin only (resolver rule + this check): mark cancelled and release the trainer slot / membership lock.
 async function adminCancelBooking(id: unknown, identity: ResolverEvent['identity']) {
-  const groups = identity && 'groups' in identity ? (identity.groups ?? []) : [];
-  if (!groups.includes('admin')) fail('UNAUTHORIZED');
+  if (!isAdmin(identity)) fail('UNAUTHORIZED');
   const bookingId = text(id, 64) ?? fail('VALIDATION');
   const booking = (await unwrap(client.models.Booking.get({ id: bookingId }))) ?? fail('NOT_FOUND');
   if (booking.type === 'session' && booking.trainerId && booking.date) {
-    const lock = await unwrap(client.models.SlotReservation.get({ trainerId: booking.trainerId, startAt: booking.date }));
-    if (lock?.bookingId === booking.id) await unwrap(client.models.SlotReservation.delete({ trainerId: booking.trainerId, startAt: booking.date }));
+    await mutateIf(client, 'delete', 'SlotReservation', { trainerId: booking.trainerId, startAt: booking.date }, { bookingId: { eq: booking.id } });
+  } else if (booking.type === 'membership') {
+    await releaseMembershipLock(booking.guestPhone, booking.gymId, booking.id);
   }
   const updated = await unwrap(client.models.Booking.update({ id: booking.id, status: 'cancelled' }));
   return toView(updated ?? booking, null);
@@ -278,6 +297,7 @@ async function trainerAvailability(trainerId: unknown) {
 
   const now = qatarNow();
   const days = next14Days(now);
+  const rules = await loadRules(id);
   const booked = new Set<string>();
   let nextToken: string | null | undefined;
   do {
@@ -292,16 +312,19 @@ async function trainerAvailability(trainerId: unknown) {
     nextToken = page.nextToken;
   } while (nextToken);
 
-  return days.map((d) => {
+  const schedules = days.map((d) => resolveDay(rules, id, ymd(d), d.getDay()));
+  // Every day shows the same grid of start times (unavailable ones disabled), as in the approved UI.
+  const grid = [...new Set(schedules.flatMap((s) => s.slots))].sort((a, b) => a - b);
+  return days.map((d, i) => {
     const date = ymd(d);
-    const closed = isClosed(d);
+    const schedule = schedules[i]!;
     return {
       date,
-      closed,
-      slots: SLOT_MINUTES.map((minutes, i) => ({
-        id: `${date}-${i}`,
+      closed: schedule.closed,
+      slots: grid.map((minutes, j) => ({
+        id: `${date}-${j}`,
         minutes,
-        available: !closed && isSlotAvailable(d, i) && isSlotInFuture(d, minutes, now) && !booked.has(slotStart(date, minutes)),
+        available: schedule.slots.includes(minutes) && isSlotInFuture(d, minutes, now) && !booked.has(slotStart(date, minutes)),
       })),
     };
   });

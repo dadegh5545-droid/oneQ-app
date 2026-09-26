@@ -6,6 +6,9 @@ import type {
   MembershipPlan,
   PaymentMethod,
   Review,
+  ReviewStatus,
+  ReviewTarget,
+  AvailabilityRule,
   Specialty,
   TimeSlot,
   Trainer,
@@ -20,6 +23,9 @@ export type RepositoryErrorCode =
   | 'SLOT_UNAVAILABLE'
   | 'DUPLICATE_BOOKING'
   | 'PAYMENT_FAILED'
+  | 'REVIEW_NOT_ELIGIBLE'
+  | 'DUPLICATE_REVIEW'
+  | 'CONFLICT'
   | 'VALIDATION'
   | 'INVALID_CREDENTIALS'
   | 'INVALID_PASSWORD'
@@ -63,6 +69,12 @@ export interface Repository {
   listBookings(): Promise<Booking[]>;
   getBooking(id: string): Promise<Booking | null>;
 
+  // Verified ratings (signed-in users with a completed booking; enforced by the backend).
+  getReviewStatus(target: ReviewTarget): Promise<ReviewStatus>;
+  // Creates the review, or edits the caller's own one when reviewId is given.
+  submitReview(input: { target: ReviewTarget; rating: number; text: string; reviewId?: string }): Promise<Review>;
+  removeReview(id: string): Promise<void>;
+
   listFavorites(): Promise<string[]>;
   addFavorite(gymId: string): Promise<void>;
   removeFavorite(gymId: string): Promise<void>;
@@ -92,4 +104,10 @@ export interface AdminRepository {
   saveTrainer(id: string | null, input: TrainerInput): Promise<string>;
   listAllBookings(): Promise<Booking[]>;
   cancelBooking(id: string): Promise<Booking>;
+  // Moderation: newest first, gym and trainer reviews; removal goes through removeReview (admin allowed).
+  listAllReviews(): Promise<Review[]>;
+  // Availability rules for "*" (all trainers) or one trainer.
+  listAvailabilityRules(trainerId: string): Promise<AvailabilityRule[]>;
+  saveAvailabilityRule(rule: AvailabilityRule): Promise<void>;
+  deleteAvailabilityRule(trainerId: string, key: string): Promise<void>;
 }

@@ -27,7 +27,7 @@ Region **ap-south-1** (Mumbai), AWS profile `oneq-dev` (IAM Identity Center). Ba
 | Booking | `id` (`bk-<uuid>`) | Snapshot of gym/trainer/plan names, price, `date` + `timeLabel`, guest details. Indexes by `owner` and by `guestPhone`+`gymId`. |
 | SlotReservation | (`trainerId`, `startAt`) | One item per booked trainer slot; its conditional create is the double-booking lock. |
 
-`UserMembership` was not added: an active membership is a confirmed `membership` Booking whose `membershipEnd` has not passed, which is all the current rules need.
+`UserMembership` was not added: an active membership is a confirmed `membership` Booking whose `membershipEnd` has not passed. Later additions (see PRODUCTION-READINESS.md): `MembershipLock` (atomic one-membership rule), `AvailabilityRule` (admin-managed schedule), verified reviews with server-side rating aggregates.
 
 ## Authorization
 
@@ -111,6 +111,6 @@ Sandbox only: sign-ups from `success+oneq-autotest-…@simulator.amazonses.com` 
 
 - No rate limiting yet (AWS WAF on AppSync): `signInName` reveals whether a phone number is registered, and guests could hold free slots with mock payments.
 - Phone ownership is not verified by SMS (no SNS configuration); uniqueness is enforced.
-- Duplicate-membership check is not atomic under concurrent requests (slot booking is).
+- ~~Duplicate-membership check is not atomic~~ — fixed with `MembershipLock`.
 - Guest bookings are not yet attached to an account after sign-up (spec 11 §2 lookup by phone + OTP).
 - Cognito default email sender (50 emails/day): use SES before production.

@@ -11,7 +11,9 @@ export type AnalyticsEvent =
   | { name: 'checkout_started'; bookingType: 'membership' | 'session'; gymId: string }
   | { name: 'booking_completed'; bookingType: 'membership' | 'session'; gymId: string; priceQar: number }
   | { name: 'booking_failed'; bookingType: 'membership' | 'session'; errorCode: string }
-  | { name: 'language_changed'; language: 'en' | 'ar' };
+  | { name: 'language_changed'; language: 'en' | 'ar' }
+  | { name: 'gym_review_submitted'; targetId: string; rating: number }
+  | { name: 'trainer_review_submitted'; targetId: string; rating: number };
 
 export interface AnalyticsProvider {
   track(event: AnalyticsEvent): void;

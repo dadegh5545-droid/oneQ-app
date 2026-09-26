@@ -16,15 +16,9 @@ export const planKindFromId = (planId: string): PlanKind | null => {
   return suffix === 'monthly' || suffix === '3m' || suffix === '6m' ? suffix : null;
 };
 
-export const SLOT_MINUTES = [540, 630, 720, 960, 1110, 1200];
+// Trainer slot times and closed days are data (AvailabilityRule, managed by admins); the approved defaults
+// are seeded from amplify/seed/catalogue.ts.
 export const LEAD_TIME_MINUTES = 60;
-
-export const isClosed = (d: Date) => d.getDay() === 0; // Sunday
-
-export const isSlotAvailable = (d: Date, i: number) => {
-  const wd = d.getDay(); // 5 = Fri, 6 = Sat
-  return wd === 5 || wd === 6 ? i !== 0 && i !== 3 : i !== 2;
-};
 
 // New rule: for today, slots earlier than now + 60 min are unavailable.
 export const isSlotInFuture = (d: Date, minutes: number, now = new Date()) => {

@@ -21,14 +21,24 @@ Status of OneQ after the Phase 5 readiness pass. Backend: AWS Amplify Gen 2, **a
 ```bash
 AWS_PROFILE=oneq-dev npm run seed                    # create missing catalogue records (never overwrites admin edits)
 AWS_PROFILE=oneq-dev npm run seed -- --overwrite     # reset the catalogue to the approved data
-AWS_PROFILE=oneq-dev npm run admin:grant -- a@b.qa   # add an existing account to the admin group (sign in again)
+AWS_PROFILE=oneq-dev npm run admin:grant -- a@b.qa   # add a confirmed, enabled account to the admin group (sign in again)
 AWS_PROFILE=oneq-dev npm run admin:revoke -- a@b.qa
 AWS_PROFILE=oneq-dev npm run backend:check           # regression + security checks (admin checks need AWS_PROFILE)
 ```
 
 After installing packages, run `npm run lockfile:sync`: a full npm 11 install can write a lock that `npm ci` (EAS, Amplify CI) rejects because of bundled dependencies inside the Amplify CLI packages.
 
-Management UI: Profile → Management (admins only) — gyms, plans, trainers, all bookings, cancel booking (releases the trainer slot). The backend enforces the `admin` group; the admin-access function has no GraphQL operation and is invokable only with IAM `lambda:InvokeFunction`. Availability is rule-based (slot templates, Sunday closed); per-trainer schedule editing would need a new model and is not built.
+Management UI: Profile → Management (admins only) — gyms, plans, trainers, availability, all bookings, cancel booking (releases the trainer slot / membership lock), review moderation. The backend enforces the `admin` group; admins cannot write rating aggregates or author reviews. The admin-access function has no GraphQL operation and is invokable only with IAM `lambda:InvokeFunction`; it refuses unknown, unconfirmed and disabled accounts.
+
+`sandbox-fixtures` (IAM-only, enabled only in personal sandboxes) backdates a mock test session and purges `success+oneq-…@simulator.amazonses.com` test accounts for `backend:check`.
+
+## Availability
+
+`AvailabilityRule` (admin-only reads/writes): `trainerId` `*` (all trainers) or a trainer id; `key` `weekday:0`–`weekday:6` (0 = Sunday) or `date:yyyy-MM-dd`; `closed`; `slots` (start minutes, Asia/Qatar). The most specific rule wins: trainer date → all-trainers date → trainer weekday → all-trainers weekday → closed. The seed creates the approved defaults (six times; Sunday closed; Fri/Sat without 9:00 and 16:00; other days without 12:00). The bookings function computes `trainerAvailability` and validates every booking from these rules; users never read the rules directly, and `SlotReservation` stays the booking lock.
+
+## Ratings and reviews
+
+One `Review` model for gyms and trainers. Writes only through `submitReview` / `removeReview` (reviews function): signed-in users with a completed booking — a trainer session that has ended (trainer reviews) or any ended session / started membership at the gym (gym reviews). One review per user and target (id derived from both; a second create fails, the owner edits instead). Ratings 1–5, text optional (≤ 1000). Owners edit/delete their own review; admins remove any review (moderation) but cannot create one. `rating`, `reviewCount`, `ratingSum` on Gym/Trainer are written only by the function with conditional updates (safe under concurrent reviews); the seeded averages/counts are the imported baseline to which verified reviews are added. Public reviews show the author as "First L." and a hash, never the Cognito id.
 
 ## Notifications and calendar
 
@@ -38,7 +48,7 @@ Management UI: Profile → Management (admins only) — gyms, plans, trainers, a
 
 ## Payments
 
-`PaymentProvider` (client) + `verifyPayment` (bookings function) are the boundary. Mock payments are development/testing only: production builds have no client provider, and the backend accepts `mock-` ids only while `PAYMENT_PROVIDER=mock`. Bookings are idempotent per payment id (a retry returns the same booking).
+`PaymentProvider` (client) + `verifyPayment` (bookings function) are the boundary. Mock payments are development/testing only: production builds have no client provider, and the backend accepts `mock-` ids only while `PAYMENT_PROVIDER=mock`. Bookings are idempotent per payment id (a retry returns the same booking). One active membership per phone and gym is enforced atomically by `MembershipLock` (conditional create; an ended membership's lock is replaced only if unchanged; admin cancellation releases it).
 
 **Business decision needed:** choose a QAR provider supporting Qatar cards, Apple Pay and Google Pay (Tap Payments, SkipCash, CyberSource/QNB, Dibsy, Stripe if eligible). Integration then needs: provider SDK/sheet in `PaymentProvider`, server-side verification in `verifyPayment` (secret key in `ampx sandbox secret` / branch secrets), a webhook Lambda for asynchronous status, failure handling and refunds for cancellations. Apple Pay needs a merchant id + certificate; Google Pay needs production access.
 
@@ -64,7 +74,7 @@ Configured: bundle id `qa.oneq.app`, scheme `oneq`, portrait, RTL (`supportsRTL`
 | Production backend | `main` branch deployment not connected yet |
 | Payment provider | not selected (see Payments) |
 | Push credentials | FCM / APNs not configured |
-| Email sender | Cognito default (50/day) — configure SES before launch |
+| Email sender | Cognito default (50/day); no sender is hard-coded. Before launch: verify a domain/sender in SES (ap-south-1), request SES production access, then set `senders.email` in `defineAuth` (amplify/auth/resource.ts) and redeploy |
 | Still needed | store screenshots, feature graphic, descriptions (en/ar), privacy policy URL, support URL, content rating questionnaires |
 
 ## Observability and analytics

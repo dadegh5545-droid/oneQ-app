@@ -5,7 +5,8 @@ import { env } from '$amplify/env/seed-catalogue';
 
 import { buildPlans, PLAN_MONTHS } from '../../../src/domain/rules';
 import type { Schema } from '../../data/resource';
-import { GYMS, REVIEWS, TRAINERS } from '../../seed/catalogue';
+import { DEFAULT_AVAILABILITY, GYMS, REVIEWS, TRAINERS } from '../../seed/catalogue';
+import { check } from '../shared/data';
 
 const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env);
 Amplify.configure(resourceConfig, libraryOptions);
@@ -26,13 +27,31 @@ async function upsert(label: string, get: () => Promise<Result>, create: () => P
   return found.data ? 'updated' : 'created';
 }
 
+const ratingSum = (rating: number, count: number) => Math.round(rating * count * 10) / 10;
+
+async function backfillRatingSums() {
+  let n = 0;
+  const gyms = check(await client.models.Gym.list({ limit: 1000 })).data;
+  for (const g of gyms.filter((x) => x.ratingSum == null && x.reviewCount != null)) {
+    check(await client.models.Gym.update({ id: g.id, ratingSum: ratingSum(g.rating ?? 0, g.reviewCount ?? 0) }));
+    n += 1;
+  }
+  const trainers = check(await client.models.Trainer.list({ limit: 1000 })).data;
+  for (const t of trainers.filter((x) => x.ratingSum == null && x.reviewCount != null)) {
+    check(await client.models.Trainer.update({ id: t.id, ratingSum: ratingSum(t.rating ?? 0, t.reviewCount ?? 0) }));
+    n += 1;
+  }
+  return n;
+}
+
 export const handler = async (event?: { overwrite?: boolean }) => {
   overwrite = event?.overwrite === true;
   const outcome = { created: 0, updated: 0, unchanged: 0 };
   const count = (r: 'created' | 'updated' | 'unchanged') => (outcome[r] += 1);
 
   for (const [sortOrder, { id, ...gym }] of GYMS.entries()) {
-    const record = { id, ...gym, sortOrder };
+    // ratingSum = the imported average × count, so later verified reviews update the average correctly.
+    const record = { id, ...gym, sortOrder, ratingSum: ratingSum(gym.rating, gym.reviewCount) };
     count(await upsert(`Gym ${id}`, () => client.models.Gym.get({ id }), () => client.models.Gym.create(record), () => client.models.Gym.update(record)));
 
     for (const { id: planId, kind, name, price, description, badge } of buildPlans(id, gym.monthlyPrice)) {
@@ -49,7 +68,7 @@ export const handler = async (event?: { overwrite?: boolean }) => {
   }
 
   for (const [sortOrder, trainer] of TRAINERS.entries()) {
-    const record = { ...trainer, sortOrder };
+    const record = { ...trainer, sortOrder, ratingSum: ratingSum(trainer.rating, trainer.reviewCount) };
     count(
       await upsert(
         `Trainer ${trainer.id}`,
@@ -73,6 +92,21 @@ export const handler = async (event?: { overwrite?: boolean }) => {
     );
   }
 
+  for (const rule of DEFAULT_AVAILABILITY) {
+    const key = { trainerId: rule.trainerId, key: rule.key };
+    count(
+      await upsert(
+        `AvailabilityRule ${rule.key}`,
+        () => client.models.AvailabilityRule.get(key),
+        () => client.models.AvailabilityRule.create(rule),
+        () => client.models.AvailabilityRule.update(rule),
+      ),
+    );
+  }
+
+  // Records created before rating aggregates existed get their ratingSum (nothing else is touched).
+  const backfilled = await backfillRatingSums();
+
   const plans = GYMS.length * 3;
-  return { ...outcome, gyms: GYMS.length, plans, trainers: TRAINERS.length, reviews: REVIEWS.length };
+  return { ...outcome, backfilled, gyms: GYMS.length, plans, trainers: TRAINERS.length, reviews: REVIEWS.length, availabilityRules: DEFAULT_AVAILABILITY.length };
 };

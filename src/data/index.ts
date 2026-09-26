@@ -1,6 +1,6 @@
 import { MutationCache, QueryCache, QueryClient, useQuery } from '@tanstack/react-query';
 
-import type { Specialty } from '@/domain/models';
+import type { ReviewTarget, Specialty } from '@/domain/models';
 import { reportError } from '@/services/monitoring';
 
 import { adminRepository as amplifyAdminRepository } from './amplify/adminRepository';
@@ -41,6 +41,10 @@ export const useGymReviews = (gymId: string) =>
 
 export const useTrainerReviews = (trainerId: string) =>
   useQuery({ queryKey: ['reviews', 'trainer', trainerId], queryFn: () => repository.listReviews({ trainerId }) });
+
+// Signed-in users only: eligibility to rate and the caller's own review.
+export const useReviewStatus = (target: ReviewTarget, enabled: boolean) =>
+  useQuery({ queryKey: ['reviewStatus', target.type, target.id], queryFn: () => repository.getReviewStatus(target), enabled });
 
 export const useAvailability = (trainerId: string) =>
   useQuery({ queryKey: ['availability', trainerId], queryFn: () => repository.getAvailability(trainerId) });

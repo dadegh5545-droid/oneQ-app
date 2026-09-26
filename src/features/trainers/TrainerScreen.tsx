@@ -14,6 +14,7 @@ import { EmptyState, LoadingState } from '@/components/StateView';
 import { useGym, useTrainer, useTrainerReviews } from '@/data';
 import type { Gym, Trainer } from '@/domain/models';
 import { useDraft } from '@/features/booking/draftStore';
+import { ReviewPrompt } from '@/features/reviews/ReviewPrompt';
 import { track } from '@/services/analytics';
 import { colors, radius, space } from '@/theme';
 import { qar, rating } from '@/utils/format';
@@ -105,6 +106,7 @@ function TrainerProfile({ trainer, gym }: { trainer: Trainer; gym: Gym }) {
         </View>
       </Section>
       <Section title={t('trainer.clientReviews')}>
+        <ReviewPrompt target={{ type: 'trainer', id: trainer.id }} name={trainer.name} />
         <TrainerReviews trainerId={trainer.id} />
       </Section>
     </Screen>

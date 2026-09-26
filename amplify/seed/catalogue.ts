@@ -156,3 +156,13 @@ export const REVIEWS: Review[] = [
   trainerReview('tr-7', 'layla-hassan', 'Maryam Saleh', 5, '2026-06-03', 'A gentle start that still produced results. I never felt talked down to.'),
   trainerReview('tr-8', 'khalid-rahman', 'Samir Aziz', 4, '2026-05-27', 'Demanding, fair, and very good on technique. Worth the drive to Al Waab.'),
 ];
+
+// Initial trainer availability for every trainer ("*") = the approved Phase 3 slot rules: six start times;
+// Sunday closed; Friday and Saturday without 9:00 AM and 4:00 PM; other days without 12:00 PM.
+const SLOT_TIMES = [540, 630, 720, 960, 1110, 1200];
+export const DEFAULT_AVAILABILITY = [0, 1, 2, 3, 4, 5, 6].map((weekday) => ({
+  trainerId: '*',
+  key: `weekday:${weekday}`,
+  closed: weekday === 0,
+  slots: weekday === 0 ? [] : SLOT_TIMES.filter((_, i) => (weekday === 5 || weekday === 6 ? i !== 0 && i !== 3 : i !== 2)),
+}));
