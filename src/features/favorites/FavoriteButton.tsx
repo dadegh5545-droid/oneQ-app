@@ -2,7 +2,9 @@ import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet } from 'react-native';
 
 import { Icon } from '@/components/Icon';
+import { useToast } from '@/components/Toast';
 import { colors } from '@/theme';
+import { errorMessage } from '@/utils/errorMessage';
 
 import { useFavorites, useIsFavorite } from './store';
 
@@ -14,6 +16,7 @@ type Props = {
 
 export function FavoriteButton({ gymId, variant = 'outlined' }: Props) {
   const { t } = useTranslation();
+  const toast = useToast();
   const saved = useIsFavorite(gymId);
   const toggle = useFavorites((s) => s.toggle);
   const overlay = variant === 'overlay';
@@ -24,7 +27,7 @@ export function FavoriteButton({ gymId, variant = 'outlined' }: Props) {
       accessibilityLabel={saved ? t('common.removeFavorite') : t('common.addFavorite')}
       accessibilityState={{ selected: saved }}
       hitSlop={4}
-      onPress={() => toggle(gymId)}
+      onPress={() => toggle(gymId).catch((e) => toast(errorMessage(e)))}
       style={[styles.circle, overlay ? styles.overlay : styles.outlined]}
     >
       <Icon

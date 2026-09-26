@@ -13,7 +13,7 @@ import { hasErrors, validateReset } from '@/domain/validation';
 import { colors, space } from '@/theme';
 import { errorMessage } from '@/utils/errorMessage';
 
-// Forgot password (06 §4.2): step 1 identifier → code; step 2 code + new password.
+// Forgot password (06 §4.2): step 1 identifier → Cognito emails a code; step 2 code + new password.
 export function ForgotPasswordScreen() {
   const { t } = useTranslation();
   const toast = useToast();
@@ -44,8 +44,7 @@ export function ForgotPasswordScreen() {
     setSubmitted(true);
     if (!identifier.trim() || loading) return;
     run(async () => {
-      const { demoCode } = await repository.requestPasswordReset(identifier);
-      if (demoCode) toast(t('forgot.demoCode', { code: demoCode }));
+      await repository.requestPasswordReset(identifier);
       setSubmitted(false);
       setStep(2);
     });

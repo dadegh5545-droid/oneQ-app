@@ -9,12 +9,12 @@ import { useGyms } from '@/data';
 import { GymListCard } from '@/features/gyms/GymListCard';
 import { colors, space } from '@/theme';
 
-import { useFavorites } from './store';
+import { useFavoriteIds } from './store';
 
 // S18
 export function FavoritesScreen() {
   const { t } = useTranslation();
-  const ids = useFavorites((s) => s.ids);
+  const ids = useFavoriteIds();
   const gyms = useGyms();
 
   const renderList = () => {

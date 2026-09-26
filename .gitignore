@@ -39,3 +39,7 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Amplify Gen 2 (generated per environment)
+.amplify/
+amplify_outputs*

@@ -329,6 +329,14 @@
     "ACCOUNT_EXISTS": "An account with this email or phone number already exists.",
     "ACCOUNT_NOT_FOUND": "We could not find an account with those details.",
     "INVALID_CODE": "That code is incorrect or has expired.",
+    "SLOT_UNAVAILABLE": "That time is no longer available. Please choose another.",
+    "VALIDATION": "Some details are not valid. Please check them and try again.",
+    "INVALID_PASSWORD": "Use at least 8 characters, including a letter and a number.",
+    "NOT_FOUND": "We could not find what you were looking for.",
+    "RATE_LIMITED": "Too many attempts. Please wait a moment and try again.",
+    "NETWORK": "No connection. Check your internet and try again.",
+    "UNAUTHORIZED": "You do not have access to this. Please sign in and try again.",
+    "SESSION_EXPIRED": "Your session has expired. Please sign in again.",
     "payment": "Payment could not be completed.",
     "generic": "Something went wrong. Please try again."
   },
@@ -341,7 +349,15 @@
     "confirm": "Confirm password",
     "terms": "I agree to the Terms & Conditions and Privacy Policy",
     "submit": "Create Account",
-    "haveAccount": "Already have an account? Sign In"
+    "haveAccount": "Already have an account? Sign In",
+    "confirmTitle": "Confirm your email",
+    "confirmBody": "Enter the 6-digit code we sent to {{destination}}.",
+    "confirmBodyGeneric": "Enter the 6-digit code we sent to your email.",
+    "code": "Confirmation code",
+    "confirmSubmit": "Confirm",
+    "resend": "Resend code",
+    "codeResent": "A new code is on its way.",
+    "confirmed": "Your account is confirmed. Please sign in."
   },
   "forgot": {
     "title": "Forgot password?",
@@ -352,7 +368,6 @@
     "newPassword": "New password",
     "confirm": "Confirm new password",
     "submit": "Reset password",
-    "success": "Your password has been updated.",
-    "demoCode": "Demo mode: your reset code is {{code}}"
+    "success": "Your password has been updated."
   }
 }

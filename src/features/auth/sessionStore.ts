@@ -1,22 +1,14 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
-import { createJSONStorage, persist } from 'zustand/middleware';
 
 import type { Account } from '@/domain/models';
 
+// The signed-in account. Cognito (via Amplify) persists the session itself; see ./session.ts.
 type SessionState = {
   user: Account | null;
-  signIn: (user: Account) => void;
-  signOut: () => void;
+  setUser: (user: Account | null) => void;
 };
 
-export const useSession = create<SessionState>()(
-  persist(
-    (set) => ({
-      user: null,
-      signIn: (user) => set({ user }),
-      signOut: () => set({ user: null }),
-    }),
-    { name: 'oneq.signedIn', storage: createJSONStorage(() => AsyncStorage) },
-  ),
-);
+export const useSession = create<SessionState>()((set) => ({
+  user: null,
+  setUser: (user) => set({ user }),
+}));

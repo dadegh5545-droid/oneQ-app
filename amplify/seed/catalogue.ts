@@ -1,6 +1,7 @@
-import type { AmenityKey, Gym, OpeningHours, Review, Trainer } from '@/domain/models';
+import type { AmenityKey, Gym, OpeningHours, Review, Trainer } from '../../src/domain/models';
 
-// Exact seed data from docs/oneq-mobile-spec/09-DATA-MODELS.md §3–5.
+// Approved catalogue (docs/oneq-mobile-spec/09-DATA-MODELS.md §3–5), seeded into DynamoDB by functions/seed-catalogue.
+// Array order is the display order (stored as sortOrder).
 
 const unsplash = (id: string, w: number) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&q=80`;
 

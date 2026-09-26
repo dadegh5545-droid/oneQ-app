@@ -14,6 +14,9 @@ export const normaliseQatarPhone = (raw: string) => {
   return `+974 ${d.slice(0, 4)} ${d.slice(4, 8)}`;
 };
 
+// Canonical backend format (Cognito phone_number, stored bookings): "+974XXXXXXXX".
+export const toQatarE164 = (raw: string) => (isValidQatarMobile(raw) ? `+974${localDigits(raw)}` : null);
+
 // Display format for the local part while typing: "3333 4444".
 export const formatLocalPhone = (raw: string) => {
   const d = raw.replace(/\D/g, '').slice(0, 8);

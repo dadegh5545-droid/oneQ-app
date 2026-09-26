@@ -91,6 +91,8 @@ function Checkout({ draft, rows }: { draft: BookingDraft; rows: { label: string;
       const { priceQar } = await repository.quoteBooking(draft);
       const { paymentId } = await paymentProvider.pay({ amountQar: priceQar, method: draft.paymentMethod, idempotencyKey });
       const booking = await repository.createBooking(draft, { method: draft.paymentMethod, paymentId });
+      // Success reads the booking just created without another round trip.
+      queryClient.setQueryData(['booking', booking.id], booking);
       await queryClient.invalidateQueries({ queryKey: ['bookings'] });
       await queryClient.invalidateQueries({ queryKey: ['availability'] });
       useDraft.getState().clearAfterBooking();
@@ -99,7 +101,7 @@ function Checkout({ draft, rows }: { draft: BookingDraft; rows: { label: string;
       router.push({ pathname: '/checkout/success/[id]', params: { id: booking.id } });
     } catch (e) {
       setPaying(false);
-      if (e instanceof RepositoryError && e.code === 'SLOT_TAKEN') {
+      if (e instanceof RepositoryError && (e.code === 'SLOT_TAKEN' || e.code === 'SLOT_UNAVAILABLE')) {
         // Return to S11 to pick another time (04 §8).
         useDraft.getState().selectSlot(undefined);
         await queryClient.invalidateQueries({ queryKey: ['availability'] });

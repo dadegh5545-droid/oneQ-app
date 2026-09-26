@@ -6,6 +6,7 @@ import { AppText } from '@/components/AppText';
 import { Button } from '@/components/Button';
 import { Icon } from '@/components/Icon';
 import { Screen } from '@/components/Screen';
+import { signOut } from '@/features/auth/session';
 import { useSession } from '@/features/auth/sessionStore';
 import { currentLanguage, type Language } from '@/i18n';
 import { colors, radius, space } from '@/theme';
@@ -14,7 +15,6 @@ import { colors, radius, space } from '@/theme';
 export function ProfileScreen() {
   const { t } = useTranslation();
   const user = useSession((s) => s.user);
-  const signOut = useSession((s) => s.signOut);
 
   return (
     <Screen scroll contentStyle={styles.content}>

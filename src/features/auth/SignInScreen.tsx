@@ -13,9 +13,9 @@ import { finishAuth } from '@/features/booking/continueToCheckout';
 import { colors, space } from '@/theme';
 import { errorMessage } from '@/utils/errorMessage';
 
-import { useSession } from './sessionStore';
+import { startSession } from './session';
 
-// S13 — local mock accounts only; unknown credentials are rejected.
+// S13 — Cognito sign-in with an email or a Qatar mobile number.
 export function SignInScreen({ next }: { next?: string }) {
   const { t } = useTranslation();
   const [identifier, setIdentifier] = useState('');
@@ -33,8 +33,15 @@ export function SignInScreen({ next }: { next?: string }) {
     if (hasErrors(validateSignIn(values)) || loading) return;
     setLoading(true);
     try {
-      const account = await repository.signIn(identifier, password);
-      useSession.getState().signIn(account);
+      const result = await repository.signIn(identifier, password);
+      setLoading(false);
+      if (result.status === 'confirm') {
+        // Email not confirmed yet: a new code was sent; enter it on the Create Account screen.
+        const params = { confirm: result.username, destination: result.destination ?? '', ...(next ? { next } : {}) };
+        router.replace({ pathname: '/auth/sign-up', params });
+        return;
+      }
+      startSession(result.account);
       finishAuth(next);
     } catch (e) {
       setFormError(errorMessage(e));
