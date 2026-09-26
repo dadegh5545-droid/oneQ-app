@@ -21,6 +21,7 @@ export function Chip({ label, selected = false, icon, onPress }: Props) {
       onPress={onPress}
       accessibilityRole={onPress ? 'button' : 'text'}
       accessibilityState={onPress ? { selected } : undefined}
+      hitSlop={4}
       style={[styles.chip, selected ? styles.selected : styles.unselected]}
     >
       {icon ? <Icon name={icon} size={16} color={selected ? fg : colors.primary} /> : null}
@@ -33,7 +34,7 @@ export function Chip({ label, selected = false, icon, onPress }: Props) {
 
 const styles = StyleSheet.create({
   chip: {
-    height: 37,
+    minHeight: 37,
     paddingHorizontal: space.lg,
     borderRadius: radius.pill,
     flexDirection: 'row',

@@ -1,5 +1,6 @@
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 
@@ -13,6 +14,7 @@ import { EmptyState, LoadingState } from '@/components/StateView';
 import { useGym, useTrainer, useTrainerReviews } from '@/data';
 import type { Gym, Trainer } from '@/domain/models';
 import { useDraft } from '@/features/booking/draftStore';
+import { track } from '@/services/analytics';
 import { colors, radius, space } from '@/theme';
 import { qar, rating } from '@/utils/format';
 
@@ -22,6 +24,11 @@ export function TrainerScreen({ id }: { id: string }) {
   const trainer = useTrainer(id);
   // The gym is resolved from trainer.gymId, so booking works from any entry point (02 S10 mobile UX).
   const gym = useGym(trainer.data?.gymId ?? '');
+  const found = !!trainer.data;
+
+  useEffect(() => {
+    if (found) track({ name: 'view_trainer', trainerId: id });
+  }, [found, id]);
 
   if (trainer.isPending || (trainer.data && gym.isPending)) return <Screen edges={[]}><LoadingState /></Screen>;
   if (trainer.isError || gym.isError) {

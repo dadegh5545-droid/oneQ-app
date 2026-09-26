@@ -1,17 +1,28 @@
-import { QueryClient, useQuery } from '@tanstack/react-query';
+import { MutationCache, QueryCache, QueryClient, useQuery } from '@tanstack/react-query';
 
 import type { Specialty } from '@/domain/models';
+import { reportError } from '@/services/monitoring';
 
+import { adminRepository as amplifyAdminRepository } from './amplify/adminRepository';
 import { amplifyRepository } from './amplify/amplifyRepository';
-import { RepositoryError, type Repository } from './repository';
+import './network';
+import { RepositoryError, type AdminRepository, type Repository } from './repository';
 
 export const repository: Repository = amplifyRepository;
+export const adminRepository: AdminRepository = amplifyAdminRepository;
 
 // Only transient failures are retried; validation, auth and not-found errors are final.
 const retryable = (e: unknown) => !(e instanceof RepositoryError) || e.code === 'NETWORK';
 
 export const queryClient = new QueryClient({
-  defaultOptions: { queries: { retry: (failures, e) => failures < 2 && retryable(e) } },
+  // Unexpected failures are reported; expected ones (RepositoryError) are shown by the screens.
+  queryCache: new QueryCache({ onError: (e, query) => reportError(e, { query: String(query.queryKey[0]) }) }),
+  mutationCache: new MutationCache({ onError: (e) => reportError(e, { area: 'mutation' }) }),
+  defaultOptions: {
+    // Requests run even when NetInfo says offline, so screens show the network error + Retry instead of an
+    // endless spinner; they refetch automatically when the connection returns (./network.ts).
+    queries: { networkMode: 'always', retry: (failures, e) => failures < 2 && retryable(e) },
+  },
 });
 
 export const useGyms = () => useQuery({ queryKey: ['gyms'], queryFn: () => repository.listGyms() });

@@ -13,17 +13,23 @@ const client = generateClient<Schema>();
 
 type Result = { data: unknown; errors?: readonly { message: string }[] };
 
-// Upsert by the fixed catalogue id, so running the seed again never duplicates records.
+// Keyed by the fixed catalogue ids, so running the seed again never duplicates records. Existing records are
+// left alone (admins may have edited them) unless the payload is { "overwrite": true }.
+let overwrite = false;
+
 async function upsert(label: string, get: () => Promise<Result>, create: () => Promise<Result>, update: () => Promise<Result>) {
   const found = await get();
-  const result = found.errors?.length ? found : found.data ? await update() : await create();
+  if (found.errors?.length) throw new Error(`${label}: ${found.errors.map((e) => e.message).join(', ')}`);
+  if (found.data && !overwrite) return 'unchanged';
+  const result = found.data ? await update() : await create();
   if (result.errors?.length) throw new Error(`${label}: ${result.errors.map((e) => e.message).join(', ')}`);
   return found.data ? 'updated' : 'created';
 }
 
-export const handler = async () => {
-  const outcome = { created: 0, updated: 0 };
-  const count = (r: 'created' | 'updated') => (outcome[r] += 1);
+export const handler = async (event?: { overwrite?: boolean }) => {
+  overwrite = event?.overwrite === true;
+  const outcome = { created: 0, updated: 0, unchanged: 0 };
+  const count = (r: 'created' | 'updated' | 'unchanged') => (outcome[r] += 1);
 
   for (const [sortOrder, { id, ...gym }] of GYMS.entries()) {
     const record = { id, ...gym, sortOrder };

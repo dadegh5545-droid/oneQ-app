@@ -1,5 +1,5 @@
 // Regression + security checks against the deployed sandbox (reads ./amplify_outputs.json).
-//   npm run backend:check
+//   npm run backend:check        (AWS_PROFILE=oneq-dev enables the admin checks, which grant admin via a Lambda)
 // Creates two auto-confirmed test users (SES mailbox-simulator addresses, sandbox only), exercises the
 // catalogue, auth, favorites, bookings and authorization rules, then deletes both users.
 // Test bookings stay in the sandbox tables (owners cannot delete bookings by design).
@@ -8,6 +8,8 @@ import { readFileSync } from 'node:fs';
 import { Amplify } from 'aws-amplify';
 import * as Auth from 'aws-amplify/auth';
 import { generateClient } from 'aws-amplify/data';
+
+import { invokeSandboxFunction } from './lib/sandbox-function.mjs';
 
 Amplify.configure(JSON.parse(readFileSync(new URL('../amplify_outputs.json', import.meta.url), 'utf8')));
 const client = generateClient();
@@ -73,6 +75,9 @@ const makeUser = (tag) => ({
 });
 const A = makeUser('a');
 const B = makeUser('b');
+const C = makeUser('c'); // admin
+let sessionA; // { id, slot } — cancelled by the admin checks
+let guestG1; // first guest booking (with its token)
 
 async function signUpAndIn(u) {
   const { nextStep } = await Auth.signUp({
@@ -254,6 +259,7 @@ await check('bookings: authenticated trainer session keeps date/time; slot then 
   const hh = String(Math.floor(slot.minutes / 60)).padStart(2, '0');
   const mm = String(slot.minutes % 60).padStart(2, '0');
   assert(data?.date === `${slot.date}T${hh}:${mm}:00` && data.timeLabel && data.priceQar === 160, text({ errors }) || JSON.stringify(data));
+  sessionA = { id: data.id, slot };
   await failsWith(client.mutations.placeBooking({ ...args, paymentId: `mock-${stamp}-4` }, user), 'SLOT_TAKEN');
   const { data: days } = await client.queries.trainerAvailability({ trainerId: 'hassan-elamin' }, user);
   const day = days.find((d) => d.date === slot.date);
@@ -325,6 +331,7 @@ await check('bookings: guest membership + token lookup; forged token rejected', 
   await Auth.signOut();
   const { data, errors } = await client.mutations.placeBooking(draft({ type: 'membership', gymId: 'core-studio', planId: 'core-studio-monthly', guestPhone: randomPhone(), paymentMethod: 'card', paymentId: `mock-${stamp}-g1` }), guest);
   assert(data?.guestToken?.startsWith(`${data.id}.`) && data.priceQar === 229, text({ errors }));
+  guestG1 = data;
   const { data: found } = await client.queries.guestBookings({ tokens: [data.guestToken] }, guest);
   assert(found.length === 1 && found[0].id === data.id && !found[0].guestToken, 'token lookup');
   const { data: forged } = await client.queries.guestBookings({ tokens: [`${data.id}.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA`] }, guest);
@@ -336,6 +343,75 @@ await check('bookings: guest trainer session', async () => {
   const { data, errors } = await client.mutations.placeBooking(draft({ type: 'session', gymId: 'core-studio', trainerId: 'maya-fernandes', ...slot, paymentMethod: 'card', paymentId: `mock-${stamp}-g2` }), guest);
   assert(data?.guestToken && data.trainerName === 'Maya Fernandes' && data.priceQar === 170, text({ errors }));
 });
+
+// ── Idempotency and payment boundary ──
+await check('bookings: guest retry with the same payment returns the same booking; old token revoked', async () => {
+  const args = draft({ type: 'membership', gymId: 'core-studio', planId: 'core-studio-monthly', paymentMethod: 'card', paymentId: `mock-${stamp}-g1` });
+  const { data, errors } = await client.mutations.placeBooking(args, guest);
+  assert(data?.id === guestG1.id && data.guestToken && data.guestToken !== guestG1.guestToken, text({ errors }) || 'no replay');
+  const { data: oldToken } = await client.queries.guestBookings({ tokens: [guestG1.guestToken] }, guest);
+  const { data: newToken } = await client.queries.guestBookings({ tokens: [data.guestToken] }, guest);
+  assert(oldToken.length === 0 && newToken.length === 1, 'token rotation');
+});
+await check('bookings: owner retry with the same payment returns the same booking (no duplicate)', async () => {
+  await signInAs(A);
+  const args = draft({ type: 'membership', gymId: 'power-house', planId: 'power-house-3m', paymentMethod: 'card', paymentId: `mock-${stamp}-1` });
+  const { data, errors } = await client.mutations.placeBooking(args, user);
+  assert(data?.id === bookingA.id && !data.guestToken, text({ errors }) || 'no replay');
+  const mine = await client.models.Booking.listBookingsByOwner({ owner: A.owner }, user);
+  assert(mine.data.filter((b) => b.paymentId === `mock-${stamp}-1`).length === 1, 'duplicate booking created');
+  assert(mine.data.every((b) => b.guestTokenHash == null), 'guestTokenHash exposed to owner');
+});
+await check('security: another caller cannot replay a payment id', async () => {
+  await signInAs(B);
+  await failsWith(client.mutations.placeBooking(draft({ type: 'membership', gymId: 'power-house', planId: 'power-house-3m', paymentMethod: 'card', paymentId: `mock-${stamp}-1` }), user), 'VALIDATION');
+});
+await check('payments: non-mock payment ids are rejected', async () => {
+  await failsWith(client.mutations.placeBooking(draft({ type: 'membership', gymId: 'peak-performance', planId: 'peak-performance-monthly', guestPhone: randomPhone(), paymentMethod: 'card', paymentId: `real-${stamp}` }), user), 'PAYMENT_FAILED');
+});
+
+// ── Admin (needs AWS_PROFILE: the admin group is granted through the admin-access Lambda) ──
+if (process.env.AWS_PROFILE) {
+  await check('security: regular users and guests cannot cancel bookings (admin only)', async () => {
+    await signInAs(A);
+    await denied(client.mutations.adminCancelBooking({ id: sessionA.id }, user), 'user adminCancelBooking');
+    await Auth.signOut();
+    await denied(client.mutations.adminCancelBooking({ id: sessionA.id }, guest), 'guest adminCancelBooking');
+  });
+  await check('admin: granted through the admin-access function', async () => {
+    await Auth.signOut();
+    await signUpAndIn(C);
+    invokeSandboxFunction('adminaccess', { action: 'grant', email: C.email });
+    await signInAs(C);
+    const { tokens } = await Auth.fetchAuthSession();
+    assert((tokens.accessToken.payload['cognito:groups'] ?? []).includes('admin'), 'admin group missing from token');
+  });
+  await check('admin: can edit the catalogue (edit reverted)', async () => {
+    const { data: gym } = await client.models.Gym.get({ id: 'power-house' }, user);
+    const edited = await client.models.Gym.update({ id: 'power-house', description: `${gym.description} (check)` }, user);
+    assert(!edited.errors?.length && edited.data.description.endsWith('(check)'), text(edited));
+    const reverted = await client.models.Gym.update({ id: 'power-house', description: gym.description }, user);
+    assert(reverted.data?.description === gym.description, 'revert failed');
+  });
+  await check('admin: sees all bookings and cancelling releases the trainer slot', async () => {
+    const all = await client.models.Booking.list({ ...user, limit: 1000 });
+    assert(all.data.some((b) => b.id === bookingA.id) && all.data.some((b) => b.id === sessionA.id), 'admin booking overview incomplete');
+    const { data, errors } = await client.mutations.adminCancelBooking({ id: sessionA.id }, user);
+    assert(data?.status === 'cancelled', text({ errors }));
+    const { data: days } = await client.queries.trainerAvailability({ trainerId: 'hassan-elamin' }, user);
+    const day = days.find((d) => d.date === sessionA.slot.date);
+    assert(day.slots.some((s) => s.minutes === sessionA.slot.minutes && s.available), 'slot not released');
+  });
+  await check('hygiene: cancel the bookings created by this run', async () => {
+    const all = await client.models.Booking.list({ ...user, limit: 1000 });
+    const mine = all.data.filter((b) => b.paymentId.startsWith(`mock-${stamp}`) && b.status === 'confirmed');
+    for (const b of mine) await client.mutations.adminCancelBooking({ id: b.id }, user);
+    invokeSandboxFunction('adminaccess', { action: 'revoke', email: C.email });
+    await Auth.deleteUser();
+  });
+} else {
+  results.push({ check: 'admin checks', result: 'SKIP', detail: 'set AWS_PROFILE to run' });
+}
 
 // ── Cleanup ──
 await check('cleanup: remove favorites and delete test users', async () => {

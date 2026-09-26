@@ -6,7 +6,6 @@ import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { EmptyState, LoadingState } from '@/components/StateView';
 import { SummaryCard } from '@/components/SummaryCard';
-import { useToast } from '@/components/Toast';
 import { useBooking } from '@/data';
 import type { Booking } from '@/domain/models';
 import { ltr } from '@/i18n';
@@ -14,6 +13,7 @@ import { space } from '@/theme';
 import { localizeTime, longDate, qar } from '@/utils/format';
 
 import { planName } from './BookingCard';
+import { useAddToCalendar } from './useAddToCalendar';
 
 // S17 summary rows; only rows with a value are shown. Shared with S15.
 export function useBookingRows(b: Booking) {
@@ -61,13 +61,13 @@ export function BookingDetailsScreen({ id }: { id: string }) {
 
 function Details({ booking }: { booking: Booking }) {
   const { t } = useTranslation();
-  const toast = useToast();
+  const calendar = useAddToCalendar();
   const rows = useBookingRows(booking);
   return (
     <Screen scroll edges={[]} contentStyle={styles.content}>
       <SummaryCard title={t('booking.summary')} rows={rows} total={{ label: t('checkout.total'), value: qar(booking.priceQar) }} />
       <View style={styles.actions}>
-        <Button variant="outlined" label={t('success.addToCalendar')} onPress={() => toast(t('success.calendarSoon'))} />
+        <Button variant="outlined" label={t('success.addToCalendar')} onPress={() => calendar.add(booking)} loading={calendar.busy} />
         <Button label={t('success.backToHome')} onPress={() => router.navigate('/home')} />
       </View>
     </Screen>

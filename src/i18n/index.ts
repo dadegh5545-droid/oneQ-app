@@ -5,6 +5,8 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { I18nManager, Platform } from 'react-native';
 
+import { track } from '@/services/analytics';
+
 import ar from './locales/ar.json';
 import en from './locales/en.json';
 
@@ -68,6 +70,7 @@ export async function initI18n() {
 }
 
 export async function setLanguage(lang: Language) {
+  track({ name: 'language_changed', language: lang });
   await AsyncStorage.setItem(LANGUAGE_KEY, lang);
   await i18n.changeLanguage(lang);
   if (applyDirection(lang)) {

@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet } from 'react-native';
 
@@ -9,6 +9,7 @@ import { SegmentedControl } from '@/components/SegmentedControl';
 import { EmptyState, LoadingState } from '@/components/StateView';
 import { useBookings } from '@/data';
 import { isUpcoming } from '@/domain/rules';
+import { syncBookingReminders } from '@/services/notifications';
 import { space } from '@/theme';
 
 import { BookingCard } from './BookingCard';
@@ -20,6 +21,11 @@ export function BookingsScreen() {
   const { t } = useTranslation();
   const [tab, setTab] = useState<Tab>('upcoming');
   const bookings = useBookings();
+
+  // Reminders for bookings that are no longer confirmed (e.g. cancelled by OneQ) are removed.
+  useEffect(() => {
+    if (bookings.data) void syncBookingReminders(bookings.data);
+  }, [bookings.data]);
 
   const renderList = () => {
     if (bookings.isPending) return <LoadingState />;

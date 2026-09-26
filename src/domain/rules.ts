@@ -71,3 +71,8 @@ export const greetingKey = (now = new Date()) => {
   const h = now.getHours();
   return h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
 };
+
+// Session dates are Asia/Qatar wall time ("yyyy-MM-ddTHH:mm:00", UTC+3 all year); this is the real instant,
+// whatever the device time zone. Sessions last 60 minutes (11 §1 sessionMinutes default).
+export const SESSION_MINUTES = 60;
+export const sessionStart = (date: string) => new Date(`${date}+03:00`);

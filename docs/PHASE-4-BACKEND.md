@@ -68,7 +68,8 @@ active membership for the same phone at the same gym → `DUPLICATE_BOOKING`. Th
 ```bash
 npx ampx sandbox --profile oneq-dev          # deploy/watch the personal sandbox, writes amplify_outputs.json
 npx ampx sandbox --profile oneq-dev --once   # single deployment
-npm run seed                                 # (AWS_PROFILE=oneq-dev) idempotent catalogue seed
+npm run seed                                 # (AWS_PROFILE=oneq-dev) create missing catalogue records; --overwrite resets them
+npm run admin:grant -- <email>               # admin group via the admin-access function (see PRODUCTION-READINESS.md)
 npm run backend:check                        # regression + security checks against the sandbox
 npm run typecheck                            # app + amplify/ TypeScript
 npx ampx sandbox delete --profile oneq-dev   # remove the sandbox

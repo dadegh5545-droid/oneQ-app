@@ -65,7 +65,23 @@
           "imageWidth": 200
         }
       ],
-      "expo-image"
+      "expo-image",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/android-icon-monochrome.png",
+          "color": "#5A0020"
+        }
+      ],
+      [
+        "expo-calendar",
+        {
+          "writeOnlyAccess": true,
+          "writeOnlyCalendarPermission": "OneQ adds your gym bookings to your calendar when you tap Add to Calendar.",
+          "calendarPermission": "OneQ adds your gym bookings to your calendar when you tap Add to Calendar.",
+          "remindersPermission": false
+        }
+      ]
     ],
     "extra": {
       "router": {},

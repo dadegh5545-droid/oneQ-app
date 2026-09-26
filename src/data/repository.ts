@@ -19,6 +19,7 @@ export type RepositoryErrorCode =
   | 'SLOT_TAKEN'
   | 'SLOT_UNAVAILABLE'
   | 'DUPLICATE_BOOKING'
+  | 'PAYMENT_FAILED'
   | 'VALIDATION'
   | 'INVALID_CREDENTIALS'
   | 'INVALID_PASSWORD'
@@ -78,4 +79,17 @@ export interface Repository {
   signOut(): Promise<void>;
   requestPasswordReset(identifier: string): Promise<void>;
   confirmPasswordReset(identifier: string, code: string, newPassword: string): Promise<void>;
+}
+
+// Management operations. The backend enforces the Cognito `admin` group for every one of them.
+export type GymInput = Omit<Gym, 'id' | 'rating' | 'reviewCount' | 'openingHours'>;
+export type TrainerInput = Omit<Trainer, 'id' | 'rating' | 'reviewCount'>;
+
+export interface AdminRepository {
+  // `id` null creates a new record (id derived from the name) and returns its id.
+  saveGym(id: string | null, input: GymInput): Promise<string>;
+  savePlan(plan: MembershipPlan & { gymId: string }): Promise<void>;
+  saveTrainer(id: string | null, input: TrainerInput): Promise<string>;
+  listAllBookings(): Promise<Booking[]>;
+  cancelBooking(id: string): Promise<Booking>;
 }

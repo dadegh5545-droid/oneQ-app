@@ -226,8 +226,7 @@
     "session": "Your session with {{name}} has been confirmed.",
     "viewBooking": "View Booking",
     "addToCalendar": "Add to Calendar",
-    "backToHome": "Back to Home",
-    "calendarSoon": "Calendar integration will be available soon."
+    "backToHome": "Back to Home"
   },
   "bookings": {
     "title": "Bookings",
@@ -279,7 +278,8 @@
     "help": "Help & Support",
     "language": "Language",
     "terms": "Terms & Conditions",
-    "privacy": "Privacy Policy"
+    "privacy": "Privacy Policy",
+    "management": "Management"
   },
   "info": {
     "help": {
@@ -337,6 +337,7 @@
     "NETWORK": "No connection. Check your internet and try again.",
     "UNAUTHORIZED": "You do not have access to this. Please sign in and try again.",
     "SESSION_EXPIRED": "Your session has expired. Please sign in again.",
+    "PAYMENT_FAILED": "Payment could not be verified. You have not been charged.",
     "payment": "Payment could not be completed.",
     "generic": "Something went wrong. Please try again."
   },
@@ -369,5 +370,66 @@
     "confirm": "Confirm new password",
     "submit": "Reset password",
     "success": "Your password has been updated."
+  },
+  "notifications": {
+    "channel": "Booking updates",
+    "confirmedTitle": "Booking confirmed",
+    "confirmedSession": "Your session at {{gym}} is booked.",
+    "confirmedMembership": "Your membership at {{gym}} is confirmed.",
+    "reminderTitle": "Upcoming session",
+    "reminderTomorrow": "Your session at {{gym}} is tomorrow at {{time}}.",
+    "reminderSoon": "Your session at {{gym}} starts in 1 hour."
+  },
+  "calendar": {
+    "added": "Added to your calendar.",
+    "exists": "This booking is already in your calendar.",
+    "denied": "Allow calendar access in Settings to add bookings.",
+    "unavailable": "Adding to a calendar is available in the OneQ app on your phone.",
+    "sessionTitle": "Training session · {{gym}}",
+    "membershipTitle": "Membership starts · {{gym}}",
+    "notesTrainer": "Trainer: {{name}}",
+    "notesBooked": "Booked with OneQ"
+  },
+  "admin": {
+    "title": "OneQ management",
+    "gyms": "Gyms",
+    "gym": "Gym",
+    "trainer": "Trainer",
+    "trainers": "Trainers",
+    "plans": "Membership plans",
+    "bookings": "All bookings",
+    "newGym": "New gym",
+    "newTrainer": "New trainer",
+    "save": "Save",
+    "saved": "Saved.",
+    "required": "Required",
+    "notFound": "Record not found",
+    "noAccessTitle": "Admins only",
+    "noAccessBody": "This area is for OneQ administrators.",
+    "noBookings": "No bookings yet.",
+    "cancelBooking": "Cancel booking",
+    "fields": {
+      "name": "Name",
+      "area": "Area",
+      "address": "Address",
+      "description": "Description",
+      "monthlyPrice": "Monthly price (QAR)",
+      "trainerFromMonthly": "Personal training from (QAR / month)",
+      "images": "Image URLs (one per line)",
+      "amenities": "Amenities",
+      "featured": "Featured",
+      "nearby": "Near you",
+      "price": "Price (QAR)",
+      "badge": "Badge",
+      "title": "Title",
+      "bio": "Bio",
+      "image": "Photo URL",
+      "pricePerSession": "Price per session (QAR)",
+      "yearsExperience": "Years of experience",
+      "languages": "Languages (comma separated)",
+      "certifications": "Certifications (one per line)",
+      "specialties": "Specialties",
+      "gym": "Gym"
+    }
   }
 }

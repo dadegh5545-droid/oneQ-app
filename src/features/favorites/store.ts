@@ -4,6 +4,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { repository } from '@/data';
 import { useSession } from '@/features/auth/sessionStore';
+import { track } from '@/services/analytics';
 
 type FavoritesState = {
   // Signed out: kept on this device. Merged into the account on the next sign-in.
@@ -26,7 +27,9 @@ export const useFavorites = create<FavoritesState>()(
       pending: [],
       toggle: async (gymId) => {
         if (!useSession.getState().user) {
+          const saved = get().guestIds.includes(gymId);
           set((s) => ({ guestIds: toggled(s.guestIds, gymId) }));
+          track({ name: saved ? 'favorite_removed' : 'favorite_added', gymId });
           return;
         }
         if (get().pending.includes(gymId)) return;
@@ -35,6 +38,7 @@ export const useFavorites = create<FavoritesState>()(
         set((s) => ({ accountIds: toggled(s.accountIds, gymId), pending: [...s.pending, gymId] }));
         try {
           await (wasSaved ? repository.removeFavorite(gymId) : repository.addFavorite(gymId));
+          track({ name: wasSaved ? 'favorite_removed' : 'favorite_added', gymId });
         } catch (e) {
           set((s) => ({ accountIds: wasSaved ? [...s.accountIds, gymId] : s.accountIds.filter((id) => id !== gymId) }));
           throw e;

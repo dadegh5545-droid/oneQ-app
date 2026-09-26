@@ -45,10 +45,11 @@ export function Button({ label, onPress, variant = 'primary', disabled, loading,
 
 const styles = StyleSheet.create({
   base: { alignItems: 'center', justifyContent: 'center', borderRadius: radius.md },
-  primary: { height: 52, backgroundColor: colors.primary },
+  // minHeight (not height) so larger system font sizes grow the button instead of clipping its label.
+  primary: { minHeight: 52, backgroundColor: colors.primary },
   primaryPressed: { backgroundColor: colors.primaryPressed },
-  outlined: { height: 52, borderWidth: 1, borderColor: colors.primary },
-  text: { height: 32, paddingHorizontal: space.sm, alignSelf: 'flex-start' },
+  outlined: { minHeight: 52, borderWidth: 1, borderColor: colors.primary },
+  text: { minHeight: 32, paddingHorizontal: space.sm, alignSelf: 'flex-start' },
   pressed: { opacity: 0.7 },
   disabled: { opacity: 0.4 },
 });

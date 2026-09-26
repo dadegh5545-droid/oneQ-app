@@ -4,11 +4,12 @@ import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { preSignUp } from './auth/pre-sign-up/resource';
 import { auth } from './auth/resource';
 import { data } from './data/resource';
+import { adminAccess } from './functions/admin-access/resource';
 import { bookings } from './functions/bookings/resource';
 import { phoneLogin } from './functions/phone-login/resource';
 import { seedCatalogue } from './functions/seed-catalogue/resource';
 
-const backend = defineBackend({ auth, data, preSignUp, bookings, phoneLogin, seedCatalogue });
+const backend = defineBackend({ auth, data, preSignUp, bookings, phoneLogin, seedCatalogue, adminAccess });
 
 const { userPool, cfnResources } = backend.auth.resources;
 
@@ -30,6 +31,19 @@ backend.phoneLogin.addEnvironment('USER_POOL_ID', userPool.userPoolId);
 backend.phoneLogin.resources.lambda.addToRolePolicy(
   new PolicyStatement({ actions: ['cognito-idp:ListUsers'], resources: [userPool.userPoolArn] }),
 );
+
+// Operator tool: add/remove users in the admin group (no GraphQL exposure).
+backend.adminAccess.addEnvironment('USER_POOL_ID', userPool.userPoolId);
+backend.adminAccess.resources.lambda.addToRolePolicy(
+  new PolicyStatement({
+    actions: ['cognito-idp:ListUsers', 'cognito-idp:AdminAddUserToGroup', 'cognito-idp:AdminRemoveUserFromGroup'],
+    resources: [userPool.userPoolArn],
+  }),
+);
+
+// Payments are mock-only until a real provider is integrated (docs/PRODUCTION-READINESS.md). A production
+// environment must set a real provider here; the bookings function rejects mock payment ids otherwise.
+backend.bookings.addEnvironment('PAYMENT_PROVIDER', 'mock');
 
 // Sandbox only: auto-confirm SES mailbox-simulator test accounts for the backend checks (never in branch deployments).
 if (backend.stack.node.tryGetContext('amplify-backend-type') === 'sandbox') {

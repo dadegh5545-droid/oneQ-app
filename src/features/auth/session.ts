@@ -1,9 +1,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import NetInfo from '@react-native-community/netinfo';
 import { Hub } from 'aws-amplify/utils';
 
 import { queryClient, repository } from '@/data';
+import { RepositoryError } from '@/data/repository';
 import type { Account } from '@/domain/models';
 import { useFavorites } from '@/features/favorites/store';
+import { clearAccountReminders } from '@/services/notifications';
 
 import { useSession } from './sessionStore';
 
@@ -18,7 +21,9 @@ const resetUserQueries = () => {
 // Profile (UserProfile) and favorites load in the background; the app never waits on them.
 async function refreshAccountData() {
   const [profile] = await Promise.allSettled([repository.getProfile(), useFavorites.getState().loadAccount()]);
-  if (profile.status === 'fulfilled' && useSession.getState().user) useSession.getState().setUser(profile.value);
+  const current = useSession.getState().user;
+  // The admin flag comes from the Cognito token, not from UserProfile.
+  if (profile.status === 'fulfilled' && current) useSession.getState().setUser({ ...profile.value, isAdmin: current.isAdmin });
 }
 
 // After a successful sign-in, sign-up confirmation or session restore.
@@ -32,13 +37,27 @@ function endSession() {
   useSession.getState().setUser(null);
   useFavorites.getState().clearAccount();
   resetUserQueries();
+  void clearAccountReminders();
 }
 
 // App start: Amplify keeps the Cognito tokens; the account comes from the ID token without a network call.
 export async function restoreSession() {
   await AsyncStorage.multiRemove(LEGACY_KEYS).catch(() => undefined);
-  const account = await repository.currentAccount().catch(() => null);
-  if (account) startSession(account);
+  try {
+    const account = await repository.currentAccount();
+    if (account) startSession(account);
+  } catch (e) {
+    // Offline start with an expired access token: the stored session is kept; restore once online.
+    if (e instanceof RepositoryError && e.code === 'NETWORK') restoreWhenOnline();
+  }
+}
+
+function restoreWhenOnline() {
+  const unsubscribe = NetInfo.addEventListener((state) => {
+    if (!state.isConnected) return;
+    unsubscribe();
+    void restoreSession();
+  });
 }
 
 export async function signOut() {

@@ -1,4 +1,4 @@
-import { createHash, randomBytes, randomUUID, timingSafeEqual } from 'node:crypto';
+import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 
 import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtime';
 import type { AppSyncResolverEvent } from 'aws-lambda';
@@ -16,7 +16,7 @@ const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env)
 Amplify.configure(resourceConfig, libraryOptions);
 const client = generateClient<Schema>();
 
-type ErrorCode = 'VALIDATION' | 'INVALID_BOOKING' | 'SLOT_TAKEN' | 'SLOT_UNAVAILABLE' | 'DUPLICATE_BOOKING' | 'NOT_FOUND';
+type ErrorCode = 'VALIDATION' | 'INVALID_BOOKING' | 'SLOT_TAKEN' | 'SLOT_UNAVAILABLE' | 'DUPLICATE_BOOKING' | 'NOT_FOUND' | 'PAYMENT_FAILED' | 'UNAUTHORIZED';
 
 // The message is the code; the app maps it to RepositoryError.
 function fail(code: ErrorCode): never {
@@ -148,20 +148,59 @@ const ownerOf = (identity: ResolverEvent['identity']) =>
     ? `${identity.sub}::${identity.username}`
     : null;
 
+// Payment boundary: the only place a payment is trusted. A real provider verifies paymentId + amount here
+// (and later reconciles via its webhook). Mock payment ids are accepted only when PAYMENT_PROVIDER is "mock".
+async function verifyPayment(paymentId: string, _amountQar: number) {
+  if (process.env.PAYMENT_PROVIDER === 'mock' && paymentId.startsWith('mock-')) return;
+  fail('PAYMENT_FAILED');
+}
+
+// One booking per payment: the id is derived from the payment id, so a retried request (e.g. after a lost
+// response) finds the booking it already created instead of booking twice.
+const bookingIdFor = (paymentId: string) => {
+  const h = createHash('sha256').update(`oneq-booking:${paymentId}`).digest('hex');
+  return `bk-${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20, 32)}`;
+};
+
+// Replays an existing booking to the caller that made it. A guest gets a fresh token (the old one was never
+// received), which also invalidates any earlier token.
+// Owner fields are stored as "<sub>::<username>" but read back as the username alone.
+const sameOwner = (stored: string | null | undefined, owner: string | null) =>
+  !stored || !owner ? !stored && !owner : stored === owner || stored === owner.split('::')[1];
+
+async function replay(existing: BookingRecord, owner: string | null) {
+  if (!sameOwner(existing.owner, owner)) fail('VALIDATION');
+  if (owner) return toView(existing, null);
+  const secret = randomBytes(24).toString('base64url');
+  const updated = await unwrap(client.models.Booking.update({ id: existing.id, guestTokenHash: sha256(secret).toString('hex') }));
+  return toView(updated ?? existing, `${existing.id}.${secret}`);
+}
+
 async function createBooking(args: Args, owner: string | null) {
   // Malformed input is rejected before any lookup.
   const paymentMethod = typeof args.paymentMethod === 'string' && PAYMENT_METHODS.includes(args.paymentMethod) ? args.paymentMethod : fail('VALIDATION');
   const paymentId = text(args.paymentId) ?? fail('VALIDATION');
-  const draft = await validateDraft(args);
+  const id = bookingIdFor(paymentId);
 
-  const id = `bk-${randomUUID()}`;
+  const existing = await unwrap(client.models.Booking.get({ id }));
+  if (existing) return replay(existing, owner);
+
+  const draft = await validateDraft(args);
+  await verifyPayment(paymentId, draft.priceQar);
+
   const secret = owner ? null : randomBytes(24).toString('base64url');
   const today = startOfDay(qatarNow());
   const session = draft.kind === 'session';
 
   if (session) {
     const lock = await client.models.SlotReservation.create({ trainerId: draft.trainer.id, startAt: draft.startAt, bookingId: id });
-    if (isConditionalFailure(lock.errors)) fail('SLOT_TAKEN');
+    if (isConditionalFailure(lock.errors)) {
+      // The same payment racing itself: return the booking the other request created.
+      const holder = await unwrap(client.models.SlotReservation.get({ trainerId: draft.trainer.id, startAt: draft.startAt }));
+      const same = holder?.bookingId === id ? await unwrap(client.models.Booking.get({ id })) : null;
+      if (same) return replay(same, owner);
+      fail('SLOT_TAKEN');
+    }
     check(lock);
   }
 
@@ -191,12 +230,31 @@ async function createBooking(args: Args, owner: string | null) {
   });
 
   if (created.errors?.length || !created.data) {
+    // A concurrent request with the same payment won the conditional create: return that booking.
+    if (isConditionalFailure(created.errors)) {
+      const same = await unwrap(client.models.Booking.get({ id }));
+      if (same) return replay(same, owner);
+    }
     // Release the slot so a failed write never blocks it.
     if (session) await client.models.SlotReservation.delete({ trainerId: draft.trainer.id, startAt: draft.startAt });
     check(created);
     throw new Error('DATA_ERROR: booking not created');
   }
   return toView(created.data, secret ? `${id}.${secret}` : null);
+}
+
+// Admin only (resolver rule + this check): mark cancelled and release the trainer slot.
+async function adminCancelBooking(id: unknown, identity: ResolverEvent['identity']) {
+  const groups = identity && 'groups' in identity ? (identity.groups ?? []) : [];
+  if (!groups.includes('admin')) fail('UNAUTHORIZED');
+  const bookingId = text(id, 64) ?? fail('VALIDATION');
+  const booking = (await unwrap(client.models.Booking.get({ id: bookingId }))) ?? fail('NOT_FOUND');
+  if (booking.type === 'session' && booking.trainerId && booking.date) {
+    const lock = await unwrap(client.models.SlotReservation.get({ trainerId: booking.trainerId, startAt: booking.date }));
+    if (lock?.bookingId === booking.id) await unwrap(client.models.SlotReservation.delete({ trainerId: booking.trainerId, startAt: booking.date }));
+  }
+  const updated = await unwrap(client.models.Booking.update({ id: booking.id, status: 'cancelled' }));
+  return toView(updated ?? booking, null);
 }
 
 async function guestBookings(tokens: unknown) {
@@ -260,6 +318,8 @@ export const handler = async (event: ResolverEvent) => {
       return createBooking(args, ownerOf(event.identity));
     case 'guestBookings':
       return guestBookings(args.tokens);
+    case 'adminCancelBooking':
+      return adminCancelBooking(args.id, event.identity);
     default:
       throw new Error('UNSUPPORTED_OPERATION');
   }

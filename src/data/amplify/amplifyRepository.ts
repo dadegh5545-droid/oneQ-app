@@ -29,7 +29,7 @@ import { toRepositoryError } from './errors';
 type Client = ReturnType<typeof generateClient<Schema>>;
 let client: Client | undefined;
 // Created lazily: Amplify.configure runs in the root layout, after this module is imported.
-const data = () => (client ??= generateClient<Schema>());
+export const data = () => (client ??= generateClient<Schema>());
 
 type AuthMode = 'userPool' | 'identityPool';
 type Session = { mode: 'identityPool' } | { mode: 'userPool'; owner: string; claims: Record<string, unknown> };
@@ -57,10 +57,22 @@ async function signedInSession() {
 
 type Result<T> = { data: T; errors?: readonly { message: string; errorType?: string | null }[]; nextToken?: string | null };
 
-async function run<T>(request: Promise<Result<T>>): Promise<Result<T>> {
+// A request that hangs (captive portal, dead connection) surfaces as NETWORK instead of spinning forever.
+// Retrying is safe: bookings are idempotent per payment.
+const REQUEST_TIMEOUT_MS = 20_000;
+
+function withTimeout<T>(request: Promise<T>): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new RepositoryError('NETWORK')), REQUEST_TIMEOUT_MS);
+  });
+  return Promise.race([request, timeout]).finally(() => clearTimeout(timer));
+}
+
+export async function run<T>(request: Promise<Result<T>>): Promise<Result<T>> {
   let result: Result<T>;
   try {
-    result = await request;
+    result = await withTimeout(request);
   } catch (e) {
     throw toRepositoryError(e);
   }
@@ -69,12 +81,12 @@ async function run<T>(request: Promise<Result<T>>): Promise<Result<T>> {
 }
 
 // Custom operations return non-null types; a missing payload means the call failed upstream.
-function required<T>(value: T | null | undefined): T {
+export function required<T>(value: T | null | undefined): T {
   if (value == null) throw new Error('Empty response');
   return value;
 }
 
-async function listAll<T>(page: (nextToken: string | undefined) => Promise<Result<T[]>>) {
+export async function listAll<T>(page: (nextToken: string | undefined) => Promise<Result<T[]>>) {
   const items: T[] = [];
   let nextToken: string | undefined;
   do {
@@ -158,7 +170,7 @@ const toReview = (r: ReviewRecord): Review => ({
   text: r.text,
 });
 
-const toBooking = (b: BookingRecord): Booking => ({
+export const toBooking = (b: BookingRecord): Booking => ({
   id: b.id,
   type: b.type as BookingType,
   gymId: b.gymId,
@@ -182,12 +194,13 @@ const toBooking = (b: BookingRecord): Booking => ({
   paymentId: b.paymentId,
 });
 
-const newestFirst = (a: Booking, b: Booking) => b.createdAt.localeCompare(a.createdAt);
+export const newestFirst = (a: Booking, b: Booking) => b.createdAt.localeCompare(a.createdAt);
 
 const accountFromClaims = (claims: Record<string, unknown>): Account => ({
   fullName: String(claims.name ?? ''),
   email: String(claims.email ?? ''),
   phone: claims.phone_number ? normaliseQatarPhone(String(claims.phone_number)) : '',
+  isAdmin: Array.isArray(claims['cognito:groups']) && claims['cognito:groups'].includes('admin'),
 });
 
 // ── Guest bookings kept on this device ("<bookingId>.<secret>" tokens from placeBooking) ──

@@ -34,7 +34,7 @@ export function SegmentedControl<T extends string>({ options, value, onChange }:
 }
 
 const styles = StyleSheet.create({
-  track: { flexDirection: 'row', height: 41, padding: space.xs, borderRadius: 14, backgroundColor: colors.surfaceVariant },
+  track: { flexDirection: 'row', minHeight: 41, padding: space.xs, borderRadius: 14, backgroundColor: colors.surfaceVariant },
   segment: { flex: 1, alignItems: 'center', justifyContent: 'center', borderRadius: 12 },
   selected: { backgroundColor: colors.surface },
   label: { fontSize: 15 },

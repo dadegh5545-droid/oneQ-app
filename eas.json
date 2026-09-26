@@ -9,7 +9,34 @@
       "distribution": "internal",
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "ONEQ_BACKEND": "sandbox",
+        "EXPO_PUBLIC_APP_ENV": "development"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "ONEQ_BACKEND": "sandbox",
+        "EXPO_PUBLIC_APP_ENV": "preview"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "env": {
+        "ONEQ_BACKEND": "main",
+        "EXPO_PUBLIC_APP_ENV": "production"
       }
     }
+  },
+  "submit": {
+    "production": {}
   }
 }

@@ -1,5 +1,5 @@
 import { Image } from 'expo-image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
@@ -15,6 +15,7 @@ import { greetingKey, matchesQuery } from '@/domain/rules';
 import { FavoriteButton } from '@/features/favorites/FavoriteButton';
 import { GymListCard, openGym } from '@/features/gyms/GymListCard';
 import { alignStart, currentLanguage } from '@/i18n';
+import { track } from '@/services/analytics';
 import { arabicFonts, colors, fonts, radius, screenPadding, space } from '@/theme';
 import { perMonthLabel } from '@/utils/format';
 
@@ -29,6 +30,14 @@ export function HomeScreen() {
   const gyms = useGyms();
 
   const searching = query.trim().length > 0;
+
+  // One event per search (debounced), with the result count only — never the search text.
+  useEffect(() => {
+    if (!searching || !gyms.data) return;
+    const all = gyms.data;
+    const timer = setTimeout(() => track({ name: 'search', resultCount: all.filter((g) => matchesQuery(g, query)).length }), 800);
+    return () => clearTimeout(timer);
+  }, [query, searching, gyms.data]);
 
   const renderBody = () => {
     if (gyms.isPending) return <LoadingState />;

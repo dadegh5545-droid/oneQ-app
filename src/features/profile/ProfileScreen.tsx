@@ -43,6 +43,11 @@ export function ProfileScreen() {
         )}
       </View>
 
+      {user?.isAdmin ? (
+        <Group label={t('profile.management')}>
+          <Row label={t('admin.title')} href="/admin" />
+        </Group>
+      ) : null}
       <Group label={t('profile.support')}>
         <Row label={t('profile.help')} href="/info/help" />
       </Group>
@@ -89,7 +94,7 @@ const styles = StyleSheet.create({
   card: { gap: space.sm, padding: space.xl, borderRadius: radius.md, borderWidth: 1, borderColor: colors.outline, backgroundColor: colors.surface },
   wordmark: { fontSize: 22 },
   actions: { gap: space.md, marginTop: space.md },
-  signOut: { height: 44, marginTop: space.md },
+  signOut: { minHeight: 44, marginTop: space.md },
   group: { gap: space.sm },
   rows: { borderRadius: radius.md, borderWidth: 1, borderColor: colors.outline, backgroundColor: colors.surface, overflow: 'hidden' },
   row: {

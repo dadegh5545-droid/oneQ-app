@@ -242,6 +242,14 @@ const schema = a
       .authorization((allow) => [allow.guest(), allow.authenticated()])
       .handler(a.handler.function(bookings)),
 
+    // Management: cancels a booking and releases its trainer slot. Admin group only (checked again in the function).
+    adminCancelBooking: a
+      .mutation()
+      .arguments({ id: a.id().required() })
+      .returns(a.ref('BookingView').required())
+      .authorization((allow) => [allow.group('admin')])
+      .handler(a.handler.function(bookings)),
+
     // Phone sign-in: resolves a Qatar mobile number to the Cognito username (null when unknown).
     signInName: a
       .query()

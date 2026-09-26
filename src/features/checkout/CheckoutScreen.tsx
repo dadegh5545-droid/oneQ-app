@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import * as Crypto from 'expo-crypto';
 import { router, Stack } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BackHandler, Platform, StyleSheet, View } from 'react-native';
 
@@ -17,8 +17,12 @@ import { repository } from '@/data';
 import { RepositoryError } from '@/data/repository';
 import type { BookingDraft, PaymentMethod } from '@/domain/models';
 import { draftTotal, slotLabel } from '@/domain/rules';
+import { useSession } from '@/features/auth/sessionStore';
 import { useDraft } from '@/features/booking/draftStore';
 import { paymentProvider } from '@/features/payments/provider';
+import { track } from '@/services/analytics';
+import { reportError } from '@/services/monitoring';
+import { notifyBookingConfirmed } from '@/services/notifications';
 import { colors, space } from '@/theme';
 import { errorMessage } from '@/utils/errorMessage';
 import { localizeTime, qar, shortDate } from '@/utils/format';
@@ -77,6 +81,15 @@ function Checkout({ draft, rows }: { draft: BookingDraft; rows: { label: string;
   // One key per checkout attempt so a retried payment is never charged twice.
   const [idempotencyKey] = useState(() => Crypto.randomUUID());
   const total = qar(draftTotal(draft));
+  const bookingType = draft.path === 'membershipPlusTrainer' ? 'session' : 'membership';
+  const gymId = draft.gym?.id ?? '';
+  // After a successful payment its id is kept: a retry after a network failure reuses it, and the backend
+  // returns the booking it may already have created instead of charging or booking twice.
+  const paid = useRef<string | null>(null);
+
+  useEffect(() => {
+    track({ name: 'checkout_started', bookingType, gymId });
+  }, [bookingType, gymId]);
 
   // Block Android back while the payment is processing (03 §6).
   useEffect(() => {
@@ -88,9 +101,13 @@ function Checkout({ draft, rows }: { draft: BookingDraft; rows: { label: string;
     if (paying) return; // double-tap guard (04 §8)
     setPaying(true);
     try {
-      const { priceQar } = await repository.quoteBooking(draft);
-      const { paymentId } = await paymentProvider.pay({ amountQar: priceQar, method: draft.paymentMethod, idempotencyKey });
-      const booking = await repository.createBooking(draft, { method: draft.paymentMethod, paymentId });
+      if (!paid.current) {
+        const { priceQar } = await repository.quoteBooking(draft);
+        paid.current = (await paymentProvider.pay({ amountQar: priceQar, method: draft.paymentMethod, idempotencyKey })).paymentId;
+      }
+      const booking = await repository.createBooking(draft, { method: draft.paymentMethod, paymentId: paid.current });
+      track({ name: 'booking_completed', bookingType: booking.type, gymId: booking.gymId, priceQar: booking.priceQar });
+      void notifyBookingConfirmed(booking, useSession.getState().user ? 'account' : 'guest');
       // Success reads the booking just created without another round trip.
       queryClient.setQueryData(['booking', booking.id], booking);
       await queryClient.invalidateQueries({ queryKey: ['bookings'] });
@@ -101,6 +118,10 @@ function Checkout({ draft, rows }: { draft: BookingDraft; rows: { label: string;
       router.push({ pathname: '/checkout/success/[id]', params: { id: booking.id } });
     } catch (e) {
       setPaying(false);
+      track({ name: 'booking_failed', bookingType, errorCode: e instanceof RepositoryError ? e.code : 'UNKNOWN' });
+      reportError(e, { area: 'checkout' });
+      // Only a network failure keeps the payment for a safe retry; any other outcome starts over.
+      if (!(e instanceof RepositoryError && e.code === 'NETWORK')) paid.current = null;
       if (e instanceof RepositoryError && (e.code === 'SLOT_TAKEN' || e.code === 'SLOT_UNAVAILABLE')) {
         // Return to S11 to pick another time (04 §8).
         useDraft.getState().selectSlot(undefined);

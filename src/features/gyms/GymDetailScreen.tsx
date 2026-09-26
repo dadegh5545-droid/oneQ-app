@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -18,6 +18,7 @@ import { EmptyState, LoadingState } from '@/components/StateView';
 import { useGym, useGymReviews, usePlans, useTrainers } from '@/data';
 import { gymLocation, type AmenityKey, type Gym } from '@/domain/models';
 import { FavoriteButton } from '@/features/favorites/FavoriteButton';
+import { track } from '@/services/analytics';
 import { colors, radius, screenPadding, space } from '@/theme';
 import { qar } from '@/utils/format';
 
@@ -36,6 +37,11 @@ const AMENITY_ICONS: Record<AmenityKey, IconName> = {
 export function GymDetailScreen({ id }: { id: string }) {
   const { t } = useTranslation();
   const gym = useGym(id);
+  const found = !!gym.data;
+
+  useEffect(() => {
+    if (found) track({ name: 'view_gym', gymId: id });
+  }, [found, id]);
 
   if (gym.isPending) return <Screen edges={['top']}><LoadingState /></Screen>;
   if (gym.isError || !gym.data) {

@@ -9,10 +9,10 @@ import { Icon } from '@/components/Icon';
 import { Screen } from '@/components/Screen';
 import { LoadingState } from '@/components/StateView';
 import { SummaryCard } from '@/components/SummaryCard';
-import { useToast } from '@/components/Toast';
 import { useBooking } from '@/data';
 import type { Booking } from '@/domain/models';
 import { useBookingRows } from '@/features/bookings/BookingDetailsScreen';
+import { useAddToCalendar } from '@/features/bookings/useAddToCalendar';
 import { colors, space } from '@/theme';
 import { qar } from '@/utils/format';
 
@@ -39,7 +39,7 @@ export function SuccessScreen({ id }: { id: string }) {
 
 function Success({ booking }: { booking: Booking }) {
   const { t } = useTranslation();
-  const toast = useToast();
+  const calendar = useAddToCalendar();
   const rows = useBookingRows(booking).slice(0, 6);
   const firstName = booking.trainerName?.split(' ')[0];
   const subtitle =
@@ -61,7 +61,7 @@ function Success({ booking }: { booking: Booking }) {
       <SummaryCard rows={rows} total={{ label: t('checkout.total'), value: qar(booking.priceQar) }} />
       <View style={styles.actions}>
         <Button label={t('success.viewBooking')} onPress={() => router.replace({ pathname: '/bookings/[id]', params: { id: booking.id } })} />
-        <Button variant="outlined" label={t('success.addToCalendar')} onPress={() => toast(t('success.calendarSoon'))} />
+        <Button variant="outlined" label={t('success.addToCalendar')} onPress={() => calendar.add(booking)} loading={calendar.busy} />
         <Button variant="text" label={t('success.backToHome')} onPress={goHome} style={styles.home} />
       </View>
     </Screen>

@@ -107,6 +107,7 @@ export interface Account {
   fullName: string;
   email: string;
   phone: string; // "+974 XXXX XXXX"
+  isAdmin?: boolean; // Cognito `admin` group (UI only; the backend enforces access)
 }
 
 export interface BookingDraft {
