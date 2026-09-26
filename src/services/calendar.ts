@@ -1,5 +1,4 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as Calendar from 'expo-calendar';
 import { Platform } from 'react-native';
 
 import type { Booking } from '@/domain/models';
@@ -8,8 +7,20 @@ import i18n from '@/i18n';
 
 export type CalendarResult = 'added' | 'exists' | 'denied' | 'unavailable';
 
+type CalendarModule = typeof import('expo-calendar');
+
 // bookingId → calendar event id, so tapping again does not create a duplicate.
 const EVENTS_KEY = 'oneq.calendarEvents';
+
+// Loaded on first use: a build without the native module reports "unavailable" instead of crashing.
+function calendarModule(): CalendarModule | null {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    return require('expo-calendar') as CalendarModule;
+  } catch {
+    return null;
+  }
+}
 
 async function storedEvents(): Promise<Record<string, string>> {
   const raw = await AsyncStorage.getItem(EVENTS_KEY);
@@ -31,7 +42,7 @@ function eventDetails(b: Booking) {
   return { title: i18n.t('calendar.membershipTitle', { gym: b.gymName }), startDate: first, endDate: new Date(first.getTime() + 86_400_000), allDay: true, location, notes };
 }
 
-async function androidCalendar() {
+async function androidCalendar(Calendar: CalendarModule) {
   const calendars = await Calendar.getCalendars(Calendar.EntityTypes.EVENT);
   const writable = calendars.filter((c) => c.allowsModifications && c.isVisible !== false);
   return writable.find((c) => c.isPrimary) ?? writable[0] ?? null;
@@ -39,6 +50,8 @@ async function androidCalendar() {
 
 // Permission is requested here, i.e. only when the user taps "Add to Calendar". iOS asks for write-only access.
 export async function addBookingToCalendar(booking: Booking): Promise<CalendarResult> {
+  const Calendar = calendarModule();
+  if (!Calendar) return 'unavailable';
   const writeOnly = Platform.OS === 'ios';
   const { granted } = await Calendar.requestCalendarPermissions(writeOnly);
   if (!granted) return 'denied';
@@ -55,7 +68,7 @@ export async function addBookingToCalendar(booking: Booking): Promise<CalendarRe
     if (stillThere) return 'exists';
   }
 
-  const calendar = writeOnly ? Calendar.getDefaultCalendarSync() : await androidCalendar();
+  const calendar = writeOnly ? Calendar.getDefaultCalendarSync() : await androidCalendar(Calendar);
   if (!calendar) return 'unavailable';
   const event = await calendar.createEvent(eventDetails(booking));
   await AsyncStorage.setItem(EVENTS_KEY, JSON.stringify({ ...events, [booking.id]: event.id }));
