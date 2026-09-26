@@ -96,6 +96,17 @@ export interface Booking {
   status: BookingStatus;
   guest: GuestInfo;
   createdAt: string;
+  // Rebuild (11 §1): memberships get a period so they can move to Past (fixes 01 §5.8).
+  membershipStart?: string | null;
+  membershipEnd?: string | null;
+  paymentMethod?: PaymentMethod;
+  paymentId?: string;
+}
+
+export interface Account {
+  fullName: string;
+  email: string;
+  phone: string; // "+974 XXXX XXXX"
 }
 
 export interface BookingDraft {

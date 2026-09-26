@@ -1,6 +1,9 @@
-import { router } from 'expo-router';
+import { useQueryClient } from '@tanstack/react-query';
+import * as Crypto from 'expo-crypto';
+import { router, Stack } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Platform, StyleSheet, View } from 'react-native';
+import { BackHandler, Platform, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
 import { Button } from '@/components/Button';
@@ -9,10 +12,15 @@ import { Screen } from '@/components/Screen';
 import { SelectableCard } from '@/components/SelectableCard';
 import { EmptyState } from '@/components/StateView';
 import { SummaryCard } from '@/components/SummaryCard';
-import type { PaymentMethod } from '@/domain/models';
+import { useToast } from '@/components/Toast';
+import { repository } from '@/data';
+import { RepositoryError } from '@/data/repository';
+import type { BookingDraft, PaymentMethod } from '@/domain/models';
 import { draftTotal, slotLabel } from '@/domain/rules';
 import { useDraft } from '@/features/booking/draftStore';
+import { paymentProvider } from '@/features/payments/provider';
 import { colors, space } from '@/theme';
+import { errorMessage } from '@/utils/errorMessage';
 import { localizeTime, qar, shortDate } from '@/utils/format';
 
 // Apple Pay only on iOS, Google Pay only on Android, Card everywhere (04 §6).
@@ -22,12 +30,15 @@ const METHODS: { method: PaymentMethod; icon: IconName }[] = [
   ...(Platform.OS === 'android' ? [{ method: 'googlePay' as const, icon: 'google' as const }] : []),
 ];
 
-// S14 — payment and booking creation are wired in Phase 3.
+const isComplete = (d: BookingDraft) =>
+  !!d.gym && !!d.guest && (d.path === 'membershipPlusTrainer' ? !!(d.trainer && d.date && d.slot) : !!d.plan);
+
+// S14
 export function CheckoutScreen() {
   const { t } = useTranslation();
   const draft = useDraft();
 
-  if (!draft.gym || !draft.guest) {
+  if (!isComplete(draft) || !draft.gym || !draft.guest) {
     return (
       <Screen edges={[]}>
         <EmptyState
@@ -41,7 +52,6 @@ export function CheckoutScreen() {
   }
 
   const session = draft.path === 'membershipPlusTrainer';
-  const total = qar(draftTotal(draft));
   const rows = session
     ? [
         { label: t('booking.gym'), value: draft.gym.name },
@@ -56,20 +66,71 @@ export function CheckoutScreen() {
         { label: t('checkout.guest'), value: draft.guest.fullName },
       ];
 
+  return <Checkout draft={draft} rows={rows} />;
+}
+
+function Checkout({ draft, rows }: { draft: BookingDraft; rows: { label: string; value: string | null | undefined }[] }) {
+  const { t } = useTranslation();
+  const toast = useToast();
+  const queryClient = useQueryClient();
+  const [paying, setPaying] = useState(false);
+  // One key per checkout attempt so a retried payment is never charged twice.
+  const [idempotencyKey] = useState(() => Crypto.randomUUID());
+  const total = qar(draftTotal(draft));
+
+  // Block Android back while the payment is processing (03 §6).
+  useEffect(() => {
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => paying);
+    return () => sub.remove();
+  }, [paying]);
+
+  const onPay = async () => {
+    if (paying) return; // double-tap guard (04 §8)
+    setPaying(true);
+    try {
+      const { priceQar } = await repository.quoteBooking(draft);
+      const { paymentId } = await paymentProvider.pay({ amountQar: priceQar, method: draft.paymentMethod, idempotencyKey });
+      const booking = await repository.createBooking(draft, { method: draft.paymentMethod, paymentId });
+      await queryClient.invalidateQueries({ queryKey: ['bookings'] });
+      await queryClient.invalidateQueries({ queryKey: ['availability'] });
+      useDraft.getState().clearAfterBooking();
+      // Success replaces the booking stack; Back goes Home (03 §3, §6).
+      router.dismissAll();
+      router.push({ pathname: '/checkout/success/[id]', params: { id: booking.id } });
+    } catch (e) {
+      setPaying(false);
+      if (e instanceof RepositoryError && e.code === 'SLOT_TAKEN') {
+        // Return to S11 to pick another time (04 §8).
+        useDraft.getState().selectSlot(undefined);
+        await queryClient.invalidateQueries({ queryKey: ['availability'] });
+        toast(errorMessage(e));
+        router.dismissTo('/booking');
+        return;
+      }
+      toast(e instanceof RepositoryError ? errorMessage(e) : t('errors.payment'));
+    }
+  };
+
   return (
     <Screen
       scroll
       edges={[]}
       contentStyle={styles.content}
-      footer={<Button label={t('checkout.pay', { price: total })} onPress={() => {}} disabled />}
+      footer={<Button label={t('checkout.pay', { price: total })} onPress={onPay} loading={paying} />}
     >
+      <Stack.Screen options={{ gestureEnabled: !paying, headerBackVisible: !paying }} />
       <SummaryCard title={t('booking.summary')} rows={rows} total={{ label: t('checkout.total'), value: total }} />
       <View style={styles.section} accessibilityRole="radiogroup">
         <AppText variant="headline">{t('checkout.paymentMethod')}</AppText>
         {METHODS.map(({ method, icon }) => {
           const selected = draft.paymentMethod === method;
           return (
-            <SelectableCard key={method} selected={selected} onPress={() => draft.setPaymentMethod(method)} style={styles.method}>
+            <SelectableCard
+              key={method}
+              selected={selected}
+              onPress={() => !paying && useDraft.getState().setPaymentMethod(method)}
+              style={styles.method}
+            >
               <Icon name={icon} color={colors.textPrimary} />
               <AppText variant="label" style={styles.flex}>
                 {t(`checkout.${method}`)}

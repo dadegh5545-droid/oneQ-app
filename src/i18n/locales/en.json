@@ -306,12 +306,53 @@
     "en": "English",
     "ar": "العربية"
   },
-  "screens": {
-    "signUp": "Create Account",
-    "forgotPassword": "Forgot password?"
-  },
   "notFound": {
     "title": "Something went wrong",
     "body": "We couldn't find that page."
+  },
+  "validation": {
+    "fullName": "Please enter your full name",
+    "phone": "Enter a valid Qatar phone number",
+    "email": "Enter a valid email",
+    "identifier": "Please enter your email or phone number",
+    "password": "Please enter your password",
+    "passwordRule": "Use at least 8 characters, including a letter and a number.",
+    "passwordMatch": "Passwords do not match.",
+    "terms": "Please accept the Terms & Conditions and Privacy Policy.",
+    "code": "Enter the 6-digit code."
+  },
+  "errors": {
+    "INVALID_BOOKING": "Complete your booking details first.",
+    "SLOT_TAKEN": "That time was just booked. Please choose another.",
+    "DUPLICATE_BOOKING": "You already have an active membership at this gym.",
+    "INVALID_CREDENTIALS": "Incorrect email/phone or password.",
+    "ACCOUNT_EXISTS": "An account with this email or phone number already exists.",
+    "ACCOUNT_NOT_FOUND": "We could not find an account with those details.",
+    "INVALID_CODE": "That code is incorrect or has expired.",
+    "payment": "Payment could not be completed.",
+    "generic": "Something went wrong. Please try again."
+  },
+  "signUp": {
+    "title": "Create Account",
+    "fullName": "Full Name",
+    "email": "Email",
+    "phone": "Phone Number",
+    "password": "Password",
+    "confirm": "Confirm password",
+    "terms": "I agree to the Terms & Conditions and Privacy Policy",
+    "submit": "Create Account",
+    "haveAccount": "Already have an account? Sign In"
+  },
+  "forgot": {
+    "title": "Forgot password?",
+    "body": "Enter your email or phone number and we will send you a reset code.",
+    "identifier": "Email or phone number",
+    "send": "Send reset code",
+    "code": "Reset code",
+    "newPassword": "New password",
+    "confirm": "Confirm new password",
+    "submit": "Reset password",
+    "success": "Your password has been updated.",
+    "demoCode": "Demo mode: your reset code is {{code}}"
   }
 }

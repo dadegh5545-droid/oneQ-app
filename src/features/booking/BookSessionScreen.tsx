@@ -15,6 +15,7 @@ import { slotLabel } from '@/domain/rules';
 import { colors, radius, screenPadding, space } from '@/theme';
 import { formatDate, localizeTime, qar, shortDate } from '@/utils/format';
 
+import { continueToCheckout } from './continueToCheckout';
 import { useDraft } from './draftStore';
 
 // Dates are stored as "yyyy-MM-dd"; parse as a local date.
@@ -57,6 +58,11 @@ function BookSession({ gym, trainer }: { gym: Gym; trainer: Trainer }) {
   }, [availability.data, date, selectDate]);
 
   const day = availability.data?.find((d) => d.date === date);
+
+  // Drop a kept slot that is no longer bookable (taken, or now within the 60-minute lead time).
+  useEffect(() => {
+    if (slot && day && !day.slots.some((s) => s.id === slot.id && s.available)) selectSlot(undefined);
+  }, [day, slot, selectSlot]);
   const firstName = trainer.name.split(' ')[0] ?? trainer.name;
 
   return (
@@ -64,7 +70,7 @@ function BookSession({ gym, trainer }: { gym: Gym; trainer: Trainer }) {
       scroll
       edges={[]}
       contentStyle={styles.content}
-      footer={<Button label={t('common.continue')} disabled={!slot} onPress={() => router.push('/checkout/guest')} />}
+      footer={<Button label={t('common.continue')} disabled={!slot} onPress={continueToCheckout} />}
     >
       <Stack.Screen options={{ title: t('booking.title', { name: firstName }) }} />
       {availability.isPending ? (

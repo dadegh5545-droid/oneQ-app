@@ -7,13 +7,40 @@ import { AppText } from '@/components/AppText';
 import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { TextField } from '@/components/TextField';
+import { repository } from '@/data';
+import { hasErrors, validateSignIn } from '@/domain/validation';
+import { finishAuth } from '@/features/booking/continueToCheckout';
 import { colors, space } from '@/theme';
+import { errorMessage } from '@/utils/errorMessage';
 
-// S13 — UI only; validation and the sign-in action are wired in Phase 3.
-export function SignInScreen() {
+import { useSession } from './sessionStore';
+
+// S13 — local mock accounts only; unknown credentials are rejected.
+export function SignInScreen({ next }: { next?: string }) {
   const { t } = useTranslation();
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+
+  const values = { identifier, password };
+  const errors = submitted ? validateSignIn(values) : {};
+
+  const onSubmit = async () => {
+    setSubmitted(true);
+    setFormError(null);
+    if (hasErrors(validateSignIn(values)) || loading) return;
+    setLoading(true);
+    try {
+      const account = await repository.signIn(identifier, password);
+      useSession.getState().signIn(account);
+      finishAuth(next);
+    } catch (e) {
+      setFormError(errorMessage(e));
+      setLoading(false);
+    }
+  };
 
   return (
     <Screen scroll edges={['bottom']} contentStyle={styles.content}>
@@ -26,24 +53,38 @@ export function SignInScreen() {
           label={t('signIn.identifier')}
           value={identifier}
           onChangeText={setIdentifier}
+          error={errors.identifier && t(errors.identifier)}
           keyboardType="email-address"
           autoCapitalize="none"
           autoComplete="username"
           textContentType="username"
+          returnKeyType="next"
         />
         <TextField
           label={t('signIn.password')}
           value={password}
           onChangeText={setPassword}
+          error={errors.password && t(errors.password)}
           password
           autoComplete="current-password"
           textContentType="password"
+          returnKeyType="go"
+          onSubmitEditing={onSubmit}
         />
         <Button variant="text" label={t('signIn.forgot')} onPress={() => router.push('/auth/forgot-password')} style={styles.forgot} />
       </View>
+      {formError ? (
+        <AppText color={colors.error} accessibilityLiveRegion="polite">
+          {formError}
+        </AppText>
+      ) : null}
       <View style={styles.actions}>
-        <Button label={t('signIn.submit')} onPress={() => {}} disabled />
-        <Button variant="outlined" label={t('signIn.createAccount')} onPress={() => router.push('/auth/sign-up')} />
+        <Button label={t('signIn.submit')} onPress={onSubmit} loading={loading} />
+        <Button
+          variant="outlined"
+          label={t('signIn.createAccount')}
+          onPress={() => router.replace({ pathname: '/auth/sign-up', params: next ? { next } : {} })}
+        />
       </View>
     </Screen>
   );

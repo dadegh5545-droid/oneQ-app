@@ -1,4 +1,4 @@
-import { router, Stack } from 'expo-router';
+import { Stack } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
@@ -9,12 +9,11 @@ import { Screen } from '@/components/Screen';
 import { SelectableCard } from '@/components/SelectableCard';
 import { EmptyState, LoadingState } from '@/components/StateView';
 import { useGym, usePlans } from '@/data';
-import type { MembershipPlan } from '@/domain/models';
+import { PLAN_MONTHS } from '@/domain/rules';
+import { continueToCheckout } from '@/features/booking/continueToCheckout';
 import { useDraft } from '@/features/booking/draftStore';
 import { colors, space } from '@/theme';
 import { qar } from '@/utils/format';
-
-const MONTHS: Record<MembershipPlan['kind'], number> = { monthly: 1, '3m': 3, '6m': 6 };
 
 // S08
 export function PlansScreen({ gymId, planId }: { gymId: string; planId?: string }) {
@@ -29,7 +28,7 @@ export function PlansScreen({ gymId, planId }: { gymId: string; planId?: string 
   const onContinue = () => {
     if (!selected || !gym.data) return;
     useDraft.getState().selectPlan(selected, gym.data);
-    router.push('/checkout/guest');
+    continueToCheckout();
   };
 
   const renderBody = () => {
@@ -44,7 +43,7 @@ export function PlansScreen({ gymId, planId }: { gymId: string; planId?: string 
         </View>
         {plans.data.map((p) => {
           const name = t(`plans.${p.kind}.name`);
-          const months = MONTHS[p.kind];
+          const months = PLAN_MONTHS[p.kind];
           return (
             <SelectableCard
               key={p.id}

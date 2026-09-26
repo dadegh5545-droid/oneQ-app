@@ -7,9 +7,11 @@ type DraftState = BookingDraft & {
   selectPlan: (plan: MembershipPlan, gym: Gym) => void;
   selectTrainer: (trainer: Trainer, gym: Gym) => void;
   selectDate: (date: string) => void;
-  selectSlot: (slot: TimeSlot) => void;
+  selectSlot: (slot: TimeSlot | undefined) => void;
   setGuest: (guest: GuestInfo) => void;
   setPaymentMethod: (m: PaymentMethod) => void;
+  // After a successful booking: clear the draft but keep guest details (04 §6).
+  clearAfterBooking: () => void;
 };
 
 export const useDraft = create<DraftState>()((set) => ({
@@ -31,4 +33,6 @@ export const useDraft = create<DraftState>()((set) => ({
   selectSlot: (slot) => set({ slot }),
   setGuest: (guest) => set({ guest }),
   setPaymentMethod: (paymentMethod) => set({ paymentMethod }),
+  clearAfterBooking: () =>
+    set({ gym: undefined, path: undefined, plan: undefined, trainer: undefined, date: undefined, slot: undefined, paymentMethod: 'card' }),
 }));

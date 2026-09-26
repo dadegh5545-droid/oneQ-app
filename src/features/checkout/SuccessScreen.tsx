@@ -1,6 +1,7 @@
 import { Redirect, router } from 'expo-router';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, View } from 'react-native';
+import { BackHandler, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
 import { Button } from '@/components/Button';
@@ -15,9 +16,21 @@ import { useBookingRows } from '@/features/bookings/BookingDetailsScreen';
 import { colors, space } from '@/theme';
 import { qar } from '@/utils/format';
 
+const goHome = () => router.navigate('/home');
+
 // S15
 export function SuccessScreen({ id }: { id: string }) {
   const booking = useBooking(id);
+
+  // Hardware back goes Home, never back to Checkout (03 §6).
+  useEffect(() => {
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+      goHome();
+      return true;
+    });
+    return () => sub.remove();
+  }, []);
+
   if (booking.isPending) return <Screen><LoadingState /></Screen>;
   // Unknown booking id → Bookings (02 S15).
   if (!booking.data) return <Redirect href="/bookings" />;
@@ -49,7 +62,7 @@ function Success({ booking }: { booking: Booking }) {
       <View style={styles.actions}>
         <Button label={t('success.viewBooking')} onPress={() => router.replace({ pathname: '/bookings/[id]', params: { id: booking.id } })} />
         <Button variant="outlined" label={t('success.addToCalendar')} onPress={() => toast(t('success.calendarSoon'))} />
-        <Button variant="text" label={t('success.backToHome')} onPress={() => router.navigate('/home')} style={styles.home} />
+        <Button variant="text" label={t('success.backToHome')} onPress={goHome} style={styles.home} />
       </View>
     </Screen>
   );

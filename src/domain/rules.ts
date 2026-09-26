@@ -41,12 +41,17 @@ export const slotLabel = (min: number) => {
 
 export const next14Days = (today: Date) => [...Array(14)].map((_, i) => addDays(startOfDay(today), i));
 
-export const isUpcoming = (b: Booking, now = new Date()) =>
-  b.status === 'completed' || b.status === 'cancelled'
+// Memberships use their end date in place of a session date.
+export const isUpcoming = (b: Booking, now = new Date()) => {
+  const date = b.date ?? b.membershipEnd ?? null;
+  return b.status === 'completed' || b.status === 'cancelled'
     ? false
-    : b.date == null
+    : date == null
       ? b.status === 'confirmed'
-      : endOfDay(new Date(b.date)) >= now;
+      : endOfDay(new Date(date)) >= now;
+};
+
+export const PLAN_MONTHS: Record<PlanKind, number> = { monthly: 1, '3m': 3, '6m': 6 };
 
 export const draftTotal = (d: BookingDraft) =>
   d.path === 'membershipPlusTrainer' ? (d.trainer?.pricePerSession ?? 0) : (d.plan?.price ?? d.gym?.monthlyPrice ?? 0);

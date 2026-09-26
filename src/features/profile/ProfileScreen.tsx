@@ -13,18 +13,19 @@ import { colors, radius, space } from '@/theme';
 // S19
 export function ProfileScreen() {
   const { t } = useTranslation();
-  const { signedIn, displayName, signOut } = useSession();
+  const user = useSession((s) => s.user);
+  const signOut = useSession((s) => s.signOut);
 
   return (
     <Screen scroll contentStyle={styles.content}>
       <AppText variant="titleL">{t('profile.title')}</AppText>
       <View style={styles.card}>
-        {signedIn ? (
+        {user ? (
           <>
             <AppText variant="titleM" color={colors.primary} style={styles.wordmark}>
               OneQ
             </AppText>
-            <AppText variant="headline">{displayName ?? t('profile.member')}</AppText>
+            <AppText variant="headline">{user.fullName || t('profile.member')}</AppText>
             <AppText color={colors.textSecondary}>{t('profile.signedIn')}</AppText>
             <Button variant="outlined" label={t('profile.signOut')} onPress={signOut} style={styles.signOut} />
           </>

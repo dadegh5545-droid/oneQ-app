@@ -87,14 +87,11 @@ function RootStack() {
       <Stack.Screen name="booking/index" options={{ title: '' }} />
       <Stack.Screen name="checkout/guest" options={{ title: '' }} />
       <Stack.Screen name="checkout/index" options={{ title: t('checkout.title') }} />
-      <Stack.Screen
-        name="checkout/success/[id]"
-        options={{ headerShown: false, gestureEnabled: false, presentation: 'fullScreenModal' }}
-      />
+      <Stack.Screen name="checkout/success/[id]" options={{ headerShown: false, gestureEnabled: false }} />
       <Stack.Screen name="bookings/[id]" options={{ title: t('bookingDetails.title') }} />
-      <Stack.Screen name="auth/sign-in" options={{ title: '', presentation: 'modal' }} />
-      <Stack.Screen name="auth/sign-up" options={{ title: '', presentation: 'modal' }} />
-      <Stack.Screen name="auth/forgot-password" options={{ title: '', presentation: 'modal' }} />
+      <Stack.Screen name="auth/sign-in" options={{ title: '' }} />
+      <Stack.Screen name="auth/sign-up" options={{ title: '' }} />
+      <Stack.Screen name="auth/forgot-password" options={{ title: '' }} />
       <Stack.Screen name="info/[slug]" options={{ title: '' }} />
       <Stack.Screen name="+not-found" options={{ headerShown: false }} />
     </Stack>

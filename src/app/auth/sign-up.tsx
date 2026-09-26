@@ -1,13 +1,8 @@
-import { useTranslation } from 'react-i18next';
+import { useLocalSearchParams } from 'expo-router';
 
-import { AppText } from '@/components/AppText';
-import { Screen } from '@/components/Screen';
+import { SignUpScreen } from '@/features/auth/SignUpScreen';
 
-export default function SignUpRoute() {
-  const { t } = useTranslation();
-  return (
-    <Screen edges={[]}>
-      <AppText variant="titleL">{t('screens.signUp')}</AppText>
-    </Screen>
-  );
+export default function Route() {
+  const { next } = useLocalSearchParams<{ next?: string }>();
+  return <SignUpScreen next={next} />;
 }

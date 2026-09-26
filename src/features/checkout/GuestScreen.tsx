@@ -9,28 +9,34 @@ import { Icon } from '@/components/Icon';
 import { Screen } from '@/components/Screen';
 import { SelectableCard } from '@/components/SelectableCard';
 import { TextField } from '@/components/TextField';
+import { formatLocalPhone, hasErrors, normaliseQatarPhone, validateGuest } from '@/domain/validation';
 import { useDraft } from '@/features/booking/draftStore';
 import { colors, space } from '@/theme';
 
 type Choice = 'guest' | 'signIn';
 
-const PHONE_PREFIX = '+974';
-
-// S12 — validation and the signed-in skip are wired in Phase 3.
+// S12 — signed-in users never reach this screen (see continueToCheckout).
 export function GuestScreen() {
   const { t } = useTranslation();
   const saved = useDraft((s) => s.guest);
   const [choice, setChoice] = useState<Choice>('guest');
   const [fullName, setFullName] = useState(saved?.fullName ?? '');
-  const [phone, setPhone] = useState(saved?.phone.replace(PHONE_PREFIX, '').trim() ?? '');
+  const [phone, setPhone] = useState(saved ? formatLocalPhone(saved.phone.replace(/^\+974/, '')) : '');
   const [email, setEmail] = useState(saved?.email ?? '');
+  // Validate on submit first, then live while typing (06 intro).
+  const [submitted, setSubmitted] = useState(false);
+
+  const values = { fullName, phone, email };
+  const errors = submitted ? validateGuest(values) : {};
 
   const onSubmit = () => {
     if (choice === 'signIn') {
-      router.push('/auth/sign-in');
+      router.push({ pathname: '/auth/sign-in', params: { next: 'checkout' } });
       return;
     }
-    useDraft.getState().setGuest({ fullName: fullName.trim(), phone: `${PHONE_PREFIX} ${phone.trim()}`, email: email.trim() || null });
+    setSubmitted(true);
+    if (hasErrors(validateGuest(values))) return;
+    useDraft.getState().setGuest({ fullName: fullName.trim(), phone: normaliseQatarPhone(phone), email: email.trim() || null });
     router.push('/checkout');
   };
 
@@ -52,16 +58,18 @@ export function GuestScreen() {
             label={t('guest.fullName')}
             value={fullName}
             onChangeText={setFullName}
+            error={errors.fullName && t(errors.fullName)}
             autoCapitalize="words"
             autoComplete="name"
             textContentType="name"
-            returnKeyType="next"
+            maxLength={60}
           />
           <TextField
             label={t('guest.phone')}
-            prefix={PHONE_PREFIX}
+            prefix="+974"
             value={phone}
-            onChangeText={(v) => setPhone(v.replace(/[^\d ]/g, ''))}
+            onChangeText={(v) => setPhone(formatLocalPhone(v))}
+            error={errors.phone && t(errors.phone)}
             placeholder={t('guest.phoneHint')}
             keyboardType="phone-pad"
             autoComplete="tel"
@@ -72,6 +80,7 @@ export function GuestScreen() {
             label={t('guest.email')}
             value={email}
             onChangeText={setEmail}
+            error={errors.email && t(errors.email)}
             keyboardType="email-address"
             autoCapitalize="none"
             autoComplete="email"
