@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { I18nManager, Pressable, StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
+import { Pressable, StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
 
-import { currentLanguage } from '@/i18n';
+import { alignLeft, alignStart, currentLanguage, isRTL } from '@/i18n';
 import { arabicFonts, colors, fonts, radius, space } from '@/theme';
 
 import { AppText } from './AppText';
 import { Icon } from './Icon';
+
+// Undo the RTL row mirroring (native flips row in RTL; the web flips it via dir=rtl).
+const ltrRow = () => ({ flexDirection: isRTL() ? ('row-reverse' as const) : ('row' as const) });
 
 type Props = Omit<TextInputProps, 'style'> & {
   label: string;
@@ -28,7 +31,8 @@ export function TextField({ label, error, prefix, password, ...input }: Props) {
       <AppText variant="bodyS" color={error ? colors.error : colors.textSecondary}>
         {label}
       </AppText>
-      <View style={[styles.field, focused && styles.focused, !!error && styles.errorBorder]}>
+      {/* A prefixed (phone) field always reads left-to-right: +974 3333 4444. */}
+      <View style={[styles.field, prefix && ltrRow(), focused && styles.focused, !!error && styles.errorBorder]}>
         {prefix ? (
           <AppText variant="bodyL" style={styles.prefix}>
             {prefix}
@@ -47,7 +51,7 @@ export function TextField({ label, error, prefix, password, ...input }: Props) {
             setFocused(false);
             input.onBlur?.(e);
           }}
-          style={[styles.input, { fontFamily, textAlign: I18nManager.isRTL ? 'right' : 'left' }]}
+          style={[styles.input, { fontFamily, textAlign: prefix ? alignLeft() : alignStart() }]}
         />
         {password ? (
           <Pressable

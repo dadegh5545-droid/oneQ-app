@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, I18nManager, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { FlatList, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
 import { Chip } from '@/components/Chip';
@@ -14,7 +14,7 @@ import { gymLocation, type Gym } from '@/domain/models';
 import { greetingKey, matchesQuery } from '@/domain/rules';
 import { FavoriteButton } from '@/features/favorites/FavoriteButton';
 import { GymListCard, openGym } from '@/features/gyms/GymListCard';
-import { currentLanguage } from '@/i18n';
+import { alignStart, currentLanguage } from '@/i18n';
 import { arabicFonts, colors, fonts, radius, screenPadding, space } from '@/theme';
 import { perMonthLabel } from '@/utils/format';
 
@@ -113,7 +113,7 @@ function SearchField({ value, onChange }: { value: string; onChange: (v: string)
         autoCorrect={false}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
-        style={[styles.searchInput, { fontFamily, textAlign: I18nManager.isRTL ? 'right' : 'left' }]}
+        style={[styles.searchInput, { fontFamily, textAlign: alignStart() }]}
       />
       {value ? (
         <Pressable accessibilityRole="button" accessibilityLabel={t('home.clearSearch')} hitSlop={10} onPress={() => onChange('')}>
@@ -183,26 +183,27 @@ const FEATURED_WIDTH = 228;
 
 function FeaturedCard({ gym }: { gym: Gym }) {
   return (
-    <Pressable accessibilityRole="button" accessibilityLabel={`${gym.name}, ${gymLocation(gym)}`} onPress={() => openGym(gym)} style={styles.featured}>
-      <View>
+    // The favorite button overlays the card as a sibling, never nested inside the pressable.
+    <View style={styles.featured}>
+      <Pressable accessibilityRole="button" accessibilityLabel={`${gym.name}, ${gymLocation(gym)}`} onPress={() => openGym(gym)}>
         <Image source={gym.images[0]} style={styles.featuredImage} contentFit="cover" transition={150} />
-        <View style={styles.featuredFav}>
-          <FavoriteButton gymId={gym.id} variant="overlay" />
-        </View>
-      </View>
-      <AppText variant="headline" style={styles.featuredName} numberOfLines={1}>
-        {gym.name}
-      </AppText>
-      <AppText color={colors.textSecondary} numberOfLines={1}>
-        {gymLocation(gym)}
-      </AppText>
-      <View style={styles.featuredFooter}>
-        <AppText variant="price" color={colors.primary}>
-          {perMonthLabel(gym.monthlyPrice)}
+        <AppText variant="headline" style={styles.featuredName} numberOfLines={1}>
+          {gym.name}
         </AppText>
-        <RatingInline rating={gym.rating} />
+        <AppText color={colors.textSecondary} numberOfLines={1}>
+          {gymLocation(gym)}
+        </AppText>
+        <View style={styles.featuredFooter}>
+          <AppText variant="price" color={colors.primary}>
+            {perMonthLabel(gym.monthlyPrice)}
+          </AppText>
+          <RatingInline rating={gym.rating} />
+        </View>
+      </Pressable>
+      <View style={styles.featuredFav}>
+        <FavoriteButton gymId={gym.id} variant="overlay" />
       </View>
-    </Pressable>
+    </View>
   );
 }
 

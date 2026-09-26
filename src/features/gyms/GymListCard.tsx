@@ -21,20 +21,25 @@ export function GymListCard({ gym }: { gym: Gym }) {
   const { t } = useTranslation();
   const a11y = `${gym.name}, ${gymLocation(gym)}, ${rating(gym.rating)}, ${t('common.reviewsCount', { count: gym.reviewCount })}`;
 
+  // The favorite button is a sibling of the pressable area, never nested inside it.
   return (
-    <Pressable accessibilityRole="button" accessibilityLabel={a11y} onPress={() => openGym(gym)} style={styles.card}>
-      <FavoriteButton gymId={gym.id} />
-      <View style={styles.body}>
-        <AppText variant="headline" numberOfLines={1}>
-          {gym.name}
-        </AppText>
-        <AppText color={colors.textSecondary} numberOfLines={1}>
-          {gymLocation(gym)}
-        </AppText>
-        <RatingInline rating={gym.rating} reviewCount={gym.reviewCount} />
+    <View style={styles.card}>
+      <View style={styles.favorite}>
+        <FavoriteButton gymId={gym.id} />
       </View>
-      <Image source={gym.images[0]} style={styles.image} contentFit="cover" transition={150} />
-    </Pressable>
+      <Pressable accessibilityRole="button" accessibilityLabel={a11y} onPress={() => openGym(gym)} style={styles.pressable}>
+        <View style={styles.body}>
+          <AppText variant="headline" numberOfLines={1}>
+            {gym.name}
+          </AppText>
+          <AppText color={colors.textSecondary} numberOfLines={1}>
+            {gymLocation(gym)}
+          </AppText>
+          <RatingInline rating={gym.rating} reviewCount={gym.reviewCount} />
+        </View>
+        <Image source={gym.images[0]} style={styles.image} contentFit="cover" transition={150} />
+      </Pressable>
+    </View>
   );
 }
 
@@ -43,13 +48,13 @@ const styles = StyleSheet.create({
     minHeight: 114,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: space.md,
-    padding: space.lg,
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.outline,
     backgroundColor: colors.surface,
   },
+  favorite: { paddingStart: space.lg },
+  pressable: { flex: 1, alignSelf: 'stretch', flexDirection: 'row', alignItems: 'center', gap: space.md, padding: space.lg },
   body: { flex: 1, gap: space.xs },
   image: { width: 80, height: 80, borderRadius: radius.sm, backgroundColor: colors.surfaceVariant },
 });

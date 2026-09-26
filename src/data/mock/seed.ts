@@ -15,7 +15,8 @@ const IMG = {
   layla: '1518310383802-640c2de311b2',
   khalid: '1567013127542-490d757e51fc',
   maya: '1571019613454-1cb2f99b2d8b',
-  hassan: '1599058945522-28d584b6f14f',
+  // The spec's ID for Hassan (1599058945522-28d584b6f14f) now returns 404; replaced with a live photo.
+  hassan: '1581009146145-b5ef050c2e1e',
 };
 
 const gymImages = (...ids: string[]) => ids.map((id) => unsplash(id, 1400));

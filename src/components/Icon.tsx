@@ -1,7 +1,7 @@
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import type { ComponentProps } from 'react';
-import { I18nManager } from 'react-native';
 
+import { isRTL } from '@/i18n';
 import { colors } from '@/theme';
 
 export type IconName = ComponentProps<typeof MaterialCommunityIcons>['name'];
@@ -20,7 +20,7 @@ export function Icon({ name, size = 20, color = colors.textPrimary, directional 
       name={name}
       size={size}
       color={color}
-      style={directional && I18nManager.isRTL ? { transform: [{ scaleX: -1 }] } : undefined}
+      style={directional && isRTL() ? { transform: [{ scaleX: -1 }] } : undefined}
     />
   );
 }

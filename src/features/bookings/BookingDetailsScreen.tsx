@@ -9,6 +9,7 @@ import { SummaryCard } from '@/components/SummaryCard';
 import { useToast } from '@/components/Toast';
 import { useBooking } from '@/data';
 import type { Booking } from '@/domain/models';
+import { ltr } from '@/i18n';
 import { space } from '@/theme';
 import { localizeTime, longDate, qar } from '@/utils/format';
 
@@ -25,7 +26,7 @@ export function useBookingRows(b: Booking) {
     { label: t('booking.date'), value: b.date ? longDate(b.date) : null },
     { label: t('booking.time'), value: b.timeLabel ? localizeTime(b.timeLabel) : null },
     { label: t('checkout.guest'), value: b.guest.fullName },
-    { label: t('bookingDetails.phone'), value: b.guest.phone },
+    { label: t('bookingDetails.phone'), value: ltr(b.guest.phone) },
     { label: t('bookingDetails.status'), value: t(`bookings.status.${b.status}`) },
   ];
 }

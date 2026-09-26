@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { AccessibilityInfo, Animated, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
+import { isRTL } from '@/i18n';
 import { colors } from '@/theme';
 
 // Play the animation once per cold start only (02 S01 mobile UX).
@@ -35,7 +36,7 @@ export function SplashScreen() {
 
   return (
     <View style={styles.root} accessibilityLabel="OneQ">
-      <View style={styles.wordmark}>
+      <View style={[styles.wordmark, { flexDirection: isRTL() ? 'row-reverse' : 'row' }]}>
         <Animated.View style={{ opacity: one }}>
           <AppText variant="displayXL" color={colors.background}>
             One
@@ -54,7 +55,7 @@ export function SplashScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.primary },
-  // The brand wordmark always reads left-to-right.
-  wordmark: { flexDirection: 'row', direction: 'ltr' },
+  // The brand wordmark always reads left-to-right, even when the layout is RTL.
+  wordmark: { flexDirection: 'row' },
   underline: { width: 68, height: 1, marginTop: 4, backgroundColor: 'rgba(247,240,234,0.7)' },
 });
