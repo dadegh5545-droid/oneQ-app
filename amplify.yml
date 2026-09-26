@@ -1,0 +1,24 @@
+# AWS Amplify Gen 2 CI/CD for OneQ (GitHub → Amplify Hosting).
+# OneQ is an Expo mobile app, so only the Amplify Gen 2 backend in amplify/ is deployed per branch.
+# The Expo web frontend is not hosted: Amplify requires a frontend artifact, so a placeholder page is published.
+# Personal sandboxes (`ampx sandbox`) are separate stacks and are not affected by these deployments.
+version: 1
+backend:
+  phases:
+    build:
+      commands:
+        - nvm install 22
+        - npm ci --cache .npm --prefer-offline
+        - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
+frontend:
+  phases:
+    build:
+      commands:
+        - mkdir -p ./dist && touch ./dist/index.html
+  artifacts:
+    baseDirectory: dist
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - .npm/**/*
