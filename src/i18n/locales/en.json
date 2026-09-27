@@ -13,7 +13,8 @@
     "fromPerSession": "From {{price}} / session",
     "fromPerMonth": "From {{price}} / month",
     "addFavorite": "Add to favorites",
-    "removeFavorite": "Remove from favorites"
+    "removeFavorite": "Remove from favorites",
+    "keep": "Keep"
   },
   "tabs": {
     "home": "Home",
@@ -447,7 +448,9 @@
     "closed": "Closed",
     "addTime": "Add time (HH:MM)",
     "add": "Add",
-    "removeRule": "Remove override"
+    "removeRule": "Remove override",
+    "confirmCancelBooking": "Cancel this booking? This cannot be undone.",
+    "confirmRemoveReview": "Remove this review? This cannot be undone."
   },
   "reviews": {
     "rate": {
@@ -474,6 +477,7 @@
     "updated": "Your review has been updated.",
     "remove": "Delete review",
     "removed": "Your review has been deleted.",
-    "stars": "{{count}} of 5 stars"
+    "stars": "{{count}} of 5 stars",
+    "confirmRemove": "Delete your review? This cannot be undone."
   }
 }

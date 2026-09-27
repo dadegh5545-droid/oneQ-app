@@ -129,17 +129,31 @@ export async function clearAccountReminders() {
 }
 
 // Tapping a booking notification opens its details — while running and when it launched the app.
+// A handled tap is cleared so a later reload (e.g. switching language) does not open the booking again, and the
+// launch tap reported by both the stored response and the listener opens only one screen.
 export function useNotificationNavigation() {
   useEffect(() => {
     const n = notifications();
     if (!n) return undefined;
-    const open = (response: { actionIdentifier: string; notification: { request: { content: { data?: unknown } } } } | null) => {
-      const bookingId = response ? payloadOf(response.notification.request)?.bookingId : undefined;
-      if (bookingId && response?.actionIdentifier === n.DEFAULT_ACTION_IDENTIFIER) {
+    let handled: string | null = null;
+    const open = (response: { actionIdentifier: string; notification: { request: { identifier: string; content: { data?: unknown } } } } | null) => {
+      if (!response || response.notification.request.identifier === handled) return;
+      handled = response.notification.request.identifier;
+      const bookingId = payloadOf(response.notification.request)?.bookingId;
+      if (bookingId && response.actionIdentifier === n.DEFAULT_ACTION_IDENTIFIER) {
         router.push({ pathname: '/bookings/[id]', params: { id: bookingId } });
       }
+      try {
+        n.clearLastNotificationResponse();
+      } catch (e) {
+        reportError(e, { area: 'notifications' });
+      }
     };
-    n.getLastNotificationResponseAsync().then(open, () => undefined);
+    try {
+      open(n.getLastNotificationResponse());
+    } catch (e) {
+      reportError(e, { area: 'notifications' });
+    }
     const subscription = n.addNotificationResponseReceivedListener(open);
     return () => subscription.remove();
   }, []);

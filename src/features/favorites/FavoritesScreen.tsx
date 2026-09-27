@@ -6,20 +6,30 @@ import { AppText } from '@/components/AppText';
 import { Screen } from '@/components/Screen';
 import { EmptyState, LoadingState } from '@/components/StateView';
 import { useGyms } from '@/data';
+import { useSession } from '@/features/auth/sessionStore';
 import { GymListCard } from '@/features/gyms/GymListCard';
 import { colors, space } from '@/theme';
 
-import { useFavoriteIds } from './store';
+import { useFavoriteIds, useFavorites } from './store';
 
 // S18
 export function FavoritesScreen() {
   const { t } = useTranslation();
   const ids = useFavoriteIds();
   const gyms = useGyms();
+  const signedIn = useSession((s) => s.user !== null);
+  const accountStatus = useFavorites((s) => s.accountStatus);
+
+  const retry = () => {
+    if (gyms.isError) void gyms.refetch();
+    if (signedIn && accountStatus === 'error') useFavorites.getState().loadAccount().catch(() => undefined);
+  };
 
   const renderList = () => {
-    if (gyms.isPending) return <LoadingState />;
-    if (gyms.isError) return <EmptyState icon="alert-circle-outline" title={t('favorites.errorTitle')} />;
+    if (gyms.isPending || (signedIn && accountStatus === 'loading')) return <LoadingState />;
+    if (gyms.isError || (signedIn && accountStatus === 'error')) {
+      return <EmptyState icon="alert-circle-outline" title={t('favorites.errorTitle')} action={{ label: t('common.retry'), onPress: retry }} />;
+    }
     const saved = gyms.data.filter((g) => ids.includes(g.id));
     if (saved.length === 0) {
       return (

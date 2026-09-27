@@ -13,13 +13,14 @@
     "fromPerSession": "ابتداءً من {{price}} / للجلسة",
     "fromPerMonth": "ابتداءً من {{price}} / شهريًا",
     "addFavorite": "إضافة إلى المفضلة",
-    "removeFavorite": "إزالة من المفضلة"
+    "removeFavorite": "إزالة من المفضلة",
+    "keep": "إبقاء"
   },
   "tabs": {
     "home": "الرئيسية",
     "bookings": "الحجوزات",
     "favorites": "المفضلة",
-    "profile": "الملف الشخصي"
+    "profile": "حسابي"
   },
   "greeting": {
     "morning": "صباح الخير",
@@ -447,7 +448,9 @@
     "closed": "مغلق",
     "addTime": "إضافة وقت (HH:MM)",
     "add": "إضافة",
-    "removeRule": "إزالة الاستثناء"
+    "removeRule": "إزالة الاستثناء",
+    "confirmCancelBooking": "إلغاء هذا الحجز؟ لا يمكن التراجع عن ذلك.",
+    "confirmRemoveReview": "حذف هذا التقييم؟ لا يمكن التراجع عن ذلك."
   },
   "reviews": {
     "rate": {
@@ -474,6 +477,7 @@
     "updated": "تم تحديث تقييمك.",
     "remove": "حذف التقييم",
     "removed": "تم حذف تقييمك.",
-    "stars": "{{count}} من 5 نجوم"
+    "stars": "{{count}} من 5 نجوم",
+    "confirmRemove": "حذف تقييمك؟ لا يمكن التراجع عن ذلك."
   }
 }

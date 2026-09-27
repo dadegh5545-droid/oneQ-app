@@ -5,6 +5,7 @@ import { StyleSheet, View } from 'react-native';
 import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { EmptyState, LoadingState } from '@/components/StateView';
+import { errorMessage } from '@/utils/errorMessage';
 import { SummaryCard } from '@/components/SummaryCard';
 import { useBooking } from '@/data';
 import type { Booking } from '@/domain/models';
@@ -40,7 +41,12 @@ export function BookingDetailsScreen({ id }: { id: string }) {
   if (booking.isError) {
     return (
       <Screen edges={[]}>
-        <EmptyState icon="alert-circle-outline" title={t('bookingDetails.errorTitle')} body={t('bookingDetails.errorBody')} />
+        <EmptyState
+          icon="alert-circle-outline"
+          title={t('bookingDetails.errorTitle')}
+          body={errorMessage(booking.error)}
+          action={{ label: t('common.retry'), onPress: () => booking.refetch() }}
+        />
       </Screen>
     );
   }

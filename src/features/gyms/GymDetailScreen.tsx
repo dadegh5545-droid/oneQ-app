@@ -15,6 +15,7 @@ import { Screen } from '@/components/Screen';
 import { SegmentedControl } from '@/components/SegmentedControl';
 import { SelectableCard } from '@/components/SelectableCard';
 import { EmptyState, LoadingState } from '@/components/StateView';
+import { errorMessage } from '@/utils/errorMessage';
 import { useGym, useGymReviews, usePlans, useTrainers } from '@/data';
 import { gymLocation, type AmenityKey, type Gym } from '@/domain/models';
 import { FavoriteButton } from '@/features/favorites/FavoriteButton';
@@ -230,7 +231,9 @@ function Reviews({ gymId, gymName }: { gymId: string; gymName: string }) {
   const reviews = useGymReviews(gymId);
   const prompt = <ReviewPrompt target={{ type: 'gym', id: gymId }} name={gymName} />;
   if (reviews.isPending) return <LoadingState />;
-  if (reviews.isError) return <EmptyState icon="alert-circle-outline" title={t('gym.reviewsErrorTitle')} body={t('gym.reviewsErrorBody')} />;
+  if (reviews.isError) {
+    return <EmptyState icon="alert-circle-outline" title={t('gym.reviewsErrorTitle')} body={errorMessage(reviews.error)} action={{ label: t('common.retry'), onPress: () => reviews.refetch() }} />;
+  }
   return (
     <View style={styles.tabBody}>
       {prompt}
@@ -246,7 +249,9 @@ function Memberships({ gymId }: { gymId: string }) {
   const { t } = useTranslation();
   const plans = usePlans(gymId);
   if (plans.isPending) return <LoadingState />;
-  if (plans.isError) return <EmptyState icon="alert-circle-outline" title={t('gym.plansError')} />;
+  if (plans.isError) {
+    return <EmptyState icon="alert-circle-outline" title={t('gym.plansError')} body={errorMessage(plans.error)} action={{ label: t('common.retry'), onPress: () => plans.refetch() }} />;
+  }
 
   const openPlans = (planId?: string) => router.push({ pathname: '/gym/[id]/plans', params: { id: gymId, ...(planId ? { planId } : {}) } });
   return (

@@ -13,6 +13,7 @@ import type { AvailabilityDay } from '@/data/repository';
 import type { Gym, Trainer } from '@/domain/models';
 import { slotLabel } from '@/domain/rules';
 import { colors, radius, screenPadding, space } from '@/theme';
+import { errorMessage } from '@/utils/errorMessage';
 import { formatDate, localizeTime, qar, shortDate } from '@/utils/format';
 
 import { continueToCheckout } from './continueToCheckout';
@@ -76,7 +77,12 @@ function BookSession({ gym, trainer }: { gym: Gym; trainer: Trainer }) {
       {availability.isPending ? (
         <LoadingState />
       ) : availability.isError ? (
-        <AppText color={colors.textSecondary}>{t('booking.timesError')}</AppText>
+        <EmptyState
+          icon="alert-circle-outline"
+          title={t('booking.timesError')}
+          body={errorMessage(availability.error)}
+          action={{ label: t('common.retry'), onPress: () => availability.refetch() }}
+        />
       ) : (
         <>
           <AppText variant="titleM">{date ? formatDate(toLocalDate(date), 'MMMM y') : ''}</AppText>

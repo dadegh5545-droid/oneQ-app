@@ -20,21 +20,23 @@ export const queryClient = new QueryClient({
   mutationCache: new MutationCache({ onError: (e) => reportError(e, { area: 'mutation' }) }),
   defaultOptions: {
     // Requests run even when NetInfo says offline, so screens show the network error + Retry instead of an
-    // endless spinner; they refetch automatically when the connection returns (./network.ts).
-    queries: { networkMode: 'always', retry: (failures, e) => failures < 2 && retryable(e) },
+    // endless spinner; they refetch automatically when the connection returns (./network.ts). React Query turns
+    // refetchOnReconnect off by default for networkMode 'always', so it is switched back on here.
+    queries: { networkMode: 'always', refetchOnReconnect: true, retry: (failures, e) => failures < 2 && retryable(e) },
   },
 });
 
 export const useGyms = () => useQuery({ queryKey: ['gyms'], queryFn: () => repository.listGyms() });
 
-export const useGym = (id: string) => useQuery({ queryKey: ['gym', id], queryFn: () => repository.getGym(id) });
+// An empty id (e.g. a trainer's gym before the trainer has loaded) waits instead of requesting nothing.
+export const useGym = (id: string) => useQuery({ queryKey: ['gym', id], queryFn: () => repository.getGym(id), enabled: !!id });
 
 export const usePlans = (gymId: string) => useQuery({ queryKey: ['plans', gymId], queryFn: () => repository.getPlans(gymId) });
 
 export const useTrainers = (gymId: string, specialty: Specialty | null) =>
   useQuery({ queryKey: ['trainers', gymId, specialty], queryFn: () => repository.listTrainers(gymId, specialty) });
 
-export const useTrainer = (id: string) => useQuery({ queryKey: ['trainer', id], queryFn: () => repository.getTrainer(id) });
+export const useTrainer = (id: string) => useQuery({ queryKey: ['trainer', id], queryFn: () => repository.getTrainer(id), enabled: !!id });
 
 export const useGymReviews = (gymId: string) =>
   useQuery({ queryKey: ['reviews', 'gym', gymId], queryFn: () => repository.listReviews({ gymId }) });

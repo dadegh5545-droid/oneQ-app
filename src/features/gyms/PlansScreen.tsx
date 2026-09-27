@@ -8,6 +8,7 @@ import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { SelectableCard } from '@/components/SelectableCard';
 import { EmptyState, LoadingState } from '@/components/StateView';
+import { errorMessage } from '@/utils/errorMessage';
 import { useGym, usePlans } from '@/data';
 import { PLAN_MONTHS } from '@/domain/rules';
 import { continueToCheckout } from '@/features/booking/continueToCheckout';
@@ -33,7 +34,10 @@ export function PlansScreen({ gymId, planId }: { gymId: string; planId?: string 
 
   const renderBody = () => {
     if (gym.isPending || plans.isPending) return <LoadingState />;
-    if (plans.isError || gym.isError) return <EmptyState icon="alert-circle-outline" title={t('plans.error')} />;
+    if (plans.isError || gym.isError) {
+      const retry = () => Promise.all([plans.isError && plans.refetch(), gym.isError && gym.refetch()]);
+      return <EmptyState icon="alert-circle-outline" title={t('plans.error')} body={errorMessage(plans.error ?? gym.error)} action={{ label: t('common.retry'), onPress: retry }} />;
+    }
     if (!gym.data || plans.data.length === 0) return <EmptyState icon="card-remove-outline" title={t('plans.unavailable')} />;
     return (
       <>

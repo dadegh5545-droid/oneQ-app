@@ -15,6 +15,7 @@ import { repository, useReviewStatus } from '@/data';
 import type { ReviewTarget } from '@/domain/models';
 import { track } from '@/services/analytics';
 import { colors, space } from '@/theme';
+import { confirmAction } from '@/utils/confirm';
 import { errorMessage } from '@/utils/errorMessage';
 
 const MAX_TEXT = 1000;
@@ -31,7 +32,7 @@ export function ReviewFormScreen({ target, name }: { target: ReviewTarget; name:
         <EmptyState
           icon="star-off-outline"
           title={status.isError ? errorMessage(status.error) : t(`reviews.notEligible.${target.type}`)}
-          action={{ label: t('common.back'), onPress: () => router.back() }}
+          action={status.isError ? { label: t('common.retry'), onPress: () => status.refetch() } : { label: t('common.back'), onPress: () => router.back() }}
         />
       </Screen>
     );
@@ -131,7 +132,7 @@ function ReviewForm({ target, name, existing }: { target: ReviewTarget; name: st
           variant="text"
           label={t('reviews.remove')}
           loading={busy === 'remove'}
-          onPress={() => run('remove', () => repository.removeReview(existing.id), 'reviews.removed')}
+          onPress={() => confirmAction(t('reviews.confirmRemove'), t('reviews.remove'), () => run('remove', () => repository.removeReview(existing.id), 'reviews.removed'))}
           style={styles.remove}
         />
       ) : null}

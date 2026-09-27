@@ -11,6 +11,8 @@ type FavoritesState = {
   guestIds: string[];
   // Signed in: mirrors the user's Favorite records in AWS.
   accountIds: string[];
+  // Whether accountIds reflects the server yet, so Favorites does not flash its empty state on start.
+  accountStatus: 'loading' | 'ready' | 'error';
   pending: string[];
   toggle: (gymId: string) => Promise<void>;
   loadAccount: () => Promise<void>;
@@ -24,6 +26,7 @@ export const useFavorites = create<FavoritesState>()(
     (set, get) => ({
       guestIds: [],
       accountIds: [],
+      accountStatus: 'loading',
       pending: [],
       toggle: async (gymId) => {
         if (!useSession.getState().user) {
@@ -47,11 +50,17 @@ export const useFavorites = create<FavoritesState>()(
         }
       },
       loadAccount: async () => {
-        const { guestIds } = get();
-        await Promise.all(guestIds.map((id) => repository.addFavorite(id)));
-        set({ guestIds: [], accountIds: await repository.listFavorites() });
+        set({ accountStatus: 'loading' });
+        try {
+          const { guestIds } = get();
+          await Promise.all(guestIds.map((id) => repository.addFavorite(id)));
+          set({ guestIds: [], accountIds: await repository.listFavorites(), accountStatus: 'ready' });
+        } catch (e) {
+          set({ accountStatus: 'error' });
+          throw e;
+        }
       },
-      clearAccount: () => set({ accountIds: [], pending: [] }),
+      clearAccount: () => set({ accountIds: [], pending: [], accountStatus: 'loading' }),
     }),
     {
       name: 'oneq.favorites',

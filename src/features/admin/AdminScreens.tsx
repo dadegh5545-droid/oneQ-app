@@ -19,6 +19,7 @@ import { slotLabel } from '@/domain/rules';
 import { useSession } from '@/features/auth/sessionStore';
 import { ltr } from '@/i18n';
 import { colors, radius, space } from '@/theme';
+import { confirmAction } from '@/utils/confirm';
 import { errorMessage } from '@/utils/errorMessage';
 import { localizeTime, qar } from '@/utils/format';
 
@@ -366,7 +367,12 @@ function AdminBookingRow({ booking: b }: { booking: Booking }) {
         {b.guest.fullName} · {ltr(b.guest.phone)} · {qar(b.priceQar)} · {t(`bookings.status.${b.status}`)}
       </AppText>
       {b.status === 'confirmed' ? (
-        <Button variant="outlined" label={t('admin.cancelBooking')} loading={saving} onPress={() => save(() => adminRepository.cancelBooking(b.id))} />
+        <Button
+          variant="outlined"
+          label={t('admin.cancelBooking')}
+          loading={saving}
+          onPress={() => confirmAction(t('admin.confirmCancelBooking'), t('admin.cancelBooking'), () => save(() => adminRepository.cancelBooking(b.id)))}
+        />
       ) : null}
     </View>
   );
@@ -402,7 +408,12 @@ function AdminReviewRow({ review: r }: { review: Review }) {
       <AppText variant="bodyS" color={colors.textSecondary}>
         {r.date}
       </AppText>
-      <Button variant="outlined" label={t('admin.removeReview')} loading={saving} onPress={() => save(() => repository.removeReview(r.id))} />
+      <Button
+        variant="outlined"
+        label={t('admin.removeReview')}
+        loading={saving}
+        onPress={() => confirmAction(t('admin.confirmRemoveReview'), t('admin.removeReview'), () => save(() => repository.removeReview(r.id)))}
+      />
     </View>
   );
 }

@@ -11,6 +11,7 @@ import { RatingInline } from '@/components/RatingInline';
 import { ReviewCard } from '@/components/ReviewCard';
 import { Screen } from '@/components/Screen';
 import { EmptyState, LoadingState } from '@/components/StateView';
+import { errorMessage } from '@/utils/errorMessage';
 import { useGym, useTrainer, useTrainerReviews } from '@/data';
 import type { Gym, Trainer } from '@/domain/models';
 import { useDraft } from '@/features/booking/draftStore';
@@ -33,9 +34,15 @@ export function TrainerScreen({ id }: { id: string }) {
 
   if (trainer.isPending || (trainer.data && gym.isPending)) return <Screen edges={[]}><LoadingState /></Screen>;
   if (trainer.isError || gym.isError) {
+    const retry = () => Promise.all([trainer.isError && trainer.refetch(), gym.isError && gym.refetch()]);
     return (
       <Screen edges={[]}>
-        <EmptyState icon="alert-circle-outline" title={t('trainer.errorTitle')} body={t('trainer.errorBody')} />
+        <EmptyState
+          icon="alert-circle-outline"
+          title={t('trainer.errorTitle')}
+          body={errorMessage(trainer.error ?? gym.error)}
+          action={{ label: t('common.retry'), onPress: retry }}
+        />
       </Screen>
     );
   }
@@ -117,7 +124,9 @@ function TrainerReviews({ trainerId }: { trainerId: string }) {
   const { t } = useTranslation();
   const reviews = useTrainerReviews(trainerId);
   if (reviews.isPending) return <LoadingState />;
-  if (reviews.isError) return <AppText color={colors.textSecondary}>{t('gym.reviewsErrorBody')}</AppText>;
+  if (reviews.isError) {
+    return <EmptyState icon="alert-circle-outline" title={t('gym.reviewsErrorTitle')} body={errorMessage(reviews.error)} action={{ label: t('common.retry'), onPress: () => reviews.refetch() }} />;
+  }
   if (reviews.data.length === 0) return <AppText color={colors.textSecondary}>{t('gym.noReviews')}</AppText>;
   return reviews.data.map((r) => <ReviewCard key={r.id} review={r} />);
 }
