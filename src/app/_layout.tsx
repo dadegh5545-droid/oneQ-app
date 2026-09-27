@@ -9,7 +9,7 @@ import { PlayfairDisplay_600SemiBold, PlayfairDisplay_700Bold } from '@expo-goog
 import { QueryClientProvider } from '@tanstack/react-query';
 import { Amplify } from 'aws-amplify';
 import { useFonts } from 'expo-font';
-import { Stack, type ErrorBoundaryProps } from 'expo-router';
+import { Stack, usePathname, type ErrorBoundaryProps } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
@@ -36,6 +36,10 @@ installGlobalErrorHandler();
 
 SplashScreen.preventAutoHideAsync();
 
+// Deep links (notifications, shared links) open on top of the tabs, so their back button returns to the app
+// instead of leaving the user on a screen with no way back.
+export const unstable_settings = { initialRouteName: '(tabs)' };
+
 export default function RootLayout() {
   const [bootReady, setBootReady] = useState(false);
   const [fontsLoaded, fontError] = useFonts({
@@ -59,10 +63,13 @@ export default function RootLayout() {
   }, []);
 
   const ready = bootReady && (fontsLoaded || fontError !== null);
+  const pathname = usePathname();
 
+  // The launch route ("/") hides the native splash itself once its identical wordmark is on screen; any other
+  // first route (deep link, notification) hides it as soon as the app is ready.
   useEffect(() => {
-    if (ready) SplashScreen.hideAsync();
-  }, [ready]);
+    if (ready && pathname !== '/') SplashScreen.hide();
+  }, [ready, pathname]);
 
   if (!ready) return null;
 
@@ -98,7 +105,7 @@ function RootStack() {
         contentStyle: { backgroundColor: colors.background },
       }}
     >
-      <Stack.Screen name="index" options={{ headerShown: false }} />
+      <Stack.Screen name="index" options={{ headerShown: false, animation: 'fade' }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="gym/[id]/index" options={{ headerShown: false }} />
       <Stack.Screen name="gym/[id]/plans" options={{ title: '' }} />
@@ -113,6 +120,14 @@ function RootStack() {
       <Stack.Screen name="auth/sign-up" options={{ title: '' }} />
       <Stack.Screen name="auth/forgot-password" options={{ title: '' }} />
       <Stack.Screen name="info/[slug]" options={{ title: '' }} />
+      {/* Management and rating routes: default titles so a route name never shows (screens refine them). */}
+      <Stack.Screen name="admin/index" options={{ title: t('admin.title') }} />
+      <Stack.Screen name="admin/bookings" options={{ title: t('admin.bookings') }} />
+      <Stack.Screen name="admin/reviews" options={{ title: t('admin.reviews') }} />
+      <Stack.Screen name="admin/availability" options={{ title: t('admin.availability') }} />
+      <Stack.Screen name="admin/gym/[id]" options={{ title: '' }} />
+      <Stack.Screen name="admin/trainer/[id]" options={{ title: '' }} />
+      <Stack.Screen name="review/[type]/[id]" options={{ title: '' }} />
       <Stack.Screen name="+not-found" options={{ headerShown: false }} />
     </Stack>
   );
