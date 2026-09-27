@@ -30,7 +30,7 @@ export const handler = async ({ action, bookingId, date }: Input) => {
     return { ok: true };
   }
 
-  // Deletes the automated test accounts (confirmed or not); never touches any other user.
+  // Deletes the automated test accounts (confirmed or not) and their profile rows; never touches any other user.
   if (action === 'purge-test-users') {
     const UserPoolId = process.env.USER_POOL_ID;
     let deleted = 0;
@@ -45,7 +45,21 @@ export const handler = async ({ action, bookingId, date }: Input) => {
       }
       PaginationToken = page.PaginationToken;
     } while (PaginationToken);
-    return { ok: true, deleted };
+
+    // Their profile rows too, including those left by earlier runs whose Cognito user is already gone.
+    let profiles = 0;
+    let nextToken: string | null | undefined;
+    do {
+      const page = check(await client.models.UserProfile.list({ limit: 1000, nextToken }));
+      for (const p of page.data.filter((x) => TEST_EMAIL.test(x.email ?? ''))) {
+        // Owner fields read back as the username alone, but the stored key is "<sub>::<username>"; in this
+        // email sign-in pool the username is the sub.
+        const profileOwner = p.profileOwner.includes('::') ? p.profileOwner : `${p.profileOwner}::${p.profileOwner}`;
+        if (check(await client.models.UserProfile.delete({ profileOwner })).data) profiles += 1;
+      }
+      nextToken = page.nextToken;
+    } while (nextToken);
+    return { ok: true, deleted, profiles };
   }
 
   throw new Error('VALIDATION: unknown action');

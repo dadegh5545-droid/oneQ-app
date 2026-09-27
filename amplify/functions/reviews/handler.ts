@@ -83,12 +83,15 @@ async function eligibleBooking(owner: string, t: Target) {
   return null;
 }
 
-// "Sara Al-Ansari" → "Sara A." (first name and initial only).
+// Arabic family names usually begin with the article "ال" (الأنصاري); the initial is the letter after it.
+const initialOf = (surname: string) => (/^ال[؀-ۿ]{2,}/.test(surname) ? surname.slice(2) : surname)[0];
+
+// "Sara Al-Ansari" → "Sara A.", "سارة الأنصاري" → "سارة أ." (first name and initial only).
 async function authorName(owner: string) {
   const profile = await unwrap(client.models.UserProfile.get({ profileOwner: owner }));
   const parts = (profile?.fullName ?? '').trim().split(/\s+/).filter(Boolean);
   if (parts.length === 0) return 'OneQ member';
-  return parts.length > 1 ? `${parts[0]} ${parts[parts.length - 1]![0]}.` : parts[0]!;
+  return parts.length > 1 ? `${parts[0]} ${initialOf(parts[parts.length - 1]!)}.` : parts[0]!;
 }
 
 // Atomic aggregate update: read the current values, write the new ones on condition that nobody changed them
