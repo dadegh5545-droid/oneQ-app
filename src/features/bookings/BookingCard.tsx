@@ -44,7 +44,8 @@ export function BookingCard({ booking }: { booking: Booking }) {
         </View>
       ) : null}
       <View style={styles.body}>
-        <AppText variant="headline" numberOfLines={1}>
+        {/* Two lines: beside the date badge and photo the body is only ~100 pt wide on a 360 pt phone. */}
+        <AppText variant="headline" numberOfLines={2}>
           {title}
         </AppText>
         <AppText color={colors.textSecondary} numberOfLines={1}>
@@ -68,7 +69,7 @@ const styles = StyleSheet.create({
     minHeight: 115,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: space.md,
+    gap: space.sm,
     padding: space.lg,
     borderRadius: radius.md,
     borderWidth: 1,

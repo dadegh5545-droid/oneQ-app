@@ -22,7 +22,7 @@ export function ProfileScreen() {
       <View style={styles.card}>
         {user ? (
           <>
-            <AppText variant="titleM" color={colors.primary} style={styles.wordmark}>
+            <AppText variant="titleM" color={colors.primary} style={styles.wordmark} lang="en">
               OneQ
             </AppText>
             <AppText variant="headline">{user.fullName || t('profile.member')}</AppText>

@@ -38,13 +38,15 @@ export function Button({ label, onPress, variant = 'primary', disabled, loading,
         style,
       ]}
     >
-      {loading ? <ActivityIndicator size={20} color={textColor} /> : <AppText variant="label" color={textColor}>{label}</AppText>}
+      {loading ? <ActivityIndicator size={20} color={textColor} /> : <AppText variant="label" color={textColor} style={styles.label}>{label}</AppText>}
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  base: { alignItems: 'center', justifyContent: 'center', borderRadius: radius.md },
+  // Horizontal padding and centred lines keep a label that wraps at large text sizes off the rounded edges.
+  base: { alignItems: 'center', justifyContent: 'center', borderRadius: radius.md, paddingHorizontal: space.lg },
+  label: { textAlign: 'center' },
   // minHeight (not height) so larger system font sizes grow the button instead of clipping its label.
   primary: { minHeight: 52, backgroundColor: colors.primary },
   primaryPressed: { backgroundColor: colors.primaryPressed },

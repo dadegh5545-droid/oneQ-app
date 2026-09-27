@@ -9,6 +9,7 @@ import { Icon } from '@/components/Icon';
 import { RatingInline } from '@/components/RatingInline';
 import { Screen } from '@/components/Screen';
 import { EmptyState, LoadingState } from '@/components/StateView';
+import { inputTextStyle } from '@/components/TextField';
 import { useGyms } from '@/data';
 import { gymLocation, type Gym } from '@/domain/models';
 import { greetingKey, matchesQuery } from '@/domain/rules';
@@ -88,7 +89,7 @@ export function HomeScreen() {
 
   return (
     <Screen scroll contentStyle={styles.content}>
-      <AppText variant="titleM" color={colors.primary} style={styles.wordmark}>
+      <AppText variant="titleM" color={colors.primary} style={styles.wordmark} lang="en">
         OneQ
       </AppText>
       <View style={styles.headings}>
@@ -122,7 +123,7 @@ function SearchField({ value, onChange }: { value: string; onChange: (v: string)
         autoCorrect={false}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
-        style={[styles.searchInput, { fontFamily, textAlign: alignStart() }]}
+        style={[inputTextStyle, { fontFamily, textAlign: alignStart() }]}
       />
       {value ? (
         <Pressable accessibilityRole="button" accessibilityLabel={t('home.clearSearch')} hitSlop={10} onPress={() => onChange('')}>
@@ -238,7 +239,7 @@ const styles = StyleSheet.create({
   wordmark: { fontSize: 22 },
   headings: { gap: space.xs },
   search: {
-    height: 48,
+    minHeight: 48,
     flexDirection: 'row',
     alignItems: 'center',
     gap: space.sm,
@@ -249,7 +250,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
   },
   searchFocused: { borderColor: colors.primary, borderWidth: 1.2 },
-  searchInput: { flex: 1, height: '100%', fontSize: 16, color: colors.textPrimary },
   bleed: { marginHorizontal: -screenPadding },
   chips: { gap: space.sm, paddingHorizontal: screenPadding },
   section: { gap: space.md },

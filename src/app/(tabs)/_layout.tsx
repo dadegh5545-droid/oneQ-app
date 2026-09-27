@@ -26,14 +26,18 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
+        // Android resizes the window for the keyboard; without this the tab bar rides up above it (Home search).
+        tabBarHideOnKeyboard: true,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textTertiary,
-        tabBarLabelStyle: { fontFamily: labelFont, fontSize: 12 },
-        // 64 pt + safe area (03 §2); the default height clips Outfit labels.
+        // lineHeight keeps descenders (g, y, Arabic tails) inside the label box instead of clipping them.
+        tabBarLabelStyle: { fontFamily: labelFont, fontSize: 12, lineHeight: 18 },
+        // 64 pt + safe area (03 §2). Each item already pads 5 pt around its 28 pt icon box, so the bar keeps its
+        // own padding small; 6 pt left the label only 13 pt and cut the glyphs.
         tabBarStyle: {
           height: 64 + insets.bottom,
-          paddingTop: 6,
-          paddingBottom: insets.bottom + 6,
+          paddingTop: 3,
+          paddingBottom: insets.bottom + 3,
           backgroundColor: colors.surface,
           borderTopColor: colors.outline,
           borderTopWidth: 1,
