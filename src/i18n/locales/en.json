@@ -219,7 +219,8 @@
     "googlePay": "Google Pay",
     "pay": "Pay {{price}}",
     "unavailableTitle": "Checkout unavailable",
-    "unavailableBody": "Complete your booking details first."
+    "unavailableBody": "Complete your booking details first.",
+    "demoNotice": "Demo: payments are simulated and no card is charged."
   },
   "success": {
     "title": "You're booked!",

@@ -19,6 +19,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Screen } from '@/components/Screen';
 import { EmptyState } from '@/components/StateView';
 import { ToastProvider, useToast } from '@/components/Toast';
+import { WebFrame } from '@/components/WebFrame';
 import { queryClient } from '@/data';
 import { listenForSessionExpiry, restoreSession } from '@/features/auth/session';
 import i18n, { currentLanguage, initI18n } from '@/i18n';
@@ -26,6 +27,7 @@ import { track } from '@/services/analytics';
 import { installGlobalErrorHandler, reportError } from '@/services/monitoring';
 import { useNotificationNavigation } from '@/services/notifications';
 import { arabicFonts, colors, fonts } from '@/theme';
+import { hideSplash } from '@/utils/splash';
 
 import outputs from '../../amplify_outputs.json';
 
@@ -68,7 +70,7 @@ export default function RootLayout() {
   // The launch route ("/") hides the native splash itself once its identical wordmark is on screen; any other
   // first route (deep link, notification) hides it as soon as the app is ready.
   useEffect(() => {
-    if (ready && pathname !== '/') SplashScreen.hide();
+    if (ready && pathname !== '/') hideSplash();
   }, [ready, pathname]);
 
   if (!ready) return null;
@@ -76,10 +78,12 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <SafeAreaProvider>
-        <ToastProvider>
-          <StatusBar style="dark" />
-          <RootStack />
-        </ToastProvider>
+        <WebFrame>
+          <ToastProvider>
+            <StatusBar style="dark" />
+            <RootStack />
+          </ToastProvider>
+        </WebFrame>
       </SafeAreaProvider>
     </QueryClientProvider>
   );

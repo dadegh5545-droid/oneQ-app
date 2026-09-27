@@ -219,7 +219,8 @@
     "googlePay": "Google Pay",
     "pay": "ادفع {{price}}",
     "unavailableTitle": "الدفع غير متاح",
-    "unavailableBody": "أكمل تفاصيل حجزك أولًا."
+    "unavailableBody": "أكمل تفاصيل حجزك أولًا.",
+    "demoNotice": "نسخة تجريبية: الدفع محاكاة ولا يتم خصم أي مبلغ."
   },
   "success": {
     "title": "تم الحجز!",

@@ -1,7 +1,11 @@
 # AWS Amplify Gen 2 CI/CD for OneQ (GitHub → Amplify Hosting).
-# OneQ is an Expo mobile app, so only the Amplify Gen 2 backend in amplify/ is deployed per branch.
-# The Expo web frontend is not hosted: Amplify requires a frontend artifact, so a placeholder page is published.
-# Personal sandboxes (`ampx sandbox`) are separate stacks and are not affected by these deployments.
+# Every connected branch deploys its own Amplify Gen 2 backend (amplify/). Personal sandboxes (`ampx sandbox`)
+# are separate stacks and are not affected by these deployments.
+#
+# Frontend per branch:
+#   demo       → the public Expo web demo (`expo export --platform web` → dist/), built against the demo
+#                branch's own backend (amplify_outputs.json written by pipeline-deploy). Payments are simulated.
+#   any other  → a placeholder page: OneQ is a mobile app and Amplify requires a frontend artifact.
 version: 1
 backend:
   phases:
@@ -10,11 +14,16 @@ backend:
         - nvm install 22
         - npm ci --cache .npm --prefer-offline
         - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
+        # Demo: make sure the approved catalogue exists (create-only; admin edits are kept).
+        - if [ "$AWS_BRANCH" = "demo" ]; then node scripts/seed-catalogue.mjs || echo "Catalogue seeding failed; run it manually (docs/WEB-DEMO.md)"; fi
 frontend:
   phases:
+    preBuild:
+      commands:
+        - nvm use 22
     build:
       commands:
-        - mkdir -p ./dist && touch ./dist/index.html
+        - if [ "$AWS_BRANCH" = "demo" ]; then EXPO_PUBLIC_APP_ENV=demo npx expo export --platform web; else mkdir -p ./dist && touch ./dist/index.html; fi
   artifacts:
     baseDirectory: dist
     files:

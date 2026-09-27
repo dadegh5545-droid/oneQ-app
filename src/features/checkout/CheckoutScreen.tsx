@@ -162,6 +162,12 @@ function Checkout({ draft, rows }: { draft: BookingDraft; rows: { label: string;
             </SelectableCard>
           );
         })}
+        {/* The public web demo (EXPO_PUBLIC_APP_ENV=demo) uses the simulated payment provider. */}
+        {process.env.EXPO_PUBLIC_APP_ENV === 'demo' ? (
+          <AppText variant="bodyS" color={colors.textSecondary}>
+            {t('checkout.demoNotice')}
+          </AppText>
+        ) : null}
       </View>
     </Screen>
   );

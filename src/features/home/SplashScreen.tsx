@@ -1,10 +1,10 @@
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import * as NativeSplash from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 import { AccessibilityInfo, Animated, StyleSheet, View } from 'react-native';
 
 import { colors } from '@/theme';
+import { hideSplash } from '@/utils/splash';
 
 // The native launch screen shows this same image at the same size in the same place (app.json, imageWidth 172),
 // so the hand-off from the native splash is seamless. An image, not text: text line boxes differ per platform.
@@ -13,9 +13,6 @@ const WORDMARK = require('../../../assets/splash-wordmark.png') as number;
 // Play the animation once per cold start only (02 S01 mobile UX).
 let played = false;
 
-// The native splash stays up until the wordmark is on screen; the timer covers an image that never reports.
-const hideNativeSplash = () => NativeSplash.hide();
-
 // S01 — the wordmark from the native splash gains its underline, then Home (≤ 1.5 s).
 export function SplashScreen() {
   const [line] = useState(() => new Animated.Value(0));
@@ -23,7 +20,8 @@ export function SplashScreen() {
   useEffect(() => {
     // Home is already below this screen (initialRouteName), so return to it instead of stacking a second one.
     const goHome = () => router.dismissTo('/home');
-    const fallback = setTimeout(hideNativeSplash, 1000);
+    // The launch screen stays up until the wordmark is on screen; the timer covers an image that never reports.
+    const fallback = setTimeout(hideSplash, 1000);
     if (played) {
       goHome();
       return () => clearTimeout(fallback);
@@ -48,7 +46,7 @@ export function SplashScreen() {
   return (
     <View style={styles.root} accessible accessibilityLabel="OneQ">
       <View style={styles.wordmark}>
-        <Image source={WORDMARK} style={styles.wordmark} contentFit="contain" onDisplay={hideNativeSplash} />
+        <Image source={WORDMARK} style={styles.wordmark} contentFit="contain" onDisplay={hideSplash} />
         <Animated.View style={[styles.underline, { opacity: line, transform: [{ scaleX: line }] }]} />
       </View>
     </View>

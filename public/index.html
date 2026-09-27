@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="%LANG_ISO_CODE%">
+  <head>
+    <meta charset="utf-8" />
+    <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>%WEB_TITLE%</title>
+    <meta name="description" content="Gym memberships, trainers and fitness bookings in Qatar." />
+    <meta name="theme-color" content="#5A0020" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="OneQ" />
+    <meta property="og:title" content="OneQ" />
+    <meta property="og:description" content="Gym memberships, trainers and fitness bookings in Qatar." />
+    <meta property="og:image" content="https://demo.dweiv1p133gtf.amplifyapp.com/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <!-- The `react-native-web` recommended style reset: https://necolas.github.io/react-native-web/docs/setup/#root-element -->
+    <style id="expo-reset">
+      /* These styles make the body full-height */
+      html,
+      body {
+        height: 100%;
+      }
+      /* These styles disable body scrolling if you are using <ScrollView> */
+      body {
+        overflow: hidden;
+        background-color: #f1e7dd;
+      }
+      /* These styles make the root element full-height */
+      #root {
+        display: flex;
+        height: 100%;
+        flex: 1;
+      }
+      /* Boot screen until the first screen is ready (removed by the app): the same frame and wordmark as the
+         app's own splash, so there is no blank page while the JavaScript and fonts load. */
+      #boot {
+        position: fixed;
+        inset: 0;
+        z-index: 10;
+        display: flex;
+        justify-content: center;
+        background-color: #f1e7dd;
+        transition: opacity 0.25s ease;
+      }
+      #boot > div {
+        flex: 1;
+        max-width: 480px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #5a0020;
+      }
+      #boot img {
+        width: 172px;
+        height: 61px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <noscript>OneQ needs JavaScript to run.</noscript>
+    <!-- The root element for your Expo app. -->
+    <div id="root"></div>
+    <div id="boot" aria-hidden="true"><div><img src="/splash-wordmark.png" alt="" /></div></div>
+  </body>
+</html>

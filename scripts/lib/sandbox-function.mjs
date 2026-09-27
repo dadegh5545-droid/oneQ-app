@@ -13,8 +13,11 @@ function findRootStack() {
   const flag = process.argv.indexOf('--stack');
   if (flag > 0) return process.argv[flag + 1];
   const { StackSummaries = [] } = aws('cloudformation', 'list-stacks', '--stack-status-filter', 'CREATE_COMPLETE', 'UPDATE_COMPLETE', 'UPDATE_ROLLBACK_COMPLETE');
-  const roots = StackSummaries.filter((s) => !s.ParentId && /^amplify-oneq-.+-sandbox-/.test(s.StackName)).map((s) => s.StackName);
-  if (roots.length !== 1) throw new Error(`Expected one OneQ sandbox stack in ${region}, found: ${roots.join(', ') || 'none'}. Pass --stack.`);
+  // In an Amplify Hosting build (AWS_APP_ID and AWS_BRANCH are set) the branch's own backend; otherwise the sandbox.
+  const { AWS_APP_ID: appId, AWS_BRANCH: branch } = process.env;
+  const matches = appId && branch ? (name) => name.startsWith(`amplify-${appId}-${branch}-branch-`) : (name) => /^amplify-oneq-.+-sandbox-/.test(name);
+  const roots = StackSummaries.filter((s) => !s.ParentId && matches(s.StackName)).map((s) => s.StackName);
+  if (roots.length !== 1) throw new Error(`Expected one OneQ backend stack in ${region}, found: ${roots.join(', ') || 'none'}. Pass --stack.`);
   return roots[0];
 }
 

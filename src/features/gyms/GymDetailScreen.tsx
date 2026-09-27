@@ -2,7 +2,7 @@ import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { FlatList, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
@@ -15,6 +15,7 @@ import { Screen } from '@/components/Screen';
 import { SegmentedControl } from '@/components/SegmentedControl';
 import { SelectableCard } from '@/components/SelectableCard';
 import { EmptyState, LoadingState } from '@/components/StateView';
+import { useScreenWidth } from '@/components/WebFrame';
 import { errorMessage } from '@/utils/errorMessage';
 import { useGym, useGymReviews, usePlans, useTrainers } from '@/data';
 import { gymLocation, type AmenityKey, type Gym } from '@/domain/models';
@@ -130,7 +131,7 @@ function BackButton({ overlay }: { overlay?: boolean }) {
 }
 
 function Hero({ gym }: { gym: Gym }) {
-  const { width } = useWindowDimensions();
+  const width = useScreenWidth();
   const insets = useSafeAreaInsets();
   const [page, setPage] = useState(0);
   return (
