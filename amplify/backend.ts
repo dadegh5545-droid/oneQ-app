@@ -17,6 +17,9 @@ const { userPool, cfnResources } = backend.auth.resources;
 
 // App rule (06-FORMS-AND-FIELDS): at least 8 characters with a letter and a number. The app checks the
 // letter; Cognito's default policy (upper + lower + symbol) would reject passwords the app accepts.
+// Sign-in choices: password (SRP or plain) as before, or a one-time code sent by SMS to the account's mobile
+// number (choice-based USER_AUTH flow, which needs the Essentials feature plan). Updated in place: the pool,
+// its users and the email username are unchanged.
 cfnResources.cfnUserPool.policies = {
   passwordPolicy: {
     minimumLength: 8,
@@ -26,7 +29,11 @@ cfnResources.cfnUserPool.policies = {
     requireSymbols: false,
     temporaryPasswordValidityDays: 7,
   },
+  signInPolicy: { allowedFirstAuthFactors: ['PASSWORD', 'SMS_OTP'] },
 };
+cfnResources.cfnUserPool.userPoolTier = 'ESSENTIALS';
+const clientFlows = (cfnResources.cfnUserPoolClient.explicitAuthFlows ?? []) as string[];
+cfnResources.cfnUserPoolClient.explicitAuthFlows = [...new Set([...clientFlows, 'ALLOW_USER_AUTH'])];
 
 // Phone sign-in lookup: read-only access to this user pool.
 backend.phoneLogin.addEnvironment('USER_POOL_ID', userPool.userPoolId);

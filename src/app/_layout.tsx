@@ -117,6 +117,7 @@ function RootStack() {
       <Stack.Screen name="checkout/success/[id]" options={{ headerShown: false, gestureEnabled: false }} />
       <Stack.Screen name="bookings/[id]" options={{ title: t('bookingDetails.title') }} />
       <Stack.Screen name="auth/sign-in" options={{ title: '' }} />
+      <Stack.Screen name="auth/phone" options={{ title: '' }} />
       <Stack.Screen name="auth/sign-up" options={{ title: '' }} />
       <Stack.Screen name="auth/forgot-password" options={{ title: '' }} />
       <Stack.Screen name="info/[slug]" options={{ title: '' }} />

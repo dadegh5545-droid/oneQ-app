@@ -243,6 +243,13 @@ function draftArgs(d: BookingDraft) {
 // ── Auth helpers ──
 
 // Email, or a Qatar mobile number resolved to its Cognito username by the `signInName` query.
+// Cognito could not text the code: SNS refused the number (e.g. SMS sandbox), spending limit, or SMS setup.
+const SMS_SETUP_ERRORS = new Set([
+  'CodeDeliveryFailureException',
+  'InvalidSmsRoleAccessPolicyException',
+  'InvalidSmsRoleTrustRelationshipException',
+]);
+
 async function resolveUsername(identifier: string): Promise<string | null> {
   const id = identifier.trim();
   if (id.includes('@')) return id.toLowerCase();
@@ -432,6 +439,34 @@ export const amplifyRepository: Repository = {
     }
     // No other challenges (MFA, new password) are configured for this user pool.
     throw new RepositoryError('INVALID_CREDENTIALS');
+  },
+  async startSmsSignIn(phone) {
+    if ((await session()).mode === 'userPool') await auth(Auth.signOut());
+    const username = await resolveUsername(phone);
+    if (!username) throw new RepositoryError('ACCOUNT_NOT_FOUND');
+    let result;
+    try {
+      // Starting again sends a new code; the previous one stops working.
+      result = await Auth.signIn({ username, options: { authFlowType: 'USER_AUTH', preferredChallenge: 'SMS_OTP' } });
+    } catch (e) {
+      if (e instanceof Error && SMS_SETUP_ERRORS.has(e.name)) throw new RepositoryError('SMS_UNAVAILABLE', { cause: e });
+      throw toRepositoryError(e);
+    }
+    // Anything but a code challenge means SMS sign-in is not available for this account.
+    if (result.nextStep.signInStep !== 'CONFIRM_SIGN_IN_WITH_SMS_CODE') throw new RepositoryError('SMS_UNAVAILABLE');
+    return { destination: result.nextStep.codeDeliveryDetails?.destination ?? null };
+  },
+  async confirmSmsSignIn(code) {
+    let result;
+    try {
+      result = await Auth.confirmSignIn({ challengeResponse: code.trim() });
+    } catch (e) {
+      // Cognito ends the sign-in after three wrong codes or when the code times out.
+      if (e instanceof Error && e.name === 'NotAuthorizedException') throw new RepositoryError('CODE_EXPIRED', { cause: e });
+      throw toRepositoryError(e);
+    }
+    if (!result.isSignedIn) throw new RepositoryError('CODE_EXPIRED');
+    return signedInAccount();
   },
   async signUp({ fullName, email, phone, password }) {
     const username = email.trim().toLowerCase();

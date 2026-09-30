@@ -206,7 +206,8 @@
     "hidePassword": "Hide password",
     "forgot": "Forgot password?",
     "submit": "Sign In",
-    "createAccount": "Create Account"
+    "createAccount": "Create Account",
+    "withSms": "Sign in with an SMS code"
   },
   "checkout": {
     "title": "Checkout",
@@ -343,7 +344,9 @@
     "DUPLICATE_REVIEW": "You have already reviewed this. Edit your review instead.",
     "CONFLICT": "Something changed at the same time. Please try again.",
     "payment": "Payment could not be completed.",
-    "generic": "Something went wrong. Please try again."
+    "generic": "Something went wrong. Please try again.",
+    "CODE_EXPIRED": "This code has expired. Send a new code.",
+    "SMS_UNAVAILABLE": "We couldn't send a code to this number. Sign in with your password instead."
   },
   "signUp": {
     "title": "Create Account",
@@ -479,5 +482,19 @@
     "removed": "Your review has been deleted.",
     "stars": "{{count}} of 5 stars",
     "confirmRemove": "Delete your review? This cannot be undone."
+  },
+  "phoneSignIn": {
+    "title": "Sign in with an SMS code",
+    "body": "We'll text a 6-digit code to your Qatar mobile number.",
+    "phone": "Mobile number",
+    "send": "Send code",
+    "codeTitle": "Enter the code",
+    "codeBody": "We sent a 6-digit code to {{destination}}.",
+    "codeBodyGeneric": "We sent a 6-digit code to your mobile.",
+    "code": "Code",
+    "resend": "Resend code",
+    "resendIn": "Resend code in {{seconds}} s",
+    "changeNumber": "Change number",
+    "usePassword": "Sign in with a password instead"
   }
 }

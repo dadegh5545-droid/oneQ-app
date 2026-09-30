@@ -89,6 +89,11 @@ export function SignInScreen({ next }: { next?: string }) {
         <Button label={t('signIn.submit')} onPress={onSubmit} loading={loading} />
         <Button
           variant="outlined"
+          label={t('signIn.withSms')}
+          onPress={() => router.replace({ pathname: '/auth/phone', params: next ? { next } : {} })}
+        />
+        <Button
+          variant="outlined"
           label={t('signIn.createAccount')}
           onPress={() => router.replace({ pathname: '/auth/sign-up', params: next ? { next } : {} })}
         />

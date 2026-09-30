@@ -202,6 +202,17 @@ await check('auth: sign in with Qatar phone number', async () => {
   const { data: unknown } = await client.queries.signInName({ phone: '33000001' }, guest).catch(() => ({ data: 'err' }));
   assert(unknown === null || unknown === 'err', 'unknown phone resolved');
 });
+await check('auth: SMS code sign-in offered next to the password (no SMS sent)', async () => {
+  await Auth.signOut();
+  // Choice-based sign-in without a preferred method lists the options instead of texting a code.
+  const first = await Auth.signIn({ username: A.email, options: { authFlowType: 'USER_AUTH' } });
+  const choices = first.nextStep.availableChallenges ?? [];
+  assert(first.nextStep.signInStep === 'CONTINUE_SIGN_IN_WITH_FIRST_FACTOR_SELECTION' && choices.includes('SMS_OTP'), `${first.nextStep.signInStep}: ${choices}`);
+  const password = await Auth.confirmSignIn({ challengeResponse: 'PASSWORD_SRP' });
+  assert(password.nextStep.signInStep === 'CONFIRM_SIGN_IN_WITH_PASSWORD', password.nextStep.signInStep);
+  const { isSignedIn } = await Auth.confirmSignIn({ challengeResponse: A.password });
+  assert(isSignedIn && (await ownerKey()) === A.owner, 'password after choosing it');
+});
 await check('auth: sign out and sign back in (email)', async () => {
   await Auth.signOut();
   assert(!(await Auth.fetchAuthSession()).tokens, 'still signed in');

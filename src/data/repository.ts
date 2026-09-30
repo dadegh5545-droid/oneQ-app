@@ -32,6 +32,8 @@ export type RepositoryErrorCode =
   | 'ACCOUNT_EXISTS'
   | 'ACCOUNT_NOT_FOUND'
   | 'INVALID_CODE'
+  | 'CODE_EXPIRED'
+  | 'SMS_UNAVAILABLE'
   | 'NOT_FOUND'
   | 'RATE_LIMITED'
   | 'NETWORK'
@@ -84,6 +86,10 @@ export interface Repository {
   // Profile details from UserProfile (created on first sign-in), falling back to the Cognito attributes.
   getProfile(): Promise<Account>;
   signIn(identifier: string, password: string): Promise<AuthResult>;
+  // Passwordless: texts a one-time code to the account's Qatar mobile number (the masked number is returned),
+  // then signs in with that code.
+  startSmsSignIn(phone: string): Promise<{ destination: string | null }>;
+  confirmSmsSignIn(code: string): Promise<Account>;
   signUp(input: SignUpInput): Promise<AuthResult>;
   // Returns the account when the sign-up can finish signing in automatically, otherwise null.
   confirmSignUp(username: string, code: string): Promise<Account | null>;
