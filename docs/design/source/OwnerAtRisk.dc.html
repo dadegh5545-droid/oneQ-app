@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>OneQ — العملاء المعرّضون للمغادرة</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&amp;family=Noto+Kufi+Arabic:wght@700;800&amp;family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'IBM Plex Sans Arabic',sans-serif;background:#FBF8F5;color:#231A18}
+.nav{padding:11px 14px;font-size:14px;color:rgba(247,240,234,0.72)}
+.card{background:#FFFFFF;border:1px solid #EDE3DA;border-radius:18px;padding:20px}
+.th{font-size:12px;color:#7A6D68;font-weight:600;padding:10px 12px;text-align:start;border-bottom:1px solid #EDE3DA}
+.td{font-size:14px;padding:12px;border-bottom:1px solid #F3ECE6}
+.pill{display:inline-block;font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px}
+</style>
+</helmet>
+<div style="width: 1280px; height: 900px; box-sizing: border-box; display: flex; background: #FBF8F5">
+<div style="width: 240px; flex-shrink: 0; background: #2A000F; color: #F7F0EA; padding: 28px 18px; box-sizing: border-box; display: flex; flex-direction: column; gap: 6px">
+<div dir="ltr" style="font-family: 'Playfair Display', serif; font-size: 28px; text-align: right; padding: 0 10px 22px">OneQ</div>
+<div class="nav">لوحة التحكم</div>
+<div class="nav">التنبيهات</div>
+<div style="padding: 11px 14px; border-radius: 12px; background: rgba(247,240,234,0.12); font-weight: 600; font-size: 14px">الاحتفاظ بالعملاء</div>
+<div class="nav">الأعضاء</div>
+<div class="nav">الحملات</div>
+<div class="nav">المدربون</div>
+</div>
+
+<div style="flex-grow: 1; padding: 30px 36px; box-sizing: border-box; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; justify-content: space-between; align-items: flex-end">
+<div><h1 style="margin: 0; font-family: 'Noto Kufi Arabic', sans-serif; font-weight: 800; font-size: 26px">الاحتفاظ بالعملاء</h1>
+<div style="font-size: 14px; color: #7A6D68; margin-top: 4px">نرتّب أعضاءك حسب احتمال مغادرتهم، من حضورهم وتاريخ انتهاء اشتراكهم.</div></div>
+<span style="padding: 6px 12px; border-radius: 999px; background: #F1E7DD; color: #5A0020; font-size: 12px; font-weight: 700">بيانات تجريبية</span>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px">
+<div class="card" style="border-color: #E9C3C3; background: #FFF7F6"><div style="font-size: 13px; color: #A3302F; font-weight: 700">خطر عالي</div><div style="font-size: 32px; font-weight: 700; margin-top: 4px">9</div><div style="font-size: 12px; color: #7A6D68">غياب أكثر من <bdi>14</bdi> يوم</div></div>
+<div class="card" style="border-color: #F0D9C2; background: #FFFAF4"><div style="font-size: 13px; color: #B5561E; font-weight: 700">خطر متوسط</div><div style="font-size: 32px; font-weight: 700; margin-top: 4px">17</div><div style="font-size: 12px; color: #7A6D68">حضور قلّ للنصف</div></div>
+<div class="card"><div style="font-size: 13px; color: #3F7A4F; font-weight: 700">مستقرين</div><div style="font-size: 32px; font-weight: 700; margin-top: 4px">77</div><div style="font-size: 12px; color: #7A6D68">حضور منتظم</div></div>
+<div class="card" style="background: #5A0020; border-color: #5A0020; color: #FFFFFF"><div style="font-size: 13px; color: rgba(255,255,255,0.8)">إيراد ممكن تنقذه</div><div dir="ltr" style="text-align: right; font-size: 28px; font-weight: 700; margin-top: 4px">QAR 8,960</div><div style="font-size: 12px; color: #F0C9D3">إذا جدّد أعضاء الخطر العالي والمتوسط</div></div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; flex-grow: 1">
+<div class="card" style="grid-column: span 2; padding: 8px 8px 0">
+<table style="width: 100%; border-collapse: collapse">
+<thead><tr><th class="th">العضو</th><th class="th">آخر زيارة</th><th class="th">ينتهي</th><th class="th">الخطر</th><th class="th"></th></tr></thead>
+<tbody>
+<tr><td class="td"><strong>خالد م.</strong><div style="font-size: 12px; color: #7A6D68">شهر واحد</div></td><td class="td">قبل <bdi>21</bdi> يوم</td><td class="td">بعد <bdi>4</bdi> أيام</td><td class="td"><span class="pill" style="background: #FBE4E4; color: #A3302F">عالي</span></td><td class="td"><button type="button" style="height: 34px; padding: 0 12px; border-radius: 10px; border: 1px solid #1F7A4D; background: #FFFFFF; color: #1F7A4D; font-family: inherit; font-size: 13px; font-weight: 700">واتساب</button></td></tr>
+<tr><td class="td"><strong>Maria L.</strong><div style="font-size: 12px; color: #7A6D68">3 أشهر</div></td><td class="td">قبل <bdi>18</bdi> يوم</td><td class="td">بعد <bdi>9</bdi> أيام</td><td class="td"><span class="pill" style="background: #FBE4E4; color: #A3302F">عالي</span></td><td class="td"><button type="button" style="height: 34px; padding: 0 12px; border-radius: 10px; border: 1px solid #1F7A4D; background: #FFFFFF; color: #1F7A4D; font-family: inherit; font-size: 13px; font-weight: 700">واتساب</button></td></tr>
+<tr><td class="td"><strong>عبدالله ر.</strong><div style="font-size: 12px; color: #7A6D68">6 أشهر</div></td><td class="td">قبل <bdi>10</bdi> أيام</td><td class="td">بعد <bdi>22</bdi> يوم</td><td class="td"><span class="pill" style="background: #FBEFE3; color: #B5561E">متوسط</span></td><td class="td"><button type="button" style="height: 34px; padding: 0 12px; border-radius: 10px; border: 1px solid #1F7A4D; background: #FFFFFF; color: #1F7A4D; font-family: inherit; font-size: 13px; font-weight: 700">واتساب</button></td></tr>
+<tr><td class="td"><strong>ريم ع.</strong><div style="font-size: 12px; color: #7A6D68">3 أشهر</div></td><td class="td">قبل <bdi>8</bdi> أيام</td><td class="td">بعد <bdi>30</bdi> يوم</td><td class="td"><span class="pill" style="background: #FBEFE3; color: #B5561E">متوسط</span></td><td class="td"><button type="button" style="height: 34px; padding: 0 12px; border-radius: 10px; border: 1px solid #1F7A4D; background: #FFFFFF; color: #1F7A4D; font-family: inherit; font-size: 13px; font-weight: 700">واتساب</button></td></tr>
+<tr><td class="td" style="border-bottom: 0"><strong>Omar S.</strong><div style="font-size: 12px; color: #7A6D68">شهر واحد</div></td><td class="td" style="border-bottom: 0">قبل <bdi>7</bdi> أيام</td><td class="td" style="border-bottom: 0">بعد <bdi>12</bdi> يوم</td><td class="td" style="border-bottom: 0"><span class="pill" style="background: #FBEFE3; color: #B5561E">متوسط</span></td><td class="td" style="border-bottom: 0"><button type="button" style="height: 34px; padding: 0 12px; border-radius: 10px; border: 1px solid #1F7A4D; background: #FFFFFF; color: #1F7A4D; font-family: inherit; font-size: 13px; font-weight: 700">واتساب</button></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="card" style="display: flex; flex-direction: column; gap: 12px">
+<div style="font-size: 16px; font-weight: 700">حملة استرجاع بالواتساب</div>
+<div style="font-size: 13px; color: #7A6D68">إلى <bdi>9</bdi> أعضاء خطر عالي</div>
+<div style="background: #E7F4EC; border-radius: 14px 14px 4px 14px; padding: 14px; font-size: 14px; line-height: 1.8; color: #1C3B2A">هلا خالد، وحشتنا في النادي! جهّزنا لك جلسة مجانية مع مدرب هالأسبوع، وخصم <bdi>10%</bdi> إذا جدّدت قبل نهاية اشتراكك. احجز من تطبيق OneQ.</div>
+<label style="display: flex; gap: 8px; align-items: center; font-size: 13px"><input type="checkbox" checked="checked"> إضافة جلسة مجانية</label>
+<label style="display: flex; gap: 8px; align-items: center; font-size: 13px"><input type="checkbox" checked="checked"> خصم <bdi>10%</bdi> على التجديد</label>
+<button type="button" style="margin-top: auto; height: 46px; border-radius: 12px; border: 0; background: #1F7A4D; color: #FFFFFF; font-family: inherit; font-size: 15px; font-weight: 700">أرسل للـ <bdi>9</bdi> أعضاء</button>
+<div style="font-size: 11px; color: #A89C96; text-align: center">النوادي تخسر تقريبًا <bdi>30%</bdi> من أعضائها كل سنة</div>
+</div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

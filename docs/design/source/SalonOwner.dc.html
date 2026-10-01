@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>OneQ — لوحة الصالون</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&amp;family=Noto+Kufi+Arabic:wght@700;800&amp;family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'IBM Plex Sans Arabic',sans-serif;background:#FBF7F8;color:#231A18}
+.nav{padding:11px 14px;font-size:14px;color:rgba(250,240,244,0.75)}
+.kpi{background:#FFFFFF;border:1px solid #EFE2E6;border-radius:18px;padding:16px 18px}
+.k1{font-size:13px;color:#6E5F64}
+.k2{font-size:28px;font-weight:700;margin-top:4px}
+.card{background:#FFFFFF;border:1px solid #EFE2E6;border-radius:18px;padding:18px 20px}
+.col{position:relative;height:350px;border-inline-start:1px solid #F4EBEE}
+.ap{position:absolute;right:5px;left:5px;border-radius:10px;padding:6px 8px;box-sizing:border-box;font-size:12px;overflow:hidden}
+.hr{height:70px;border-top:1px dashed #EFE2E6;box-sizing:border-box;font-size:11px;color:#6E5F64;padding-top:2px}
+.bar{height:8px;border-radius:999px;background:#F6E6EC;margin-top:6px}
+</style>
+</helmet>
+<div style="width: 1280px; height: 800px; box-sizing: border-box; display: flex; background: #FBF7F8">
+
+<div style="width: 240px; flex-shrink: 0; background: #3A1224; color: #FAF0F4; padding: 28px 18px; box-sizing: border-box; display: flex; flex-direction: column; gap: 4px">
+<div dir="ltr" style="font-family: 'Playfair Display', serif; font-size: 28px; text-align: right; padding: 0 10px 4px">OneQ</div>
+<div style="font-size: 12px; color: #E6B3C6; padding: 0 10px 20px">للصالونات</div>
+<div style="padding: 11px 14px; border-radius: 12px; background: rgba(250,240,244,0.12); font-weight: 600; font-size: 14px">جدول اليوم</div>
+<div class="nav">الحجوزات</div>
+<div class="nav">الخدمات المنزلية</div>
+<div class="nav">العميلات</div>
+<div class="nav">الأخصائيات</div>
+<div class="nav">الخدمات والباقات</div>
+<div class="nav">معرض الأعمال</div>
+<div class="nav">العروض والولاء</div>
+<div style="margin-top: auto; padding: 14px; border-radius: 14px; border: 1px solid rgba(250,240,244,0.2); font-size: 13px; line-height: 1.6; color: rgba(250,240,244,0.8)">كل الأرقام تجريبية للعرض فقط.</div>
+</div>
+
+<div style="flex-grow: 1; padding: 28px 36px; box-sizing: border-box; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<div><div style="font-size: 14px; color: #6E5F64">الثلاثاء <bdi>29</bdi> سبتمبر</div><h1 style="margin: 2px 0 0; font-family: 'Noto Kufi Arabic', sans-serif; font-weight: 800; font-size: 25px">دار الجوري للتجميل</h1></div>
+<div style="display: flex; gap: 10px; align-items: center">
+<span style="padding: 6px 12px; border-radius: 999px; background: #F6E6EC; color: #7A2F4C; font-size: 12px; font-weight: 700">بيانات تجريبية</span>
+<button type="button" style="height: 40px; padding: 0 16px; border-radius: 12px; border: 1px solid #EFE2E6; background: #FFFFFF; font-family: inherit; font-size: 14px">+ عرض جديد</button>
+<button type="button" style="height: 40px; padding: 0 16px; border-radius: 12px; border: 0; background: #A34A6B; color: #FFFFFF; font-family: inherit; font-size: 14px; font-weight: 600">+ حجز يدوي</button>
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px">
+<div class="kpi"><div class="k1">حجوزات اليوم</div><div class="k2" dir="ltr" style="text-align: right">41</div><div style="font-size: 12px; color: #6E5F64"><bdi>26</bdi> منها عبر OneQ</div></div>
+<div class="kpi"><div class="k1">خدمات منزلية</div><div class="k2" dir="ltr" style="text-align: right">9</div><div style="font-size: 12px; color: #A34A6B">3 بانتظار التأكيد</div></div>
+<div class="kpi"><div class="k1">عميلات عائدات</div><div class="k2" dir="ltr" style="text-align: right">68%</div><div style="font-size: 12px; color: #3F7A4F">▲ <bdi>+9%</bdi> مع نقاط الولاء</div></div>
+<div class="kpi"><div class="k1">عرابين مستلمة</div><div class="k2" dir="ltr" style="text-align: right; font-size: 22px; white-space: nowrap">QAR 2,480</div><div style="font-size: 12px; color: #6E5F64">إلغاءات أقل <bdi>70%</bdi></div></div>
+<div class="kpi" style="background: #A34A6B; border-color: #A34A6B; color: #FFFFFF"><div class="k1" style="color: rgba(255,255,255,0.85)">إيراد اليوم المتوقع</div><div class="k2" dir="ltr" style="text-align: right; font-size: 22px; white-space: nowrap">QAR 12,380</div><div style="font-size: 12px; color: #F6D5E1">▲ <bdi>+11%</bdi> عن الثلاثاء الماضي</div></div>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 14px; flex-grow: 1">
+<div class="card">
+<div style="display: flex; justify-content: space-between; align-items: baseline"><div style="font-size: 16px; font-weight: 700">جدول الأخصائيات · بعد الظهر</div><div style="font-size: 12px; color: #6E5F64">الإشغال <bdi>88%</bdi></div></div>
+<div style="display: grid; grid-template-columns: 52px repeat(4, minmax(0, 1fr)); margin-top: 14px; font-size: 13px; font-weight: 700">
+<div></div><div style="padding: 0 6px 8px">نوف</div><div style="padding: 0 6px 8px">لانا</div><div style="padding: 0 6px 8px">مريم</div><div style="padding: 0 6px 8px">هيا</div>
+</div>
+<div style="display: grid; grid-template-columns: 52px repeat(4, minmax(0, 1fr))">
+<div><div class="hr"><bdi>1</bdi> م</div><div class="hr"><bdi>2</bdi> م</div><div class="hr"><bdi>3</bdi> م</div><div class="hr"><bdi>4</bdi> م</div><div class="hr"><bdi>5</bdi> م</div></div>
+<div class="col">
+<div class="ap" style="top: 0; height: 208px; background: #A34A6B; color: #FFFFFF"><b>قص + صبغة</b><br>أمل ع. · OneQ<br><span style="opacity: 0.85">في البيت · الوعب</span></div>
+<div class="ap" style="top: 222px; height: 68px; background: #F6E6EC; color: #7A2F4C"><b>سشوار</b><br>دانة م.</div>
+</div>
+<div class="col">
+<div class="ap" style="top: 35px; height: 68px; background: #F6E6EC; color: #7A2F4C"><b>مكياج سهرة</b><br>ريم ف.</div>
+<div class="ap" style="top: 140px; height: 138px; background: #5B2238; color: #FFFFFF"><b>عروس · تجربة</b><br>شهد ك. · OneQ<br><span style="opacity: 0.85">باقة العروس</span></div>
+</div>
+<div class="col">
+<div class="ap" style="top: 0; height: 51px; background: #F6E6EC; color: #7A2F4C"><b>مانيكير</b> · هند س.</div>
+<div class="ap" style="top: 70px; height: 51px; background: #A34A6B; color: #FFFFFF"><b>جل + رسم</b> · OneQ</div>
+<div class="ap" style="top: 140px; height: 51px; background: #F6E6EC; color: #7A2F4C"><b>باديكير</b> · لولوة ع.</div>
+<div class="ap" style="top: 210px; height: 120px; background: #FAF5F7; color: #6E5F64; border: 1px dashed #DCC6CE"><b>متاح</b><br>نبّهي قائمة الانتظار</div>
+</div>
+<div class="col">
+<div class="ap" style="top: 70px; height: 104px; background: #A34A6B; color: #FFFFFF"><b>حناء كاملة</b><br>مها ج. · OneQ</div>
+<div class="ap" style="top: 210px; height: 68px; background: #F6E6EC; color: #7A2F4C"><b>حناء يدين</b><br>سارة ب.</div>
+</div>
+</div>
+</div>
+
+<div class="card" style="display: flex; flex-direction: column; gap: 12px">
+<div style="font-size: 16px; font-weight: 700">الأكثر طلبًا هالأسبوع</div>
+<div><div style="display: flex; justify-content: space-between; font-size: 13px"><span>صبغات</span><bdi>46</bdi></div><div class="bar"><div style="width: 92%; height: 8px; border-radius: 999px; background: #A34A6B"></div></div></div>
+<div><div style="display: flex; justify-content: space-between; font-size: 13px"><span>أظافر</span><bdi>39</bdi></div><div class="bar"><div style="width: 78%; height: 8px; border-radius: 999px; background: #C98AA2"></div></div></div>
+<div><div style="display: flex; justify-content: space-between; font-size: 13px"><span>مكياج</span><bdi>27</bdi></div><div class="bar"><div style="width: 54%; height: 8px; border-radius: 999px; background: #C98AA2"></div></div></div>
+<div><div style="display: flex; justify-content: space-between; font-size: 13px"><span>حناء</span><bdi>21</bdi></div><div class="bar"><div style="width: 42%; height: 8px; border-radius: 999px; background: #C98AA2"></div></div></div>
+<div style="margin-top: auto; border-radius: 14px; background: #F6E6EC; padding: 14px">
+<div style="font-size: 14px; font-weight: 700; color: #5B2238">موسم الأعراس قرّب</div>
+<div style="font-size: 12px; color: #5B2238; margin-top: 2px; line-height: 1.6"><bdi>12</bdi> حجز عروس في أكتوبر. فعّلي باقة العروس بالعربون لتثبيت المواعيد.</div>
+<button type="button" style="margin-top: 10px; height: 36px; padding: 0 14px; border-radius: 10px; border: 0; background: #A34A6B; color: #FFFFFF; font-family: inherit; font-size: 13px; font-weight: 700">فعّلي الباقة</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

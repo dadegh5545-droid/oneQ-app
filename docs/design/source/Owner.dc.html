@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>OneQ — لوحة صاحب النادي</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&amp;family=Noto+Kufi+Arabic:wght@700;800&amp;family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'IBM Plex Sans Arabic',sans-serif;background:#FBF8F5;color:#231A18}
+</style>
+</helmet>
+<div style="width: 1280px; height: 820px; box-sizing: border-box; display: flex; background: #FBF8F5">
+
+<div style="width: 240px; flex-shrink: 0; background: #2A000F; color: #F7F0EA; padding: 28px 18px; box-sizing: border-box; display: flex; flex-direction: column; gap: 6px">
+<div dir="ltr" style="font-family: 'Playfair Display', serif; font-size: 28px; text-align: right; padding: 0 10px 22px">OneQ</div>
+<div style="padding: 11px 14px; border-radius: 12px; background: rgba(247,240,234,0.12); font-weight: 600; font-size: 14px">لوحة التحكم</div>
+<div style="padding: 11px 14px; font-size: 14px; color: rgba(247,240,234,0.72)">التحليلات</div>
+<div style="padding: 11px 14px; font-size: 14px; color: rgba(247,240,234,0.72)">الأعضاء</div>
+<div style="padding: 11px 14px; font-size: 14px; color: rgba(247,240,234,0.72)">خطط الاشتراك</div>
+<div style="padding: 11px 14px; font-size: 14px; color: rgba(247,240,234,0.72)">صور النادي</div>
+<div style="padding: 11px 14px; font-size: 14px; color: rgba(247,240,234,0.72)">المدربون</div>
+<div style="padding: 11px 14px; font-size: 14px; color: rgba(247,240,234,0.72)">الحجوزات</div>
+<div style="padding: 11px 14px; font-size: 14px; color: rgba(247,240,234,0.72)">التقييمات</div>
+<div style="margin-top: auto; padding: 14px; border-radius: 14px; border: 1px solid rgba(247,240,234,0.2); font-size: 13px; line-height: 1.6; color: rgba(247,240,234,0.8)">كل أرقام هذي اللوحة تجريبية للعرض فقط.</div>
+</div>
+
+<div style="flex-grow: 1; padding: 30px 36px; box-sizing: border-box; display: flex; flex-direction: column; gap: 22px">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<div>
+<div style="font-size: 14px; color: #7A6D68">مرحبًا بعودتك</div>
+<h1 style="margin: 2px 0 0; font-family: 'Noto Kufi Arabic', sans-serif; font-weight: 800; font-size: 26px">Power House Gym</h1>
+</div>
+<div style="display: flex; gap: 10px; align-items: center">
+<span style="padding: 6px 12px; border-radius: 999px; background: #F1E7DD; color: #5A0020; font-size: 12px; font-weight: 700">بيانات تجريبية</span>
+<button type="button" style="height: 40px; padding: 0 16px; border-radius: 12px; border: 1px solid #E7DBD1; background: #FFFFFF; font-family: inherit; font-size: 14px">هذا الشهر</button>
+<button type="button" style="height: 40px; padding: 0 16px; border-radius: 12px; border: 0; background: #5A0020; color: #FFFFFF; font-family: inherit; font-size: 14px; font-weight: 600">+ إضافة خطة</button>
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px">
+<div style="background: #FFFFFF; border: 1px solid #EDE3DA; border-radius: 18px; padding: 18px"><div style="font-size: 13px; color: #7A6D68">إجمالي الأعضاء</div><div dir="ltr" style="text-align: right; font-size: 30px; font-weight: 700; margin-top: 6px">127</div><div style="font-size: 12px; color: #3F7A4F; margin-top: 4px">▲ <bdi>+18%</bdi> عن الشهر الماضي</div></div>
+<div style="background: #FFFFFF; border: 1px solid #EDE3DA; border-radius: 18px; padding: 18px"><div style="font-size: 13px; color: #7A6D68">الأعضاء النشطون</div><div dir="ltr" style="text-align: right; font-size: 30px; font-weight: 700; margin-top: 6px">103</div><div style="font-size: 12px; color: #7A6D68; margin-top: 4px"><bdi>81%</bdi> من الأعضاء</div></div>
+<div style="background: #FFFFFF; border: 1px solid #EDE3DA; border-radius: 18px; padding: 18px"><div style="font-size: 13px; color: #7A6D68">جدد هذا الشهر</div><div dir="ltr" style="text-align: right; font-size: 30px; font-weight: 700; margin-top: 6px">38</div><div style="font-size: 12px; color: #3F7A4F; margin-top: 4px">▲ عبر OneQ</div></div>
+<div style="background: #5A0020; color: #FFFFFF; border-radius: 18px; padding: 18px"><div style="font-size: 13px; color: rgba(255,255,255,0.8)">الإيراد الشهري</div><div dir="ltr" style="text-align: right; font-size: 28px; font-weight: 700; margin-top: 6px">QAR 24,850</div><div style="font-size: 12px; color: #F0C9D3; margin-top: 4px">▲ <bdi>+12%</bdi></div></div>
+<div style="background: #FFFFFF; border: 1px solid #EDE3DA; border-radius: 18px; padding: 18px"><div style="font-size: 13px; color: #7A6D68">حجوزات المدربين</div><div dir="ltr" style="text-align: right; font-size: 30px; font-weight: 700; margin-top: 6px">74</div><div style="font-size: 12px; color: #7A6D68; margin-top: 4px">هذا الشهر</div></div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; flex-grow: 1">
+<div style="grid-column: span 2; background: #FFFFFF; border: 1px solid #EDE3DA; border-radius: 18px; padding: 20px; display: flex; flex-direction: column">
+<div style="display: flex; justify-content: space-between"><div style="font-size: 16px; font-weight: 700">نمو الإيراد</div><div style="font-size: 12px; color: #7A6D68">آخر 6 أشهر</div></div>
+<div style="flex-grow: 1; display: flex; align-items: flex-end; gap: 22px; padding: 20px 10px 0; direction: ltr">
+<div style="flex-grow: 1; display: flex; flex-direction: column; align-items: center; gap: 8px"><div style="width: 100%; height: 110px; border-radius: 10px 10px 4px 4px; background: #EBDCD3"></div><span style="font-size: 12px; color: #7A6D68">Apr</span></div>
+<div style="flex-grow: 1; display: flex; flex-direction: column; align-items: center; gap: 8px"><div style="width: 100%; height: 132px; border-radius: 10px 10px 4px 4px; background: #EBDCD3"></div><span style="font-size: 12px; color: #7A6D68">May</span></div>
+<div style="flex-grow: 1; display: flex; flex-direction: column; align-items: center; gap: 8px"><div style="width: 100%; height: 150px; border-radius: 10px 10px 4px 4px; background: #EBDCD3"></div><span style="font-size: 12px; color: #7A6D68">Jun</span></div>
+<div style="flex-grow: 1; display: flex; flex-direction: column; align-items: center; gap: 8px"><div style="width: 100%; height: 176px; border-radius: 10px 10px 4px 4px; background: #D9BFB2"></div><span style="font-size: 12px; color: #7A6D68">Jul</span></div>
+<div style="flex-grow: 1; display: flex; flex-direction: column; align-items: center; gap: 8px"><div style="width: 100%; height: 198px; border-radius: 10px 10px 4px 4px; background: #B88A96"></div><span style="font-size: 12px; color: #7A6D68">Aug</span></div>
+<div style="flex-grow: 1; display: flex; flex-direction: column; align-items: center; gap: 8px"><div style="font-size: 12px; font-weight: 700; color: #5A0020">24,850</div><div style="width: 100%; height: 222px; border-radius: 10px 10px 4px 4px; background: #5A0020"></div><span style="font-size: 12px; color: #231A18; font-weight: 700">Sep</span></div>
+</div>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #EDE3DA; border-radius: 18px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+<div style="font-size: 16px; font-weight: 700">توزيع الاشتراكات</div>
+<div style="display: flex; flex-direction: column; gap: 12px">
+<div><div style="display: flex; justify-content: space-between; font-size: 13px"><span>شهر واحد</span><bdi>34</bdi></div><div style="height: 8px; border-radius: 999px; background: #F1E7DD; margin-top: 6px"><div style="width: 27%; height: 8px; border-radius: 999px; background: #B88A96"></div></div></div>
+<div><div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700"><span>3 أشهر · الأكثر شعبية</span><bdi>46</bdi></div><div style="height: 8px; border-radius: 999px; background: #F1E7DD; margin-top: 6px"><div style="width: 36%; height: 8px; border-radius: 999px; background: #5A0020"></div></div></div>
+<div><div style="display: flex; justify-content: space-between; font-size: 13px"><span>6 أشهر</span><bdi>29</bdi></div><div style="height: 8px; border-radius: 999px; background: #F1E7DD; margin-top: 6px"><div style="width: 23%; height: 8px; border-radius: 999px; background: #B88A96"></div></div></div>
+<div><div style="display: flex; justify-content: space-between; font-size: 13px"><span>12 شهر</span><bdi>18</bdi></div><div style="height: 8px; border-radius: 999px; background: #F1E7DD; margin-top: 6px"><div style="width: 14%; height: 8px; border-radius: 999px; background: #B88A96"></div></div></div>
+</div>
+<div style="margin-top: auto; padding-top: 12px; border-top: 1px solid #EDE3DA; display: flex; justify-content: space-between; font-size: 13px"><span style="color: #7A6D68">المجموع</span><bdi style="font-weight: 700">127</bdi></div>
+</div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":820}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

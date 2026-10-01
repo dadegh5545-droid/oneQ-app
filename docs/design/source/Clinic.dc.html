@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>OneQ — صفحة العيادة</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@700;800&amp;family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'IBM Plex Sans Arabic',sans-serif;background:#F7F0EA;color:#231A18}
+.photoC{background-color:#1E3E3B;background-image:repeating-linear-gradient(135deg,rgba(247,240,234,0.05) 0 2px,transparent 2px 16px)}
+.cap{font-size:10px;color:rgba(247,240,234,0.7);border:1px dashed rgba(247,240,234,0.35);border-radius:999px;padding:4px 10px}
+.info{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#231A18;background:#FFFCF7;border:1px solid #E7DBD1;border-radius:12px;padding:8px 10px}
+.svc{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 0;border-bottom:1px solid #EFE5DC}
+.h2{font-size:17px;font-weight:700}
+</style>
+</helmet>
+<div style="width: 390px; height: 1300px; box-sizing: border-box; background: #F7F0EA; position: relative; overflow: hidden">
+
+<div class="photoC" style="height: 250px; position: relative">
+<div style="position: absolute; top: 56px; right: 20px; left: 20px; display: flex; justify-content: space-between">
+<a href="Clinics.dc.html" aria-label="رجوع" style="width: 44px; height: 44px; border-radius: 50%; background: rgba(247,240,234,0.92); display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#231A18" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></a>
+<button type="button" aria-label="حفظ" style="width: 44px; height: 44px; border-radius: 50%; border: 0; background: rgba(247,240,234,0.92); display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#231A18" stroke-width="1.8" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button>
+</div>
+<div style="position: absolute; top: 120px; left: 20px"><span class="cap">صورة: استقبال العيادة</span></div>
+</div>
+
+<div style="margin: -28px 16px 0; position: relative; background: #FFFCF7; border: 1px solid #E7DBD1; border-radius: 24px; padding: 18px">
+<div style="font-size: 12px; font-weight: 700; color: #2F6B67">علاج طبيعي وطب رياضي</div>
+<h1 style="margin: 4px 0 0; font-family: 'Noto Kufi Arabic', sans-serif; font-weight: 800; font-size: 21px; line-height: 1.5">مركز حركة للعلاج الطبيعي</h1>
+<div style="font-size: 13px; color: #6B5E59; margin-top: 4px">الخليج الغربي، الدوحة · <span style="color: #B5561E">★</span> <bdi>4.9</bdi> (<bdi>214</bdi> تقييم)</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 14px">
+<div class="info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2F6B67" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>مفتوح حتى <bdi>10</bdi> م</div>
+<div class="info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2F6B67" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>يقبل التأمين</div>
+<div class="info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2F6B67" stroke-width="1.8" stroke-linecap="round"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c.8-3.5 3.2-5 6-5s5.2 1.5 6 5M15 15c2.8 0 4.8 1.4 5.5 4.5"/></svg>طاقم رجالي ونسائي</div>
+<div class="info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2F6B67" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M10 16V8h3a2.5 2.5 0 0 1 0 5h-3"/></svg>مواقف مجانية</div>
+</div>
+</div>
+
+<div style="display: flex; gap: 6px; margin: 18px 20px 0; background: #EFE5DC; border-radius: 14px; padding: 4px">
+<button type="button" style="flex-grow: 1; height: 40px; border: 0; border-radius: 11px; background: #FFFCF7; font-family: inherit; font-size: 14px; font-weight: 700; color: #231A18">الخدمات</button>
+<button type="button" style="flex-grow: 1; height: 40px; border: 0; border-radius: 11px; background: transparent; font-family: inherit; font-size: 14px; color: #6B5E59">الأطباء</button>
+<button type="button" style="flex-grow: 1; height: 40px; border: 0; border-radius: 11px; background: transparent; font-family: inherit; font-size: 14px; color: #6B5E59">التقييمات</button>
+</div>
+
+<div style="padding: 6px 20px 0">
+<div class="svc"><div><div style="font-size: 15px; font-weight: 700">تقييم أولي للإصابة</div><div style="font-size: 12px; color: #6B5E59"><bdi>60</bdi> دقيقة · فحص وخطة علاج</div></div><div dir="ltr" style="font-size: 15px; font-weight: 700; flex-shrink: 0">QAR 350</div></div>
+<div class="svc"><div><div style="font-size: 15px; font-weight: 700">جلسة علاج طبيعي</div><div style="font-size: 12px; color: #6B5E59"><bdi>45</bdi> دقيقة</div></div><div dir="ltr" style="font-size: 15px; font-weight: 700; flex-shrink: 0">QAR 300</div></div>
+<div class="svc"><div><div style="font-size: 15px; font-weight: 700">مساج رياضي علاجي</div><div style="font-size: 12px; color: #6B5E59"><bdi>60</bdi> دقيقة</div></div><div dir="ltr" style="font-size: 15px; font-weight: 700; flex-shrink: 0">QAR 280</div></div>
+<div class="svc"><div><div style="font-size: 15px; font-weight: 700">استشارة طب رياضي</div><div style="font-size: 12px; color: #6B5E59"><bdi>30</bdi> دقيقة · مع طبيب</div></div><div dir="ltr" style="font-size: 15px; font-weight: 700; flex-shrink: 0">QAR 400</div></div>
+<div class="svc" style="border-bottom: 0"><div><div style="font-size: 15px; font-weight: 700">باقة تأهيل · <bdi>8</bdi> جلسات</div><div style="font-size: 12px; color: #2F6B67; font-weight: 700">وفّر <bdi>15%</bdi> · صالحة شهرين</div></div><div dir="ltr" style="font-size: 15px; font-weight: 700; color: #2F6B67; flex-shrink: 0">QAR 2,040</div></div>
+</div>
+
+<div class="h2" style="padding: 14px 20px 0">الأطباء والأخصائيين</div>
+<div style="display: flex; flex-direction: column; gap: 10px; padding: 12px 20px 0">
+<div style="display: flex; gap: 12px; align-items: center; background: #FFFCF7; border: 1px solid #E7DBD1; border-radius: 18px; padding: 12px">
+<div class="photoC" style="width: 56px; height: 56px; border-radius: 50%; flex-shrink: 0"></div>
+<div style="flex-grow: 1"><div style="font-size: 15px; font-weight: 700">د. ريم خالد</div><div style="font-size: 12px; color: #6B5E59">طب رياضي · عربي، إنجليزي</div></div>
+<div style="font-size: 11px; font-weight: 700; color: #2F6B67; background: #E4EFED; padding: 4px 9px; border-radius: 999px; text-align: center">اليوم<br><bdi>4:30</bdi> م</div>
+</div>
+<div style="display: flex; gap: 12px; align-items: center; background: #FFFCF7; border: 1px solid #E7DBD1; border-radius: 18px; padding: 12px">
+<div class="photoC" style="width: 56px; height: 56px; border-radius: 50%; flex-shrink: 0"></div>
+<div style="flex-grow: 1"><div style="font-size: 15px; font-weight: 700">محمد سالم</div><div style="font-size: 12px; color: #6B5E59">أخصائي علاج طبيعي · <bdi>9</bdi> سنوات خبرة</div></div>
+<div style="font-size: 11px; font-weight: 700; color: #2F6B67; background: #E4EFED; padding: 4px 9px; border-radius: 999px; text-align: center">غدًا<br><bdi>10:00</bdi> ص</div>
+</div>
+</div>
+
+<div style="margin: 16px 20px 0; border-radius: 18px; background: #E4EFED; padding: 14px 16px; display: flex; gap: 12px; align-items: center">
+<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2F6B67" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
+<div style="flex-grow: 1"><div style="font-size: 14px; font-weight: 700; color: #1F4744">تحقّق من تغطية تأمينك</div><div style="font-size: 12px; color: #1F4744">تعرف نسبة التحمّل قبل ما تحجز</div></div>
+<button type="button" style="height: 36px; padding: 0 14px; border-radius: 10px; border: 1px solid #2F6B67; background: transparent; font-family: inherit; font-size: 13px; font-weight: 700; color: #2F6B67">تحقّق</button>
+</div>
+
+<div style="position: absolute; bottom: 0; right: 0; left: 0; background: #FFFCF7; border-top: 1px solid #E7DBD1; padding: 14px 20px 30px; display: flex; gap: 12px; align-items: center">
+<div style="flex-shrink: 0"><div style="font-size: 12px; color: #6B5E59">يبدأ من</div><div dir="ltr" style="text-align: right; font-size: 18px; font-weight: 700">QAR 280</div></div>
+<a href="ClinicBooking.dc.html" style="flex-grow: 1; height: 54px; border-radius: 16px; background: #2F6B67; color: #FFFFFF; font-size: 17px; font-weight: 700; display: flex; align-items: center; justify-content: center; text-decoration: none">احجز موعد</a>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1300}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

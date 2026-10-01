@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>OneQ — الإشعارات</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@700;800&amp;family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'IBM Plex Sans Arabic',sans-serif;background:#F7F0EA;color:#231A18}
+.n{display:flex;gap:12px;background:#FFFCF7;border:1px solid #E7DBD1;border-radius:18px;padding:14px}
+.ic{width:42px;height:42px;border-radius:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.t{font-size:15px;font-weight:700}
+.b{font-size:13px;color:#6B5E59;line-height:1.6;margin-top:2px}
+.w{font-size:11px;color:#A89C96;margin-top:6px}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F7F0EA; padding: 60px 20px 30px; display: flex; flex-direction: column; gap: 12px">
+<h1 style="margin: 0 0 4px; font-family: 'Noto Kufi Arabic', sans-serif; font-weight: 800; font-size: 28px">الإشعارات</h1>
+
+<div class="n" style="border-color: #5A0020; background: #F3E6E6">
+<div class="ic" style="background: #5A0020"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+<div style="flex-grow: 1"><div class="t">انفتح لك مكان</div><div class="b">حجزنا لك "قوة للسيدات" اليوم <bdi>6:30</bdi> مساءً من قائمة الانتظار.</div><div class="w">قبل دقيقتين</div></div>
+</div>
+
+<div class="n">
+<div class="ic" style="background: #FBEFE3"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B5561E" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+<div style="flex-grow: 1"><div class="t">جلستك بعد ساعة</div><div class="b">مع عمر الساعة <bdi>6:30</bdi> · لا تنسى الماء والمنشفة.</div><div class="w">قبل ساعة</div></div>
+</div>
+
+<div class="n">
+<div class="ic" style="background: #E3EFE5"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3F7A4F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0z"/></svg></div>
+<div style="flex-grow: 1"><div class="t">إنجاز جديد</div><div class="b">وصلت <bdi>10</bdi> زيارات هالشهر. استمر!</div><div class="w">أمس</div></div>
+</div>
+
+<div class="n">
+<div class="ic" style="background: #F3E6E6"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5A0020" stroke-width="1.8" stroke-linecap="round"><path d="M20 12v8H4v-8M2 7h20v5H2zM12 22V7M12 7C10 3 7 3 7 5s5 2 5 2 5 0 5-2-3-2-5 2"/></svg></div>
+<div style="flex-grow: 1"><div class="t">عرض تجديد لك</div><div class="b">جدّد قبل <bdi>5</bdi> أكتوبر ووفّر <bdi>15%</bdi> على الـ <bdi>6</bdi> أشهر.</div><div class="w">قبل يومين</div>
+<button type="button" style="margin-top: 10px; height: 36px; padding: 0 14px; border-radius: 10px; border: 0; background: #5A0020; color: #FFFFFF; font-family: inherit; font-size: 13px; font-weight: 700">شوف العرض</button></div>
+</div>
+
+<div class="n">
+<div class="ic" style="background: #E6EEF6"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2F6FB5" stroke-width="1.8" stroke-linecap="round"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg></div>
+<div style="flex-grow: 1"><div class="t">نتيجة InBody جاهزة</div><div class="b">نقصت دهونك <bdi>1.8%</bdi> وزادت عضلاتك <bdi>0.9</bdi> كجم.</div><div class="w">قبل <bdi>4</bdi> أيام</div></div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

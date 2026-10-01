@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>OneQ — حجز موعد عيادة</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@700;800&amp;family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'IBM Plex Sans Arabic',sans-serif;background:#F7F0EA;color:#231A18}
+.photoC{background-color:#1E3E3B;background-image:repeating-linear-gradient(135deg,rgba(247,240,234,0.05) 0 2px,transparent 2px 16px)}
+.day{width:52px;height:70px;border-radius:16px;border:1px solid #E7DBD1;background:#FFFCF7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex-shrink:0;font-family:inherit}
+.slot{height:42px;border-radius:12px;border:1px solid #E7DBD1;background:#FFFCF7;font-family:inherit;font-size:14px;font-weight:600;color:#231A18}
+.lbl{font-size:15px;font-weight:700}
+.segb{flex-grow:1;height:40px;border:0;border-radius:11px;font-family:inherit;font-size:14px}
+</style>
+</helmet>
+<div style="width: 390px; height: 1000px; box-sizing: border-box; background: #F7F0EA; position: relative; overflow: hidden">
+<div style="padding: 56px 20px 0; display: flex; align-items: center; gap: 12px">
+<a href="Clinic.dc.html" aria-label="رجوع" style="width: 44px; height: 44px; border-radius: 50%; border: 1px solid #E7DBD1; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#231A18" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></a>
+<div style="font-size: 17px; font-weight: 700">حجز موعد</div>
+</div>
+
+<div style="margin: 16px 20px 0; background: #FFFCF7; border: 1px solid #E7DBD1; border-radius: 20px; padding: 12px; display: flex; gap: 12px; align-items: center">
+<div class="photoC" style="width: 52px; height: 52px; border-radius: 50%; flex-shrink: 0"></div>
+<div style="flex-grow: 1"><div style="font-size: 15px; font-weight: 700">جلسة علاج طبيعي · <bdi>45</bdi> د</div><div style="font-size: 12px; color: #6B5E59">محمد سالم · مركز حركة</div></div>
+<button type="button" style="height: 34px; padding: 0 12px; border-radius: 10px; border: 1px solid #E7DBD1; background: transparent; font-family: inherit; font-size: 12px; font-weight: 600; color: #2F6B67">تغيير</button>
+</div>
+
+<div style="padding: 18px 20px 0" class="lbl">نوع الزيارة</div>
+<div style="display: flex; gap: 6px; margin: 10px 20px 0; background: #EFE5DC; border-radius: 14px; padding: 4px">
+<button type="button" class="segb" style="background: #FFFCF7; font-weight: 700; color: #231A18">زيارة أولى</button>
+<button type="button" class="segb" style="background: transparent; color: #6B5E59">متابعة</button>
+</div>
+
+<div style="padding: 18px 20px 0; display: flex; justify-content: space-between; align-items: baseline"><div class="lbl">اختر اليوم</div><div style="font-size: 12px; color: #6B5E59">سبتمبر <bdi>2026</bdi></div></div>
+<div style="display: flex; gap: 8px; padding: 10px 20px 0; overflow: hidden">
+<button type="button" class="day"><span style="font-size: 11px; color: #6B5E59">اليوم</span><span style="font-size: 19px; font-weight: 700">27</span></button>
+<button type="button" class="day" style="background: #2F6B67; border-color: #2F6B67"><span style="font-size: 11px; color: rgba(255,255,255,0.85)">الإثنين</span><span style="font-size: 19px; font-weight: 700; color: #FFFFFF">28</span></button>
+<button type="button" class="day"><span style="font-size: 11px; color: #6B5E59">الثلاثاء</span><span style="font-size: 19px; font-weight: 700">29</span></button>
+<button type="button" class="day"><span style="font-size: 11px; color: #6B5E59">الأربعاء</span><span style="font-size: 19px; font-weight: 700">30</span></button>
+<button type="button" class="day"><span style="font-size: 11px; color: #6B5E59">الخميس</span><span style="font-size: 19px; font-weight: 700">1</span></button>
+<button type="button" class="day" style="background: #F1E7DD; border-color: #F1E7DD" disabled="disabled"><span style="font-size: 11px; color: #A89C96">الجمعة</span><span style="font-size: 19px; font-weight: 700; color: #A89C96">2</span></button>
+</div>
+<div dir="ltr" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; padding: 14px 20px 0">
+<button type="button" class="slot">10:00 AM</button>
+<button type="button" class="slot" disabled="disabled" style="background: #F1E7DD; border-color: #F1E7DD; color: #A89C96; text-decoration: line-through">11:00 AM</button>
+<button type="button" class="slot">1:30 PM</button>
+<button type="button" class="slot">4:00 PM</button>
+<button type="button" class="slot" style="background: #2F6B67; border-color: #2F6B67; color: #FFFFFF">5:00 PM</button>
+<button type="button" class="slot">7:30 PM</button>
+</div>
+
+<div style="padding: 20px 20px 0" class="lbl">طريقة الدفع</div>
+<div style="display: flex; gap: 6px; margin: 10px 20px 0; background: #EFE5DC; border-radius: 14px; padding: 4px">
+<button type="button" class="segb" style="background: #FFFCF7; font-weight: 700; color: #231A18">التأمين</button>
+<button type="button" class="segb" style="background: transparent; color: #6B5E59">دفع مباشر</button>
+</div>
+<div style="margin: 10px 20px 0; background: #FFFCF7; border: 1px solid #E7DBD1; border-radius: 16px; padding: 12px 14px; display: flex; align-items: center; gap: 10px">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2F6B67" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18M7 15h4"/></svg>
+<div style="flex-grow: 1"><div style="font-size: 14px; font-weight: 700">بطاقة التأمين</div><div style="font-size: 12px; color: #2F6B67; font-weight: 600">تم التحقق · التغطية <bdi>80%</bdi></div></div>
+<div style="text-align: end"><div style="font-size: 11px; color: #6B5E59">عليك</div><div dir="ltr" style="font-size: 15px; font-weight: 700">QAR 60</div></div>
+</div>
+
+<div style="padding: 18px 20px 0"><label for="note" class="lbl" style="display: block">وش تحس فيه؟ <span style="font-size: 12px; font-weight: 500; color: #6B5E59">(اختياري)</span></label>
+<textarea id="note" style="margin-top: 8px; width: 100%; box-sizing: border-box; height: 72px; border-radius: 14px; border: 1px solid #E7DBD1; background: #FFFCF7; padding: 12px; font-family: inherit; font-size: 13px; color: #231A18; resize: none">ألم في الركبة بعد الجري من أسبوعين</textarea></div>
+
+<div style="position: absolute; bottom: 0; right: 0; left: 0; background: #FFFCF7; border-top: 1px solid #E7DBD1; padding: 14px 20px 30px">
+<div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 12px"><span style="color: #6B5E59">الإثنين <bdi>28</bdi> سبتمبر · <bdi>5:00</bdi> مساءً</span><span style="font-weight: 700">عليك <span dir="ltr">QAR 60</span></span></div>
+<a href="Hub.dc.html" style="height: 54px; border-radius: 16px; background: #2F6B67; color: #FFFFFF; font-size: 17px; font-weight: 700; display: flex; align-items: center; justify-content: center; text-decoration: none">تأكيد الموعد</a>
+<div style="font-size: 11px; color: #6B5E59; text-align: center; margin-top: 8px">تذكير قبل الموعد بـ <bdi>24</bdi> ساعة وساعتين · الإلغاء مجاني قبل <bdi>12</bdi> ساعة</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

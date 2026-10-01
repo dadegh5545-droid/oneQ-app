@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>OneQ — حجز جلسة</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@700;800&amp;family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'IBM Plex Sans Arabic',sans-serif;background:#F7F0EA;color:#231A18}
+.photo{background-color:#3A0015;background-image:repeating-linear-gradient(135deg,rgba(247,240,234,0.04) 0 2px,transparent 2px 16px)}
+.day{width:52px;height:74px;border-radius:16px;border:1px solid #E7DBD1;background:#FFFCF7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;flex-shrink:0;font-family:inherit}
+.slot{height:44px;border-radius:12px;border:1px solid #E7DBD1;background:#FFFCF7;font-family:inherit;font-size:14px;font-weight:600;color:#231A18}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F7F0EA; position: relative; overflow: hidden">
+<div style="padding: 56px 20px 0; display: flex; align-items: center; gap: 12px">
+<a href="Plan.dc.html" aria-label="رجوع" style="width: 44px; height: 44px; border-radius: 50%; border: 1px solid #E7DBD1; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#231A18" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></a>
+<div style="font-size: 17px; font-weight: 700">حجز جلسة</div>
+</div>
+<div style="margin: 18px 20px 0; display: flex; gap: 12px; align-items: center; background: #FFFCF7; border: 1px solid #E7DBD1; border-radius: 20px; padding: 12px">
+<div class="photo" style="width: 56px; height: 56px; border-radius: 50%; flex-shrink: 0"></div>
+<div style="flex-grow: 1"><div style="font-size: 16px; font-weight: 700">عمر الكواري</div><div style="font-size: 13px; color: #7A6D68">بناء عضلات · <span dir="ltr">Power House</span></div></div>
+<div style="font-size: 12px; font-weight: 700; color: #3F7A4F; background: #E3EFE5; padding: 4px 10px; border-radius: 999px">متاح اليوم</div>
+</div>
+
+<div style="padding: 24px 20px 0; display: flex; justify-content: space-between; align-items: baseline">
+<div style="font-family: 'Noto Kufi Arabic', sans-serif; font-weight: 800; font-size: 20px">سبتمبر <bdi>2026</bdi></div>
+<div style="font-size: 13px; color: #7A6D68">اختر اليوم</div>
+</div>
+<div style="display: flex; gap: 8px; padding: 12px 20px 0; overflow: hidden">
+<button type="button" class="day" style="background: #5A0020; border-color: #5A0020"><span style="font-size: 12px; color: rgba(255,255,255,0.8)">الأحد</span><span style="font-size: 20px; font-weight: 700; color: #FFFFFF">27</span></button>
+<button type="button" class="day"><span style="font-size: 12px; color: #7A6D68">الإثنين</span><span style="font-size: 20px; font-weight: 700">28</span></button>
+<button type="button" class="day"><span style="font-size: 12px; color: #7A6D68">الثلاثاء</span><span style="font-size: 20px; font-weight: 700">29</span></button>
+<button type="button" class="day"><span style="font-size: 12px; color: #7A6D68">الأربعاء</span><span style="font-size: 20px; font-weight: 700">30</span></button>
+<button type="button" class="day" style="background: #F1E7DD; border-color: #F1E7DD" disabled="disabled"><span style="font-size: 12px; color: #A89C96">الخميس</span><span style="font-size: 20px; font-weight: 700; color: #A89C96">1</span></button>
+<button type="button" class="day"><span style="font-size: 12px; color: #7A6D68">الجمعة</span><span style="font-size: 20px; font-weight: 700">2</span></button>
+</div>
+
+<div style="padding: 24px 20px 0; font-size: 16px; font-weight: 700">مساءً</div>
+<div dir="ltr" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; padding: 12px 20px 0">
+<button type="button" class="slot">4:00 PM</button>
+<button type="button" class="slot" disabled="disabled" style="background: #F1E7DD; border-color: #F1E7DD; color: #A89C96; text-decoration: line-through">5:00 PM</button>
+<button type="button" class="slot" style="background: #5A0020; border-color: #5A0020; color: #FFFFFF">6:30 PM</button>
+<button type="button" class="slot">7:30 PM</button>
+<button type="button" class="slot" disabled="disabled" style="background: #F1E7DD; border-color: #F1E7DD; color: #A89C96; text-decoration: line-through">8:00 PM</button>
+<button type="button" class="slot">9:00 PM</button>
+</div>
+<div style="padding: 10px 20px 0; font-size: 12px; color: #B5561E">باقي <bdi>2</bdi> مواعيد اليوم فقط</div>
+
+<div style="position: absolute; bottom: 0; right: 0; left: 0; background: #FFFCF7; border-top: 1px solid #E7DBD1; padding: 14px 20px 30px">
+<div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 12px"><span style="color: #7A6D68">الأحد <bdi>27</bdi> سبتمبر · <bdi>6:30</bdi> مساءً · <bdi>60</bdi> دقيقة</span><span dir="ltr" style="font-weight: 700; color: #5A0020">QAR 210</span></div>
+<a href="Success.dc.html" style="height: 54px; border-radius: 16px; background: #5A0020; color: #FFFFFF; font-size: 17px; font-weight: 700; display: flex; align-items: center; justify-content: center; text-decoration: none">احجز الجلسة</a>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

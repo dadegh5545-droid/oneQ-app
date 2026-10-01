@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>OneQ — تجميد الاشتراك</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@700;800&amp;family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'IBM Plex Sans Arabic',sans-serif;background:#8C7A74;color:#231A18}
+.opt{flex-grow:1;height:64px;border-radius:16px;border:1px solid #E7DBD1;background:#FFFCF7;font-family:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: rgba(35,26,24,0.55); position: relative; overflow: hidden">
+<div style="position: absolute; top: 60px; right: 20px; left: 20px; height: 200px; border-radius: 26px; background: #5A0020; opacity: 0.6"></div>
+<div style="position: absolute; bottom: 0; right: 0; left: 0; background: #F7F0EA; border-radius: 30px 30px 0 0; padding: 12px 22px 34px; display: flex; flex-direction: column; gap: 16px">
+<div style="align-self: center; width: 44px; height: 5px; border-radius: 999px; background: #D9C6BA"></div>
+<div style="display: flex; gap: 12px; align-items: center">
+<div style="width: 48px; height: 48px; border-radius: 16px; background: #E6EEF6; display: flex; align-items: center; justify-content: center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2F6FB5" stroke-width="1.8" stroke-linecap="round"><path d="M12 2v20M4 6l16 12M20 6L4 18M9 3l3 3 3-3M9 21l3-3 3 3"/></svg></div>
+<div><h1 style="margin: 0; font-family: 'Noto Kufi Arabic', sans-serif; font-weight: 800; font-size: 22px">تجميد الاشتراك</h1><div style="font-size: 13px; color: #7A6D68">مسافر أو مشغول؟ أيامك محفوظة لك.</div></div>
+</div>
+<div style="font-size: 14px; font-weight: 700">مدة التجميد</div>
+<div style="display: flex; gap: 10px">
+<button type="button" class="opt"><span style="font-size: 18px; font-weight: 700">7</span><span style="font-size: 12px; color: #7A6D68">أيام</span></button>
+<button type="button" class="opt" style="border: 2px solid #5A0020; background: #F3E6E6"><span style="font-size: 18px; font-weight: 700; color: #5A0020">14</span><span style="font-size: 12px; color: #5A0020">يوم</span></button>
+<button type="button" class="opt"><span style="font-size: 18px; font-weight: 700">30</span><span style="font-size: 12px; color: #7A6D68">يوم</span></button>
+</div>
+<div style="background: #FFFCF7; border: 1px solid #E7DBD1; border-radius: 18px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: space-between; font-size: 14px"><span style="color: #7A6D68">يبدأ التجميد</span><span dir="ltr" style="font-weight: 700">1 Oct 2026</span></div>
+<div style="display: flex; justify-content: space-between; font-size: 14px"><span style="color: #7A6D68">ينتهي اشتراكك الآن</span><span style="font-weight: 700"><span dir="ltr" style="color: #A89C96; text-decoration: line-through; font-weight: 500">27 Dec</span> <span dir="ltr" style="color: #3F7A4F">10 Jan 2027</span></span></div>
+<div style="display: flex; justify-content: space-between; font-size: 14px"><span style="color: #7A6D68">رصيد التجميد المتبقي</span><span style="font-weight: 700"><bdi>16</bdi> يوم من <bdi>30</bdi></span></div>
+</div>
+<div style="font-size: 12px; color: #7A6D68; line-height: 1.7">تقدر تلغي التجميد وترجع تتمرن أي وقت، والأيام اللي ما استخدمتها ترجع لرصيدك.</div>
+<button type="button" style="height: 56px; border-radius: 16px; border: 0; background: #5A0020; color: #FFFFFF; font-family: inherit; font-size: 17px; font-weight: 700">جمّد <bdi>14</bdi> يوم</button>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

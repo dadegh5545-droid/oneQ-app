@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>OneQ — ترحيب 1 · تمرين</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&amp;family=Noto+Kufi+Arabic:wght@800&amp;family=IBM+Plex+Sans+Arabic:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'IBM Plex Sans Arabic',sans-serif;background:#5A0020;color:#231A18}
+.fig *{transform-box:view-box}
+.armL{transform-origin:100px 76px;animation:armL 0.9s ease-in-out infinite alternate}
+.armR{transform-origin:100px 76px;animation:armR 0.9s ease-in-out infinite alternate}
+.legL{transform-origin:100px 142px;animation:legL 0.9s ease-in-out infinite alternate}
+.legR{transform-origin:100px 142px;animation:legR 0.9s ease-in-out infinite alternate}
+.body{animation:hop 0.9s ease-in-out infinite alternate}
+.ring{transform-origin:195px 330px;animation:pulse 3.6s ease-in-out infinite}
+@keyframes armL{from{transform:rotate(0deg)}to{transform:rotate(105deg)}}
+@keyframes armR{from{transform:rotate(0deg)}to{transform:rotate(-105deg)}}
+@keyframes legL{from{transform:rotate(0deg)}to{transform:rotate(16deg)}}
+@keyframes legR{from{transform:rotate(0deg)}to{transform:rotate(-16deg)}}
+@keyframes hop{from{transform:translateY(0)}to{transform:translateY(-8px)}}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(1.06);opacity:1}}
+@media (prefers-reduced-motion: reduce){*{animation:none !important}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #5A0020; position: relative; overflow: hidden">
+<svg width="390" height="560" viewBox="0 0 390 560" style="position: absolute; top: 0; left: 0">
+<circle class="ring" cx="195" cy="330" r="150" fill="rgba(247,240,234,0.06)" stroke="rgba(247,240,234,0.14)" stroke-width="1"/>
+<circle cx="195" cy="330" r="200" fill="none" stroke="rgba(247,240,234,0.07)" stroke-width="1"/>
+<line x1="95" y1="480" x2="295" y2="480" stroke="rgba(247,240,234,0.25)" stroke-width="2" stroke-linecap="round"/>
+</svg>
+<svg class="fig" width="220" height="286" viewBox="0 0 200 260" style="position: absolute; top: 190px; left: 85px" fill="none" stroke="#F7F0EA" stroke-width="14" stroke-linecap="round" stroke-linejoin="round">
+<g class="body">
+<circle cx="100" cy="44" r="17" fill="#F7F0EA" stroke="none"/>
+<line x1="100" y1="72" x2="100" y2="142"/>
+<g class="armL"><line x1="100" y1="76" x2="62" y2="124"/></g>
+<g class="armR"><line x1="100" y1="76" x2="138" y2="124"/></g>
+<g class="legL"><line x1="100" y1="142" x2="84" y2="218"/></g>
+<g class="legR"><line x1="100" y1="142" x2="116" y2="218"/></g>
+</g>
+</svg>
+<div style="position: absolute; top: 58px; right: 24px; left: 24px; display: flex; justify-content: space-between; align-items: center">
+<div dir="ltr" style="font-family: 'Playfair Display', serif; font-weight: 700; font-size: 28px; color: #F7F0EA">OneQ</div>
+<a href="Intro3.dc.html" style="font-size: 14px; color: rgba(247,240,234,0.85); text-decoration: none; padding: 10px 4px">تخطي</a>
+</div>
+<div style="position: absolute; bottom: 0; right: 0; left: 0; height: 300px; box-sizing: border-box; background: #F7F0EA; border-radius: 32px 32px 0 0; padding: 30px 24px 38px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; gap: 6px"><div style="width: 28px; height: 6px; border-radius: 999px; background: #5A0020"></div><div style="width: 6px; height: 6px; border-radius: 999px; background: #D9C6BA"></div><div style="width: 6px; height: 6px; border-radius: 999px; background: #D9C6BA"></div></div>
+<h1 style="margin: 4px 0 0; font-family: 'Noto Kufi Arabic', sans-serif; font-weight: 800; font-size: 30px; line-height: 1.35">ابدأ أقوى نسخة منك</h1>
+<p style="margin: 0; font-size: 16px; line-height: 1.7; color: #6B5E59">اكتشف أفضل النوادي والمدربين في قطر وابدأ اليوم.</p>
+<a href="Intro2.dc.html" style="margin-top: auto; height: 56px; border-radius: 16px; background: #5A0020; color: #FFFFFF; font-size: 17px; font-weight: 700; display: flex; align-items: center; justify-content: center; text-decoration: none">التالي</a>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>OneQ — ترحيب 3 · حديد</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&amp;family=Noto+Kufi+Arabic:wght@800&amp;family=IBM+Plex+Sans+Arabic:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'IBM Plex Sans Arabic',sans-serif;background:#45001A;color:#231A18}
+.fig *{transform-box:view-box}
+.bar{animation:press 1.6s cubic-bezier(.45,0,.35,1) infinite alternate}
+.arms{transform-origin:100px 96px;animation:arms 1.6s cubic-bezier(.45,0,.35,1) infinite alternate}
+.glow{transform-origin:195px 300px;animation:glow 1.6s ease-in-out infinite alternate}
+@keyframes press{from{transform:translateY(30px)}to{transform:translateY(-22px)}}
+@keyframes arms{from{transform:scaleY(0.25)}to{transform:scaleY(1.55)}}
+@keyframes glow{from{transform:scale(0.92);opacity:.35}to{transform:scale(1.05);opacity:.8}}
+@media (prefers-reduced-motion: reduce){*{animation:none !important}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #45001A; position: relative; overflow: hidden">
+<svg width="390" height="560" viewBox="0 0 390 560" style="position: absolute; top: 0; left: 0">
+<circle class="glow" cx="195" cy="300" r="170" fill="rgba(247,240,234,0.07)"/>
+<rect x="70" y="472" width="250" height="12" rx="6" fill="rgba(247,240,234,0.22)"/>
+</svg>
+<svg class="fig" width="240" height="312" viewBox="0 0 200 260" style="position: absolute; top: 172px; left: 75px" fill="none" stroke="#F7F0EA" stroke-width="14" stroke-linecap="round" stroke-linejoin="round">
+<circle cx="100" cy="74" r="17" fill="#F7F0EA" stroke="none"/>
+<line x1="100" y1="96" x2="100" y2="164"/>
+<line x1="100" y1="164" x2="78" y2="238"/>
+<line x1="100" y1="164" x2="122" y2="238"/>
+<g class="arms"><line x1="100" y1="96" x2="66" y2="56"/><line x1="100" y1="96" x2="134" y2="56"/></g>
+<g class="bar">
+<line x1="18" y1="56" x2="182" y2="56" stroke-width="7"/>
+<rect x="18" y="34" width="14" height="44" rx="4" fill="#E8B7C4" stroke="none"/>
+<rect x="36" y="40" width="10" height="32" rx="3" fill="#E8B7C4" stroke="none"/>
+<rect x="168" y="34" width="14" height="44" rx="4" fill="#E8B7C4" stroke="none"/>
+<rect x="154" y="40" width="10" height="32" rx="3" fill="#E8B7C4" stroke="none"/>
+</g>
+</svg>
+<div style="position: absolute; top: 58px; right: 24px; left: 24px; display: flex; justify-content: space-between; align-items: center">
+<div dir="ltr" style="font-family: 'Playfair Display', serif; font-weight: 700; font-size: 28px; color: #F7F0EA">OneQ</div>
+<a href="Intro1.dc.html" style="font-size: 14px; color: rgba(247,240,234,0.85); text-decoration: none; padding: 10px 4px">من البداية</a>
+</div>
+<div style="position: absolute; bottom: 0; right: 0; left: 0; height: 300px; box-sizing: border-box; background: #F7F0EA; border-radius: 32px 32px 0 0; padding: 30px 24px 38px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; gap: 6px"><div style="width: 6px; height: 6px; border-radius: 999px; background: #D9C6BA"></div><div style="width: 6px; height: 6px; border-radius: 999px; background: #D9C6BA"></div><div style="width: 28px; height: 6px; border-radius: 999px; background: #5A0020"></div></div>
+<h1 style="margin: 4px 0 0; font-family: 'Noto Kufi Arabic', sans-serif; font-weight: 800; font-size: 30px; line-height: 1.35">احجز. تمرّن. استمر.</h1>
+<p style="margin: 0; font-size: 16px; line-height: 1.7; color: #6B5E59">اشتراكك ومدربك وحجوزاتك في مكان واحد.</p>
+<div style="margin-top: auto; display: flex; gap: 12px">
+<a href="Home.dc.html" style="flex-grow: 1; height: 56px; border-radius: 16px; background: #5A0020; color: #FFFFFF; font-size: 17px; font-weight: 700; display: flex; align-items: center; justify-content: center; text-decoration: none">ابدأ الآن</a>
+<a href="Home.dc.html" style="width: 124px; height: 56px; border-radius: 16px; border: 1px solid #5A0020; color: #5A0020; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; text-decoration: none">تسجيل الدخول</a>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

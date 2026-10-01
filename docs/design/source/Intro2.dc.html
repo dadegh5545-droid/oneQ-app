@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>OneQ — ترحيب 2 · جري</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&amp;family=Noto+Kufi+Arabic:wght@800&amp;family=IBM+Plex+Sans+Arabic:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'IBM Plex Sans Arabic',sans-serif;background:#2A000F;color:#231A18}
+.fig *{transform-box:view-box}
+.legA{transform-origin:94px 136px;animation:swingA 0.55s ease-in-out infinite alternate}
+.legB{transform-origin:94px 136px;animation:swingB 0.55s ease-in-out infinite alternate}
+.armA{transform-origin:103px 78px;animation:swingB 0.55s ease-in-out infinite alternate}
+.armB{transform-origin:103px 78px;animation:swingA 0.55s ease-in-out infinite alternate}
+.bob{animation:bob 0.275s ease-in-out infinite alternate}
+.lines{animation:speed 0.8s linear infinite}
+.city{animation:city 9s linear infinite}
+@keyframes swingA{from{transform:rotate(-38deg)}to{transform:rotate(34deg)}}
+@keyframes swingB{from{transform:rotate(34deg)}to{transform:rotate(-38deg)}}
+@keyframes bob{from{transform:translateY(0)}to{transform:translateY(-6px)}}
+@keyframes speed{from{transform:translateX(0)}to{transform:translateX(120px)}}
+@keyframes city{from{transform:translateX(0)}to{transform:translateX(390px)}}
+@media (prefers-reduced-motion: reduce){*{animation:none !important}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #2A000F; position: relative; overflow: hidden">
+<svg width="390" height="560" viewBox="0 0 390 560" style="position: absolute; top: 0; left: 0">
+<circle cx="285" cy="170" r="46" fill="#B5561E" opacity="0.55"/>
+<g class="city" fill="rgba(247,240,234,0.10)">
+<rect x="-380" y="330" width="34" height="150"/><rect x="-336" y="290" width="26" height="190"/><rect x="-300" y="350" width="40" height="130"/><rect x="-250" y="250" width="22" height="230"/><rect x="-220" y="320" width="36" height="160"/><rect x="-170" y="300" width="28" height="180"/><rect x="-130" y="360" width="44" height="120"/><rect x="-76" y="280" width="24" height="200"/><rect x="-44" y="340" width="34" height="140"/>
+<rect x="10" y="330" width="34" height="150"/><rect x="54" y="290" width="26" height="190"/><rect x="90" y="350" width="40" height="130"/><rect x="140" y="250" width="22" height="230"/><rect x="170" y="320" width="36" height="160"/><rect x="220" y="300" width="28" height="180"/><rect x="260" y="360" width="44" height="120"/><rect x="314" y="280" width="24" height="200"/><rect x="346" y="340" width="34" height="140"/>
+</g>
+<line x1="0" y1="480" x2="390" y2="480" stroke="rgba(247,240,234,0.3)" stroke-width="2"/>
+<g class="lines" stroke="rgba(247,240,234,0.35)" stroke-width="3" stroke-linecap="round">
+<line x1="-100" y1="400" x2="-60" y2="400"/><line x1="-60" y1="430" x2="-10" y2="430"/><line x1="20" y1="410" x2="50" y2="410"/><line x1="60" y1="440" x2="100" y2="440"/>
+</g>
+</svg>
+<svg class="fig" width="220" height="286" viewBox="0 0 200 260" style="position: absolute; top: 204px; left: 110px" fill="none" stroke="#F7F0EA" stroke-width="14" stroke-linecap="round" stroke-linejoin="round">
+<g class="bob">
+<circle cx="110" cy="44" r="17" fill="#F7F0EA" stroke="none"/>
+<g class="armA"><polyline points="103,78 99,108 118,120" stroke="rgba(247,240,234,0.55)"/></g>
+<g class="legA"><polyline points="94,136 90,180 72,214" stroke="rgba(247,240,234,0.55)"/></g>
+<line x1="106" y1="70" x2="94" y2="136"/>
+<g class="legB"><polyline points="94,136 90,180 72,214"/></g>
+<g class="armB"><polyline points="103,78 99,108 118,120"/></g>
+</g>
+</svg>
+<div style="position: absolute; top: 58px; right: 24px; left: 24px; display: flex; justify-content: space-between; align-items: center">
+<div dir="ltr" style="font-family: 'Playfair Display', serif; font-weight: 700; font-size: 28px; color: #F7F0EA">OneQ</div>
+<a href="Intro3.dc.html" style="font-size: 14px; color: rgba(247,240,234,0.85); text-decoration: none; padding: 10px 4px">تخطي</a>
+</div>
+<div style="position: absolute; bottom: 0; right: 0; left: 0; height: 300px; box-sizing: border-box; background: #F7F0EA; border-radius: 32px 32px 0 0; padding: 30px 24px 38px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; gap: 6px"><div style="width: 6px; height: 6px; border-radius: 999px; background: #D9C6BA"></div><div style="width: 28px; height: 6px; border-radius: 999px; background: #5A0020"></div><div style="width: 6px; height: 6px; border-radius: 999px; background: #D9C6BA"></div></div>
+<h1 style="margin: 4px 0 0; font-family: 'Noto Kufi Arabic', sans-serif; font-weight: 800; font-size: 30px; line-height: 1.35">ناديك أقرب مما تتوقع</h1>
+<p style="margin: 0; font-size: 16px; line-height: 1.7; color: #6B5E59">نوادٍ مميزة في الدفنة، لوسيل، اللؤلؤة والمزيد.</p>
+<a href="Intro3.dc.html" style="margin-top: auto; height: 56px; border-radius: 16px; background: #5A0020; color: #FFFFFF; font-size: 17px; font-weight: 700; display: flex; align-items: center; justify-content: center; text-decoration: none">التالي</a>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
