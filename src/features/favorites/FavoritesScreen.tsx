@@ -8,12 +8,13 @@ import { EmptyState, LoadingState } from '@/components/StateView';
 import { useGyms } from '@/data';
 import { useSession } from '@/features/auth/sessionStore';
 import { GymListCard } from '@/features/gyms/GymListCard';
-import { colors, space } from '@/theme';
+import { space, useTheme } from '@/theme';
 
 import { useFavoriteIds, useFavorites } from './store';
 
 // S18
 export function FavoritesScreen() {
+  const { colors } = useTheme();
   const { t } = useTranslation();
   const ids = useFavoriteIds();
   const gyms = useGyms();

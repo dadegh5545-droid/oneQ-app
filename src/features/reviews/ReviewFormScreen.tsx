@@ -14,7 +14,7 @@ import { useToast } from '@/components/Toast';
 import { repository, useReviewStatus } from '@/data';
 import type { ReviewTarget } from '@/domain/models';
 import { track } from '@/services/analytics';
-import { colors, space } from '@/theme';
+import { space, useTheme } from '@/theme';
 import { confirmAction } from '@/utils/confirm';
 import { errorMessage } from '@/utils/errorMessage';
 
@@ -41,6 +41,7 @@ export function ReviewFormScreen({ target, name }: { target: ReviewTarget; name:
 }
 
 function ReviewForm({ target, name, existing }: { target: ReviewTarget; name: string; existing: { id: string; rating: number; text: string } | null }) {
+  const { colors } = useTheme();
   const { t } = useTranslation();
   const toast = useToast();
   const queryClient = useQueryClient();
@@ -142,6 +143,7 @@ function ReviewForm({ target, name, existing }: { target: ReviewTarget; name: st
 
 // 1–5 stars; each star is a radio button for screen readers.
 function StarInput({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+  const { colors } = useTheme();
   const { t } = useTranslation();
   return (
     <View style={styles.stars} accessibilityRole="radiogroup" accessibilityLabel={t('reviews.yourRating')}>

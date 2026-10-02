@@ -10,11 +10,12 @@ import { TextField } from '@/components/TextField';
 import { useToast } from '@/components/Toast';
 import { repository } from '@/data';
 import { hasErrors, validateReset } from '@/domain/validation';
-import { colors, space } from '@/theme';
+import { space, useTheme } from '@/theme';
 import { errorMessage } from '@/utils/errorMessage';
 
 // Forgot password (06 §4.2): step 1 identifier → Cognito emails a code; step 2 code + new password.
 export function ForgotPasswordScreen() {
+  const { colors } = useTheme();
   const { t } = useTranslation();
   const toast = useToast();
   const [step, setStep] = useState<1 | 2>(1);

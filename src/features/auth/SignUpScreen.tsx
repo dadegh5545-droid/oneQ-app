@@ -14,7 +14,7 @@ import type { Account } from '@/domain/models';
 import { formatLocalPhone, hasErrors, validateSignUp } from '@/domain/validation';
 import { finishAuth } from '@/features/booking/continueToCheckout';
 import { ltr } from '@/i18n';
-import { colors, space } from '@/theme';
+import { space, useTheme } from '@/theme';
 import { errorMessage } from '@/utils/errorMessage';
 
 import { startSession } from './session';
@@ -24,6 +24,7 @@ type Pending = { username: string; destination: string | null };
 
 // Create Account (06 §4.1). Cognito emails a 6-digit code; step 2 confirms it.
 export function SignUpScreen({ next, confirm, destination }: Props) {
+  const { colors } = useTheme();
   const { t } = useTranslation();
   const toast = useToast();
   const [values, setValues] = useState({ fullName: '', email: '', phone: '', password: '', confirm: '', acceptTerms: false });

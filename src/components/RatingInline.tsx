@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 
 import { rating as fmtRating } from '@/utils/format';
-import { colors, space } from '@/theme';
+import { space, useTheme } from '@/theme';
 
 import { AppText } from './AppText';
 import { Icon } from './Icon';
@@ -11,6 +11,7 @@ type Props = { rating: number; reviewCount?: number };
 
 // "4.9 ★ · 128 reviews" (07 §4.9)
 export function RatingInline({ rating, reviewCount }: Props) {
+  const { colors } = useTheme();
   const { t } = useTranslation();
   return (
     <View style={styles.row}>

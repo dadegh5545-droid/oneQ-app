@@ -2,7 +2,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import type { ComponentProps } from 'react';
 
 import { isRTL } from '@/i18n';
-import { colors } from '@/theme';
+import { useTheme } from '@/theme';
 
 export type IconName = ComponentProps<typeof MaterialCommunityIcons>['name'];
 
@@ -14,12 +14,13 @@ type Props = {
   directional?: boolean;
 };
 
-export function Icon({ name, size = 20, color = colors.textPrimary, directional }: Props) {
+export function Icon({ name, size = 20, color, directional }: Props) {
+  const { colors } = useTheme();
   return (
     <MaterialCommunityIcons
       name={name}
       size={size}
-      color={color}
+      color={color ?? colors.textPrimary}
       style={directional && isRTL() ? { transform: [{ scaleX: -1 }] } : undefined}
     />
   );

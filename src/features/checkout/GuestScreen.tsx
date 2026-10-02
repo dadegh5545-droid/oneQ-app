@@ -11,7 +11,7 @@ import { SelectableCard } from '@/components/SelectableCard';
 import { TextField } from '@/components/TextField';
 import { formatLocalPhone, hasErrors, normaliseQatarPhone, validateGuest } from '@/domain/validation';
 import { useDraft } from '@/features/booking/draftStore';
-import { colors, space } from '@/theme';
+import { space, useTheme } from '@/theme';
 
 type Choice = 'guest' | 'signIn';
 
@@ -93,6 +93,7 @@ export function GuestScreen() {
 }
 
 function Option({ selected, onPress, title, body }: { selected: boolean; onPress: () => void; title: string; body: string }) {
+  const { colors } = useTheme();
   return (
     <SelectableCard selected={selected} onPress={onPress} accessibilityLabel={`${title}. ${body}`} style={styles.option}>
       <Icon name={selected ? 'radiobox-marked' : 'radiobox-blank'} color={selected ? colors.primary : colors.textTertiary} size={22} />

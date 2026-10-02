@@ -10,13 +10,14 @@ import { TextField } from '@/components/TextField';
 import { repository } from '@/data';
 import { hasErrors, validateSignIn } from '@/domain/validation';
 import { finishAuth } from '@/features/booking/continueToCheckout';
-import { colors, space } from '@/theme';
+import { space, useTheme } from '@/theme';
 import { errorMessage } from '@/utils/errorMessage';
 
 import { startSession } from './session';
 
 // S13 — Cognito sign-in with an email or a Qatar mobile number.
 export function SignInScreen({ next }: { next?: string }) {
+  const { colors } = useTheme();
   const { t } = useTranslation();
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');

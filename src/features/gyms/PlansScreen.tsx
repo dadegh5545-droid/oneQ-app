@@ -13,11 +13,12 @@ import { useGym, usePlans } from '@/data';
 import { PLAN_MONTHS } from '@/domain/rules';
 import { continueToCheckout } from '@/features/booking/continueToCheckout';
 import { useDraft } from '@/features/booking/draftStore';
-import { colors, space } from '@/theme';
+import { space, useTheme } from '@/theme';
 import { qar } from '@/utils/format';
 
 // S08
 export function PlansScreen({ gymId, planId }: { gymId: string; planId?: string }) {
+  const { colors } = useTheme();
   const { t } = useTranslation();
   const gym = useGym(gymId);
   const plans = usePlans(gymId);

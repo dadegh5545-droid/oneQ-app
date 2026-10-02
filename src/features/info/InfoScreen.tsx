@@ -7,7 +7,7 @@ import { Icon } from '@/components/Icon';
 import { Screen } from '@/components/Screen';
 import { SelectableCard } from '@/components/SelectableCard';
 import { currentLanguage, setLanguage, type Language } from '@/i18n';
-import { colors, space } from '@/theme';
+import { space, useTheme } from '@/theme';
 
 const PAGES = ['help', 'terms', 'privacy'] as const;
 type Page = (typeof PAGES)[number];
@@ -32,6 +32,7 @@ const LANGUAGES: Language[] = ['en', 'ar'];
 
 // Actually switches EN (LTR) / AR (RTL) — the live site was display-only.
 function LanguagePage() {
+  const { colors } = useTheme();
   const { t } = useTranslation();
   const current = currentLanguage();
   return (

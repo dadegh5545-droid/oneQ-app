@@ -25,7 +25,7 @@ import i18n, { currentLanguage, initI18n } from '@/i18n';
 import { track } from '@/services/analytics';
 import { installGlobalErrorHandler, reportError } from '@/services/monitoring';
 import { useNotificationNavigation } from '@/services/notifications';
-import { arabicFonts, colors, fonts } from '@/theme';
+import { arabicFonts, colors, fonts, ThemeProvider } from '@/theme';
 
 import outputs from '../../amplify_outputs.json';
 
@@ -74,14 +74,16 @@ export default function RootLayout() {
   if (!ready) return null;
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <SafeAreaProvider>
-        <ToastProvider>
-          <StatusBar style="dark" />
-          <RootStack />
-        </ToastProvider>
-      </SafeAreaProvider>
-    </QueryClientProvider>
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <SafeAreaProvider>
+          <ToastProvider>
+            <StatusBar style="dark" />
+            <RootStack />
+          </ToastProvider>
+        </SafeAreaProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }
 

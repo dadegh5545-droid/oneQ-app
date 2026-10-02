@@ -7,11 +7,12 @@ import { Button } from '@/components/Button';
 import { useReviewStatus } from '@/data';
 import type { ReviewTarget } from '@/domain/models';
 import { useSession } from '@/features/auth/sessionStore';
-import { colors, space } from '@/theme';
+import { space, useTheme } from '@/theme';
 
 // Entry to rating a gym or trainer. Only signed-in users with a completed booking may rate (checked by the
 // backend); others see why they cannot yet.
 export function ReviewPrompt({ target, name }: { target: ReviewTarget; name: string }) {
+  const { colors } = useTheme();
   const { t } = useTranslation();
   const signedIn = useSession((s) => s.user !== null);
   const status = useReviewStatus(target, signedIn);

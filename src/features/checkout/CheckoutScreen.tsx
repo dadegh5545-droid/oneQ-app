@@ -23,7 +23,7 @@ import { paymentProvider } from '@/features/payments/provider';
 import { track } from '@/services/analytics';
 import { reportError } from '@/services/monitoring';
 import { notifyBookingConfirmed } from '@/services/notifications';
-import { colors, space } from '@/theme';
+import { space, useTheme } from '@/theme';
 import { errorMessage } from '@/utils/errorMessage';
 import { localizeTime, qar, shortDate } from '@/utils/format';
 
@@ -74,6 +74,7 @@ export function CheckoutScreen() {
 }
 
 function Checkout({ draft, rows }: { draft: BookingDraft; rows: { label: string; value: string | null | undefined }[] }) {
+  const { colors } = useTheme();
   const { t } = useTranslation();
   const toast = useToast();
   const queryClient = useQueryClient();
