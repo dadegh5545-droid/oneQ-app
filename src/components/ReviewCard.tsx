@@ -1,14 +1,16 @@
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 
 import type { Review } from '@/domain/models';
 import { rating, shortDate } from '@/utils/format';
-import { colors, radius, space } from '@/theme';
+import { makeStyles, radius, space, useTheme } from '@/theme';
 
 import { AppText } from './AppText';
 import { Icon } from './Icon';
 
 export function ReviewCard({ review }: { review: Review }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const { t } = useTranslation();
   return (
     <View style={styles.card}>
@@ -38,11 +40,11 @@ export function ReviewCard({ review }: { review: Review }) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(({ colors }) => ({
   card: { gap: space.sm, padding: space.lg, borderRadius: radius.md, borderWidth: 1, borderColor: colors.outline, backgroundColor: colors.surface },
   header: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
   author: { flexShrink: 1 },
   badge: { paddingHorizontal: space.sm, paddingVertical: 2, borderRadius: radius.pill, backgroundColor: colors.successTint },
   stars: { flexDirection: 'row', alignItems: 'center', gap: 2 },
   value: { fontSize: 13, marginEnd: space.xs },
-});
+}));

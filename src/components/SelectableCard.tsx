@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet, type ViewStyle } from 'react-native';
+import { Pressable, type ViewStyle } from 'react-native';
 
-import { colors, radius, space } from '@/theme';
+import { makeStyles, radius, space } from '@/theme';
 
 type Props = {
   selected: boolean;
@@ -15,6 +15,7 @@ type Props = {
 
 // Base for plan cards, radio option cards, payment rows and path cards (07 §4).
 export function SelectableCard({ selected, onPress, children, accessibilityLabel, role = 'radio', style }: Props) {
+  const styles = useStyles();
   return (
     <Pressable
       accessibilityRole={role}
@@ -28,7 +29,7 @@ export function SelectableCard({ selected, onPress, children, accessibilityLabel
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(({ colors }) => ({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -41,4 +42,4 @@ const styles = StyleSheet.create({
   },
   selected: { borderColor: colors.primary, borderWidth: 1.4, backgroundColor: colors.primaryTint },
   pressed: { opacity: 0.85 },
-});
+}));

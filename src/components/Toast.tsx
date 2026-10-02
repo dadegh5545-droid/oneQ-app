@@ -1,8 +1,8 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
-import { Animated, StyleSheet } from 'react-native';
+import { Animated } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { colors, radius, space } from '@/theme';
+import { makeStyles, radius, space, useTheme } from '@/theme';
 
 import { AppText } from './AppText';
 
@@ -14,6 +14,8 @@ export const useToast = () => useContext(ToastContext);
 
 // Snackbar: floating, dark, radius 12, 4 s.
 export function ToastProvider({ children }: { children: ReactNode }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const insets = useSafeAreaInsets();
   const [message, setMessage] = useState<string | null>(null);
   const [opacity] = useState(() => new Animated.Value(0));
@@ -51,7 +53,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(({ colors }) => ({
   toast: {
     position: 'absolute',
     start: space.xl,
@@ -60,4 +62,4 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
     backgroundColor: colors.snackbar,
   },
-});
+}));

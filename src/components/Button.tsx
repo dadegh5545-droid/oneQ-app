@@ -1,6 +1,6 @@
-import { ActivityIndicator, Pressable, StyleSheet, type ViewStyle } from 'react-native';
+import { ActivityIndicator, Pressable, type ViewStyle } from 'react-native';
 
-import { colors, radius, space } from '@/theme';
+import { makeStyles, radius, space, useTheme } from '@/theme';
 
 import { AppText } from './AppText';
 
@@ -18,6 +18,8 @@ type Props = {
 
 // PrimaryButton / OutlinedButton / TextButton from 07 §4.
 export function Button({ label, onPress, variant = 'primary', disabled, loading, accessibilityLabel, style }: Props) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const inactive = disabled || loading;
   const textColor = variant === 'primary' ? colors.onPrimary : colors.primary;
 
@@ -43,7 +45,7 @@ export function Button({ label, onPress, variant = 'primary', disabled, loading,
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(({ colors }) => ({
   // Horizontal padding and centred lines keep a label that wraps at large text sizes off the rounded edges.
   base: { alignItems: 'center', justifyContent: 'center', borderRadius: radius.md, paddingHorizontal: space.lg },
   label: { textAlign: 'center' },
@@ -54,4 +56,4 @@ const styles = StyleSheet.create({
   text: { minHeight: 32, paddingHorizontal: space.sm, alignSelf: 'flex-start' },
   pressed: { opacity: 0.7 },
   disabled: { opacity: 0.4 },
-});
+}));

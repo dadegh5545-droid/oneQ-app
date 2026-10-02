@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Platform, Pressable, StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
 
 import { alignLeft, alignStart, currentLanguage, isRTL } from '@/i18n';
-import { arabicFonts, colors, fonts, radius, space } from '@/theme';
+import { arabicFonts, colors, fonts, radius, space, useTheme } from '@/theme';
 
 import { AppText } from './AppText';
 import { Icon } from './Icon';
@@ -11,25 +11,31 @@ import { Icon } from './Icon';
 // Undo the RTL row mirroring (native flips row in RTL; the web flips it via dir=rtl).
 const ltrRow = () => ({ flexDirection: isRTL() ? ('row-reverse' as const) : ('row' as const) });
 
-// Shared input text style. Android gives TextInput the EditText background padding (larger at the bottom)
-// plus the custom fonts' extra font padding, which pushed typed text above the middle of fixed-height fields.
-// The input fills the field with no vertical padding and centres its text instead.
-export const inputTextStyle = {
-  flex: 1,
-  // Lets the input shrink below its intrinsic width (the web's size=20), which otherwise pushed the eye icon
-  // or search icon out of narrow fields in Arabic.
-  minWidth: 0,
-  alignSelf: 'stretch' as const,
-  margin: 0,
-  paddingVertical: 0,
-  paddingHorizontal: 0,
-  fontSize: 16,
-  color: colors.textPrimary,
-  textAlignVertical: 'center' as const,
-  ...(Platform.OS === 'android' ? { includeFontPadding: false } : null),
-  // The field border already shows focus; hide the browser's own focus rectangle on the web.
-  ...(Platform.OS === 'web' ? { outlineWidth: 0 } : null),
-};
+// Shared input text style (also used by the Home search field). Android gives TextInput the EditText background
+// padding (larger at the bottom) plus the custom fonts' extra font padding, which pushed typed text above the
+// middle of fixed-height fields. The input fills the field with no vertical padding and centres its text instead.
+export function useInputTextStyle() {
+  const theme = useTheme();
+  return useMemo(
+    () => ({
+      flex: 1,
+      // Lets the input shrink below its intrinsic width (the web's size=20), which otherwise pushed the eye icon
+      // or search icon out of narrow fields in Arabic.
+      minWidth: 0,
+      alignSelf: 'stretch' as const,
+      margin: 0,
+      paddingVertical: 0,
+      paddingHorizontal: 0,
+      fontSize: 16,
+      color: theme.colors.textPrimary,
+      textAlignVertical: 'center' as const,
+      ...(Platform.OS === 'android' ? { includeFontPadding: false } : null),
+      // The field border already shows focus; hide the browser's own focus rectangle on the web.
+      ...(Platform.OS === 'web' ? { outlineWidth: 0 } : null),
+    }),
+    [theme],
+  );
+}
 
 type Props = Omit<TextInputProps, 'style'> & {
   label: string;
@@ -42,6 +48,7 @@ type Props = Omit<TextInputProps, 'style'> & {
 // Outlined text field (06 intro): label above, 48 tall (grows with larger text), radius 16, error text below.
 export function TextField({ label, error, prefix, password, ...input }: Props) {
   const { t } = useTranslation();
+  const inputTextStyle = useInputTextStyle();
   const [focused, setFocused] = useState(false);
   const [hidden, setHidden] = useState(true);
   const fontFamily = currentLanguage() === 'ar' ? arabicFonts.body : fonts.body;

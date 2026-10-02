@@ -9,7 +9,7 @@ import { Icon } from '@/components/Icon';
 import { RatingInline } from '@/components/RatingInline';
 import { Screen } from '@/components/Screen';
 import { EmptyState, LoadingState } from '@/components/StateView';
-import { inputTextStyle } from '@/components/TextField';
+import { useInputTextStyle } from '@/components/TextField';
 import { useGyms } from '@/data';
 import { gymLocation, type Gym } from '@/domain/models';
 import { greetingKey, matchesQuery } from '@/domain/rules';
@@ -109,6 +109,7 @@ export function HomeScreen() {
 
 function SearchField({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const { t } = useTranslation();
+  const inputTextStyle = useInputTextStyle();
   const [focused, setFocused] = useState(false);
   const fontFamily = currentLanguage() === 'ar' ? arabicFonts.body : fonts.body;
   return (

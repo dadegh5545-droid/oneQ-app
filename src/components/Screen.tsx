@@ -2,7 +2,7 @@ import { useRef, useState, type ReactNode } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View, type ViewStyle } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets, type Edge } from 'react-native-safe-area-context';
 
-import { colors, screenPadding, space } from '@/theme';
+import { makeStyles, screenPadding, space } from '@/theme';
 
 type Props = {
   children: ReactNode;
@@ -15,6 +15,7 @@ type Props = {
 };
 
 export function Screen({ children, scroll = false, edges = ['top'], contentStyle, footer }: Props) {
+  const styles = useStyles();
   const insets = useSafeAreaInsets();
   const host = useRef<View>(null);
   const [top, setTop] = useState(0);
@@ -38,7 +39,7 @@ export function Screen({ children, scroll = false, edges = ['top'], contentStyle
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(({ colors }) => ({
   root: { flex: 1, backgroundColor: colors.background },
   fill: { flex: 1 },
   content: { paddingHorizontal: screenPadding, paddingVertical: screenPadding },
@@ -49,4 +50,4 @@ const styles = StyleSheet.create({
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: colors.outline,
   },
-});
+}));

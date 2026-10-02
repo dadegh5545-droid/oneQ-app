@@ -1,6 +1,6 @@
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 
-import { colors, radius, space } from '@/theme';
+import { makeStyles, radius, space, useTheme } from '@/theme';
 
 import { AppText } from './AppText';
 
@@ -14,6 +14,8 @@ type Props = {
 
 // "Booking Summary" card (S11, S14, S17). Rows with no value are hidden.
 export function SummaryCard({ title, rows, total }: Props) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   return (
     <View style={styles.card}>
       {title ? <AppText variant="headline">{title}</AppText> : null}
@@ -42,9 +44,9 @@ export function SummaryCard({ title, rows, total }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(({ colors }) => ({
   card: { gap: space.md, padding: space.xl, borderRadius: radius.md, borderWidth: 1, borderColor: colors.outline, backgroundColor: colors.surface },
   row: { flexDirection: 'row', justifyContent: 'space-between', gap: space.lg },
   value: { flexShrink: 1, fontSize: 15 },
   divider: { height: 1, backgroundColor: colors.outline },
-});
+}));

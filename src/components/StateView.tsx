@@ -1,6 +1,6 @@
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
 
-import { colors, radius, space } from '@/theme';
+import { makeStyles, radius, space, useTheme } from '@/theme';
 
 import { AppText } from './AppText';
 import { Button } from './Button';
@@ -17,6 +17,8 @@ type Props = {
 
 // Shared empty / error / not-found state (02 "Global components & states").
 export function EmptyState({ icon, title, body, action, card }: Props) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   return (
     <View style={[styles.container, card && styles.card]}>
       <View style={styles.iconCircle}>
@@ -38,6 +40,8 @@ export function EmptyState({ icon, title, body, action, card }: Props) {
 }
 
 export function LoadingState() {
+  const { colors } = useTheme();
+  const styles = useStyles();
   return (
     <View style={styles.loading}>
       <ActivityIndicator color={colors.primary} />
@@ -45,7 +49,7 @@ export function LoadingState() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(({ colors }) => ({
   container: { alignItems: 'center', gap: space.md, paddingVertical: space.xxxl },
   card: {
     paddingHorizontal: space.xl,
@@ -66,4 +70,4 @@ const styles = StyleSheet.create({
   center: { textAlign: 'center' },
   button: { alignSelf: 'stretch', marginTop: space.sm },
   loading: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: space.xxxl },
-});
+}));

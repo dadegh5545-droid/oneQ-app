@@ -1,6 +1,6 @@
-import { Pressable, StyleSheet } from 'react-native';
+import { Pressable } from 'react-native';
 
-import { colors, radius, space } from '@/theme';
+import { makeStyles, radius, space, useTheme } from '@/theme';
 
 import { AppText } from './AppText';
 import { Icon, type IconName } from './Icon';
@@ -14,6 +14,8 @@ type Props = {
 
 // Category/filter chip (07 §4.6). Without onPress it renders as a static tag.
 export function Chip({ label, selected = false, icon, onPress }: Props) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const fg = selected ? colors.onPrimary : colors.textPrimary;
   return (
     <Pressable
@@ -32,7 +34,7 @@ export function Chip({ label, selected = false, icon, onPress }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(({ colors }) => ({
   chip: {
     minHeight: 37,
     paddingHorizontal: space.lg,
@@ -45,4 +47,4 @@ const styles = StyleSheet.create({
   selected: { backgroundColor: colors.primary, borderColor: colors.primary },
   unselected: { backgroundColor: colors.surface, borderColor: colors.outline },
   label: { fontSize: 14 },
-});
+}));
