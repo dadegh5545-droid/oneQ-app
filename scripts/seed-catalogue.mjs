@@ -5,6 +5,7 @@
 //   AWS_PROFILE=oneq-dev npm run seed            (PowerShell: $env:AWS_PROFILE='oneq-dev'; npm run seed)
 //   npm run seed -- --overwrite                   reset existing records to the approved catalogue (default: create missing only)
 //   npm run seed -- --stack <root stack>          a branch deployment, or when more than one OneQ sandbox exists
+//   npm run seed -- --samples                     test branches only: sample facility data for the dashboards
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 
@@ -25,5 +26,9 @@ function adminOwnerKey() {
 }
 
 const owner = adminOwnerKey();
-const { stack, result } = invokeSandboxFunction('seedcatalogue', { overwrite: process.argv.includes('--overwrite'), adminOwnerKey: owner });
+const { stack, result } = invokeSandboxFunction('seedcatalogue', {
+  overwrite: process.argv.includes('--overwrite'),
+  adminOwnerKey: owner,
+  samples: process.argv.includes('--samples'),
+});
 console.log(`Seeded ${stack} (${region}): ${JSON.stringify(result)} · temporary owner: ${owner ? 'admin account' : 'none (no admin in this user pool)'}`);

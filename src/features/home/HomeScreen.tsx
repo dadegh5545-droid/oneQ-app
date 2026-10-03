@@ -20,8 +20,9 @@ import { track } from '@/services/analytics';
 import { makeStyles, radius, screenPadding, space, useTheme } from '@/theme';
 import { perMonthLabel } from '@/utils/format';
 
-type Category = 'all' | 'gyms' | 'classes' | 'trainers';
-const CATEGORIES: Category[] = ['all', 'gyms', 'classes', 'trainers'];
+// The placeholder "Classes" category was removed (Phase 3): there are no classes to book.
+type Category = 'all' | 'gyms' | 'trainers';
+const CATEGORIES: Category[] = ['all', 'gyms', 'trainers'];
 
 // S02–S06
 export function HomeScreen() {
@@ -73,16 +74,6 @@ export function HomeScreen() {
             <AppText color={colors.textSecondary}>{t('home.trainersHint')}</AppText>
             <GymList title={t('home.gyms')} gyms={all} />
           </>
-        );
-      case 'classes':
-        return (
-          <EmptyState
-            card
-            icon="account-group-outline"
-            title={t('home.classesTitle')}
-            body={`${t('home.classesBody1')}\n${t('home.classesBody2')}`}
-            action={{ label: t('common.exploreGyms'), onPress: () => setCategory('gyms') }}
-          />
         );
       default:
         return <Discover gyms={all} />;

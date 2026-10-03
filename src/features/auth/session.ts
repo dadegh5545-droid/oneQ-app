@@ -16,14 +16,15 @@ const LEGACY_KEYS = ['oneq.accounts', 'oneq.signedIn', 'oneq.bookings'];
 const resetUserQueries = () => {
   queryClient.removeQueries({ queryKey: ['bookings'] });
   queryClient.removeQueries({ queryKey: ['booking'] });
+  queryClient.removeQueries({ queryKey: ['dash'] });
 };
 
 // Profile (UserProfile) and favorites load in the background; the app never waits on them.
 async function refreshAccountData() {
   const [profile] = await Promise.allSettled([repository.getProfile(), useFavorites.getState().loadAccount()]);
   const current = useSession.getState().user;
-  // The admin flag comes from the Cognito token, not from UserProfile.
-  if (profile.status === 'fulfilled' && current) useSession.getState().setUser({ ...profile.value, isAdmin: current.isAdmin });
+  // The admin and owner flags come from the Cognito token, not from UserProfile.
+  if (profile.status === 'fulfilled' && current) useSession.getState().setUser({ ...profile.value, isAdmin: current.isAdmin, isOwner: current.isOwner });
 }
 
 // After a successful sign-in, sign-up confirmation or session restore.

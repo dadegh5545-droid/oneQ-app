@@ -6,6 +6,7 @@ import { env } from '$amplify/env/seed-catalogue';
 import { buildPlans, PLAN_MONTHS } from '../../../src/domain/rules';
 import type { Schema } from '../../data/resource';
 import { DEFAULT_AVAILABILITY, GYMS, REVIEWS, TRAINERS } from '../../seed/catalogue';
+import { sampleActivity, sampleGym, SAMPLE_PLANS, SAMPLE_TRAINERS } from '../../seed/samples';
 import { SECTIONS } from '../../seed/sections';
 import { check } from '../shared/data';
 import { listAll } from '../shared/facilities';
@@ -144,11 +145,51 @@ async function seedIsolationFixtures({ ownerA, ownerB }: { ownerA: string; owner
   return records.map((r) => r.id);
 }
 
-type SeedEvent = { overwrite?: boolean; adminOwnerKey?: string | null; isolationFixtures?: { ownerA: string; ownerB: string } };
+// Sample dashboard data (test branch only): a sample gym with plans, trainers, members, sessions, freezes and
+// reviews. Records are keyed by fixed "sample-" ids and rewritten on every run; nothing else is touched.
+async function seedSamples(adminOwnerKey: string | null) {
+  const saved = overwrite;
+  overwrite = true;
+  const put = (label: string, get: () => Promise<Result>, create: () => Promise<Result>, update: () => Promise<Result>) => upsert(label, get, create, update);
+  const gym = sampleGym(adminOwnerKey);
+  await put('sample gym', () => client.models.Gym.get({ id: gym.id }), () => client.models.Gym.create(gym), () => client.models.Gym.update(gym));
+  for (const plan of SAMPLE_PLANS) {
+    await put(plan.id, () => client.models.MembershipPlan.get({ id: plan.id }), () => client.models.MembershipPlan.create(plan), () => client.models.MembershipPlan.update(plan));
+  }
+  for (const trainer of SAMPLE_TRAINERS) {
+    await put(trainer.id, () => client.models.Trainer.get({ id: trainer.id }), () => client.models.Trainer.create(trainer), () => client.models.Trainer.update(trainer));
+  }
+  const { memberships, sessions, freezes, reviews } = sampleActivity(new Date(Date.now() + 3 * 3_600_000));
+  for (const booking of [...memberships, ...sessions]) {
+    await put(booking.id, () => client.models.Booking.get({ id: booking.id }), () => client.models.Booking.create(booking), () => client.models.Booking.update(booking));
+  }
+  // Upcoming sample sessions hold their trainer slot like real bookings.
+  for (const s of sessions.filter((x) => x.status === 'confirmed')) {
+    const key = { trainerId: s.trainerId, startAt: s.date };
+    const lock = { ...key, bookingId: s.id };
+    await put(`slot ${s.id}`, () => client.models.SlotReservation.get(key), () => client.models.SlotReservation.create(lock), () => client.models.SlotReservation.update(lock));
+  }
+  for (const f of freezes) {
+    await put(f.id, () => client.models.MembershipFreeze.get({ id: f.id }), () => client.models.MembershipFreeze.create(f), () => client.models.MembershipFreeze.update(f));
+  }
+  for (const r of reviews) {
+    await put(r.id, () => client.models.Review.get({ id: r.id }), () => client.models.Review.create(r), () => client.models.Review.update(r));
+  }
+  overwrite = saved;
+  return { sampleGym: gym.id, plans: SAMPLE_PLANS.length, trainers: SAMPLE_TRAINERS.length, memberships: memberships.length, sessions: sessions.length, freezes: freezes.length, reviews: reviews.length };
+}
+
+type SeedEvent = {
+  overwrite?: boolean;
+  adminOwnerKey?: string | null;
+  isolationFixtures?: { ownerA: string; ownerB: string };
+  samples?: boolean;
+};
 
 export const handler = async (event?: SeedEvent) => {
   overwrite = event?.overwrite === true;
   if (event?.isolationFixtures) return { isolationFixtures: await seedIsolationFixtures(event.isolationFixtures) };
+  if (event?.samples) return { samples: await seedSamples(event.adminOwnerKey ?? null) };
   const outcome = { created: 0, updated: 0, unchanged: 0 };
   const count = (r: 'created' | 'updated' | 'unchanged') => (outcome[r] += 1);
 

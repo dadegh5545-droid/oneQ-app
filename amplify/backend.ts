@@ -9,6 +9,7 @@ import { adminOps } from './functions/admin-ops/resource';
 import { bookings } from './functions/bookings/resource';
 import { catalogue } from './functions/catalogue/resource';
 import { completeBookings } from './functions/complete-bookings/resource';
+import { facilityOwner } from './functions/facility-owner/resource';
 import { phoneLogin } from './functions/phone-login/resource';
 import { reviews } from './functions/reviews/resource';
 import { sandboxFixtures } from './functions/sandbox-fixtures/resource';
@@ -27,6 +28,7 @@ const backend = defineBackend({
   catalogue,
   adminOps,
   completeBookings,
+  facilityOwner,
 });
 
 const { userPool, cfnResources } = backend.auth.resources;

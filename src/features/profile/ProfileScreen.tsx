@@ -45,9 +45,10 @@ export function ProfileScreen() {
         )}
       </View>
 
-      {user?.isAdmin ? (
+      {user?.isAdmin || user?.isOwner ? (
         <Group label={t('profile.management')}>
-          <Row label={t('admin.title')} href="/admin" />
+          <Row label={t('dashboard.profileLink')} href={'/dashboard' as Href} />
+          {user.isAdmin ? <Row label={t('admin.title')} href="/admin" /> : null}
         </Group>
       ) : null}
       <Group label={t('profile.support')}>

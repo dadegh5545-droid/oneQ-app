@@ -14,7 +14,8 @@
     "fromPerMonth": "From {{price}} / month",
     "addFavorite": "Add to favorites",
     "removeFavorite": "Remove from favorites",
-    "keep": "Keep"
+    "keep": "Keep",
+    "comingSoon": "Coming soon"
   },
   "tabs": {
     "home": "Home",
@@ -382,7 +383,14 @@
     "confirmedMembership": "Your membership at {{gym}} is confirmed.",
     "reminderTitle": "Upcoming session",
     "reminderTomorrow": "Your session at {{gym}} is tomorrow at {{time}}.",
-    "reminderSoon": "Your session at {{gym}} starts in 1 hour."
+    "reminderSoon": "Your session at {{gym}} starts in 1 hour.",
+    "facilityStatus": "{{name}} is now: {{status}}",
+    "trainerUnavailable": "{{trainer}} is unavailable for your session on {{date}} at {{gym}}. The gym will contact you.",
+    "trainerReassigned": "Your session on {{date}} at {{gym}} is now with {{trainer}}.",
+    "trainerBlocked": "{{trainer}} was marked unavailable; {{count}} upcoming bookings were affected.",
+    "bookingCancelled": "Your booking at {{gym}} was cancelled",
+    "freezeLimit": "{{name}} used all freezes of the {{plan}} plan and asked to be contacted.",
+    "generic": "You have a new notification"
   },
   "calendar": {
     "added": "Added to your calendar.",
@@ -479,5 +487,274 @@
     "removed": "Your review has been deleted.",
     "stars": "{{count}} of 5 stars",
     "confirmRemove": "Delete your review? This cannot be undone."
+  },
+  "dashboard": {
+    "profileLink": "Facility dashboard",
+    "menu": {
+      "overview": "Dashboard",
+      "analytics": "Analytics",
+      "members": "Members",
+      "customers": "Customers",
+      "plans": "Memberships",
+      "services": "Services & prices",
+      "photos": "Club photos",
+      "practitioners": "Team",
+      "trainers": "Trainers",
+      "specialists": "Specialists",
+      "doctors": "Doctors",
+      "departments": "Departments",
+      "bookings": "Bookings",
+      "appointments": "Appointments",
+      "reviews": "Reviews",
+      "gallery": "Work gallery",
+      "clients": "Clients",
+      "patients": "Patients"
+    },
+    "shell": {
+      "menu": "Menu",
+      "customerView": "View customer app",
+      "myFacilities": "My facilities"
+    },
+    "notFound": "This facility is not available",
+    "loadError": "Could not load this page",
+    "viewAll": "View all",
+    "edit": "Edit",
+    "save": "Save",
+    "cancel": "Cancel",
+    "saved": "Saved",
+    "required": "Required",
+    "none": "None",
+    "all": "All",
+    "period": {
+      "30d": "30 days",
+      "month": "This month",
+      "90d": "90 days",
+      "12m": "12 months"
+    },
+    "facilityStatus": {
+      "pending": "Awaiting approval",
+      "approved": "Approved",
+      "suspended": "Suspended"
+    },
+    "facilityStatusHint": {
+      "pending": "Customers will see this facility once OneQ approves it.",
+      "approved": "Customers can find and book this facility.",
+      "suspended": "This facility is hidden from customers. Contact OneQ for details."
+    },
+    "memberStatus": {
+      "active": "Active",
+      "frozen": "Frozen",
+      "expired": "Expired",
+      "cancelled": "Cancelled"
+    },
+    "overview": {
+      "title": "Dashboard",
+      "totalMembers": "Total members",
+      "activeMembers": "Active members",
+      "newMembers": "New members",
+      "revenue": "Revenue",
+      "trainerBookings": "Trainer bookings",
+      "planDistribution": "Membership mix",
+      "latestReviews": "Latest reviews",
+      "expiringSoon": "Ending soon",
+      "endsOn": "ends {{date}}",
+      "remind": "Remind",
+      "latestBookings": "Latest bookings",
+      "quickActions": "Quick actions",
+      "notifications": "Notifications",
+      "pushSoon": "Push notifications: coming soon. Notifications are kept in the app."
+    },
+    "empty": {
+      "members": "No members yet",
+      "reviews": "No reviews yet",
+      "expiring": "No memberships end in the next two weeks",
+      "bookings": "No bookings in this period",
+      "notifications": "No notifications",
+      "plans": "No membership plans yet",
+      "practitioners": "No team members yet"
+    },
+    "analytics": {
+      "title": "Analytics",
+      "popularPlan": "Most popular plan",
+      "membersGrowth": "Member growth",
+      "revenueTrend": "Revenue trend",
+      "newMembers": "New members"
+    },
+    "members": {
+      "title": "Members",
+      "count": "{{count}} shown",
+      "export": "Export",
+      "search": "Search by name or phone",
+      "name": "Name",
+      "phone": "Phone",
+      "plan": "Plan",
+      "start": "Start",
+      "end": "End",
+      "status": "Status",
+      "amount": "Amount"
+    },
+    "plans": {
+      "title": "Memberships",
+      "subtitle": "Durations, prices and what customers see",
+      "add": "Add plan",
+      "editTitle": "Edit plan",
+      "newTitle": "New plan",
+      "name": "Plan name",
+      "duration": "Duration",
+      "durations": {
+        "1": "1 month",
+        "2": "2 months",
+        "3": "3 months",
+        "6": "6 months",
+        "12": "1 year"
+      },
+      "price": "Price (QAR)",
+      "badgeLabel": "Badge",
+      "badge": {
+        "popular": "Most chosen",
+        "bestValue": "Best value"
+      },
+      "visible": "Visible to customers",
+      "hidden": "Hidden",
+      "freezeOn": "Freezing allowed",
+      "autoRenewOn": "Auto-renewal",
+      "discount": "Direct discount (carried by the gym)",
+      "discountType": {
+        "percent": "Percentage",
+        "amount": "Amount"
+      },
+      "discountPercent": "Discount (%)",
+      "discountAmount": "Discount (QAR)",
+      "discountMax": "At most 90%",
+      "noCodes": "Discounts apply directly to the price. There are no discount codes.",
+      "visibleToggle": "Visible to customers",
+      "freezeToggle": "Allow freezing",
+      "freezeHint": "Up to {{count}} freezes per membership, each up to {{days}} days.",
+      "autoRenewToggle": "Offer auto-renewal",
+      "autoRenewHint": "Optional for the customer."
+    },
+    "photos": {
+      "title": "Club photos",
+      "subtitle": "Cover, logo and gallery",
+      "gallery": "Gallery",
+      "coverHint": "The first photo is the cover customers see first.",
+      "cover": "Cover",
+      "moveEarlier": "Move earlier",
+      "moveLater": "Move later",
+      "remove": "Remove photo",
+      "addLink": "Photo link (https)",
+      "add": "Add photo",
+      "uploadSoon": "Uploading photos from your device: coming soon.",
+      "logo": "Logo",
+      "logoLink": "Logo link (https)",
+      "preview": "This is how your club appears",
+      "httpsOnly": "Use an https link"
+    },
+    "practitioners": {
+      "trainer": "Trainer",
+      "add": "Add {{label}}",
+      "addTrainer": "Add trainer",
+      "unavailable": "Unavailable",
+      "available": "Available",
+      "editTitle": "Edit profile",
+      "newTitle": "New profile",
+      "name": "Full name",
+      "photo": "Photo link (https)",
+      "title": "Title",
+      "specialties": "Specialties",
+      "skills": "Skills",
+      "years": "Years of experience",
+      "price": "Session price (QAR)",
+      "bio": "About",
+      "languages": "Languages",
+      "editProfile": "Edit profile"
+    },
+    "skills": {
+      "hiit": "HIIT",
+      "powerlifting": "Powerlifting",
+      "yoga": "Yoga",
+      "pilates": "Pilates",
+      "boxing": "Boxing",
+      "nutrition": "Nutrition",
+      "rehab": "Rehabilitation",
+      "swimming": "Swimming",
+      "crossfit": "CrossFit",
+      "stretching": "Stretching"
+    },
+    "availability": {
+      "title": "Availability",
+      "unavailable": "Unavailable",
+      "unavailableHint": "Customers cannot book this person while unavailable.",
+      "openEnded": "Until made available",
+      "period": "For a period",
+      "from": "From (yyyy-mm-dd)",
+      "until": "Until (yyyy-mm-dd)",
+      "dateFormat": "Use yyyy-mm-dd",
+      "weeklyHours": "Weekly hours",
+      "weeklyHint": "Select working days; none selected means the gym's default times.",
+      "opens": "From (HH:mm)",
+      "closes": "To (HH:mm)",
+      "timeFormat": "Use HH:mm, start before end",
+      "affectedTitle": "{{count}} upcoming bookings are affected",
+      "affectedHint": "Keep each booking (the customer sees that the gym will contact them) or move it to another trainer.",
+      "keep": "Keep and contact",
+      "moveTo": "Move to {{name}}",
+      "confirm": "Confirm",
+      "savedWithBookings": "Saved. {{count}} bookings updated and customers notified in the app."
+    },
+    "schedule": {
+      "title": "Schedule",
+      "share": "Share",
+      "hint": "Share the day's or week's schedule with the trainer.",
+      "today": "Today",
+      "week": "This week",
+      "empty": "No sessions",
+      "shareTitleDay": "Today's schedule — {{name}}",
+      "shareTitleWeek": "This week's schedule — {{name}}",
+      "pdfSoon": "PDF export: coming soon."
+    },
+    "bookings": {
+      "title": "Bookings",
+      "count": "{{count}} bookings",
+      "when": "Date",
+      "customer": "Customer",
+      "what": "Booking",
+      "home": "Home service",
+      "phoneAfterConfirm": "Shown after confirmation",
+      "trainerUnavailable": "Trainer unavailable",
+      "range": {
+        "day": "Today",
+        "week": "This week",
+        "month": "This month"
+      },
+      "type": {
+        "session": "Trainer",
+        "membership": "Membership"
+      }
+    },
+    "reviews": {
+      "title": "Reviews",
+      "readOnly": "Reviews cannot be edited; you can reply publicly once.",
+      "average": "Average rating",
+      "count": "{{count}} reviews",
+      "distribution": "Distribution",
+      "notSatisfied": "Not satisfied",
+      "yourReply": "Your reply",
+      "replyLabel": "Reply",
+      "send": "Send reply",
+      "reply": "Reply",
+      "replied": "Reply published"
+    },
+    "picker": {
+      "title": "My facilities",
+      "emptyTitle": "No facilities yet",
+      "emptyBody": "OneQ links facilities to your account. Contact us to add yours."
+    },
+    "guard": {
+      "signInTitle": "Sign in to continue",
+      "signInBody": "The dashboard is for facility owners and OneQ administrators.",
+      "noAccessTitle": "No dashboard access",
+      "noAccessBody": "This account is not linked to a facility."
+    }
   }
 }

@@ -4,6 +4,7 @@ import { adminOps } from '../functions/admin-ops/resource';
 import { bookings } from '../functions/bookings/resource';
 import { catalogue } from '../functions/catalogue/resource';
 import { completeBookings } from '../functions/complete-bookings/resource';
+import { facilityOwner } from '../functions/facility-owner/resource';
 import { phoneLogin } from '../functions/phone-login/resource';
 import { reviews } from '../functions/reviews/resource';
 import { sandboxFixtures } from '../functions/sandbox-fixtures/resource';
@@ -617,6 +618,227 @@ const schema = a
       .authorization((allow) => [allow.authenticated()])
       .handler(a.handler.function(reviews)),
 
+    // ── Facility dashboards (FACILITY_OWNER for their own facilities, admins for all; checked in facility-owner) ──
+
+    SeriesPoint: a.customType({ start: a.string().required(), value: a.integer().required() }),
+    CountItem: a.customType({ label: a.string().required(), count: a.integer().required() }),
+
+    MemberRow: a.customType({
+      bookingId: a.string().required(),
+      name: a.string().required(),
+      phone: a.string().required(),
+      planName: a.string().required(),
+      planId: a.string(),
+      start: a.string(),
+      end: a.string(),
+      status: a.string().required(), // active | frozen | expired | cancelled
+      amount: a.integer().required(),
+    }),
+
+    BookingRow: a.customType({
+      id: a.string().required(),
+      type: a.string().required(),
+      status: a.string().required(),
+      customerName: a.string().required(),
+      customerPhone: a.string(), // null for a home-service appointment until it is confirmed
+      date: a.string(),
+      timeLabel: a.string(),
+      trainerId: a.string(),
+      trainerName: a.string(),
+      planName: a.string(),
+      serviceName: a.string(),
+      priceQar: a.integer().required(),
+      createdAt: a.string().required(),
+      membershipStart: a.string(),
+      membershipEnd: a.string(),
+      homeService: a.boolean().required(),
+      trainerUnavailable: a.boolean().required(),
+      cancelReason: a.string(),
+    }),
+
+    ReviewRow: a.customType({
+      id: a.string().required(),
+      authorName: a.string().required(),
+      rating: a.integer().required(),
+      text: a.string().required(),
+      date: a.string().required(),
+      satisfied: a.boolean(),
+      trainerName: a.string(),
+      ownerReply: a.string(),
+      ownerReplyAt: a.string(),
+    }),
+
+    FacilityInsights: a.customType({
+      period: a.string().required(),
+      members: a.integer().required(),
+      activeMembers: a.integer().required(),
+      newMembers: a.integer().required(),
+      revenue: a.integer().required(),
+      trainerBookings: a.integer().required(),
+      planDistribution: a.ref('CountItem').required().array().required(),
+      popularPlan: a.string(),
+      membersSeries: a.ref('SeriesPoint').required().array().required(),
+      revenueSeries: a.ref('SeriesPoint').required().array().required(),
+      newMembersSeries: a.ref('SeriesPoint').required().array().required(),
+      expiringSoon: a.ref('MemberRow').required().array().required(),
+      latestBookings: a.ref('BookingRow').required().array().required(),
+      latestReviews: a.ref('ReviewRow').required().array().required(),
+      ratingAverage: a.float().required(),
+      ratingCount: a.integer().required(),
+      ratingDistribution: a.integer().required().array().required(), // 1★…5★
+    }),
+
+    TrainerRow: a.customType({
+      id: a.string().required(),
+      name: a.string().required(),
+      title: a.string().required(),
+      bio: a.string().required(),
+      image: a.string().required(),
+      specialties: a.string().required().array().required(),
+      skills: a.string().required().array().required(),
+      yearsExperience: a.integer().required(),
+      pricePerSession: a.integer().required(),
+      languages: a.string().required().array().required(),
+      certifications: a.string().required().array().required(),
+      departmentId: a.string(),
+      rating: a.float().required(),
+      reviewCount: a.integer().required(),
+      unavailable: a.boolean().required(),
+      unavailableFrom: a.string(),
+      unavailableUntil: a.string(),
+      weeklyHours: a.ref('WeeklyHours').required().array().required(),
+    }),
+
+    AvailabilityChange: a.customType({ affected: a.integer().required() }),
+
+    facilityInsights: a
+      .query()
+      .arguments({ facilityId: a.id().required(), period: a.string().required() }) // 30d | month | 90d | 12m
+      .returns(a.ref('FacilityInsights').required())
+      .authorization((allow) => [allow.groups(['FACILITY_OWNER', 'admin'])])
+      .handler(a.handler.function(facilityOwner)),
+
+    facilityMembers: a
+      .query()
+      .arguments({ facilityId: a.id().required() })
+      .returns(a.ref('MemberRow').required().array().required())
+      .authorization((allow) => [allow.groups(['FACILITY_OWNER', 'admin'])])
+      .handler(a.handler.function(facilityOwner)),
+
+    facilityBookings: a
+      .query()
+      .arguments({ facilityId: a.id().required(), from: a.string(), to: a.string() })
+      .returns(a.ref('BookingRow').required().array().required())
+      .authorization((allow) => [allow.groups(['FACILITY_OWNER', 'admin'])])
+      .handler(a.handler.function(facilityOwner)),
+
+    facilityReviews: a
+      .query()
+      .arguments({ facilityId: a.id().required() })
+      .returns(a.ref('ReviewRow').required().array().required())
+      .authorization((allow) => [allow.groups(['FACILITY_OWNER', 'admin'])])
+      .handler(a.handler.function(facilityOwner)),
+
+    facilityTrainers: a
+      .query()
+      .arguments({ facilityId: a.id().required() })
+      .returns(a.ref('TrainerRow').required().array().required())
+      .authorization((allow) => [allow.groups(['FACILITY_OWNER', 'admin'])])
+      .handler(a.handler.function(facilityOwner)),
+
+    trainerSchedule: a
+      .query()
+      .arguments({ trainerId: a.id().required(), from: a.string(), to: a.string() })
+      .returns(a.ref('BookingRow').required().array().required())
+      .authorization((allow) => [allow.groups(['FACILITY_OWNER', 'admin'])])
+      .handler(a.handler.function(facilityOwner)),
+
+    ownerSavePlan: a
+      .mutation()
+      .arguments({
+        facilityId: a.id().required(),
+        planId: a.id(),
+        name: a.string().required(),
+        description: a.string(),
+        price: a.integer().required(),
+        durationMonths: a.integer().required(), // 1 | 2 | 3 | 6 | 12
+        badge: a.string(), // popular | bestValue
+        visible: a.boolean(),
+        discountType: a.string(), // percent | amount
+        discountValue: a.integer(),
+        allowFreeze: a.boolean(),
+        autoRenew: a.boolean(),
+      })
+      .returns(a.string().required())
+      .authorization((allow) => [allow.groups(['FACILITY_OWNER', 'admin'])])
+      .handler(a.handler.function(facilityOwner)),
+
+    ownerSaveFacility: a
+      .mutation()
+      .arguments({
+        facilityId: a.id().required(),
+        name: a.string(),
+        description: a.string(),
+        area: a.string(),
+        address: a.string(),
+        logo: a.string(),
+        images: a.string().required().array(),
+        phone: a.string(),
+        whatsapp: a.string(),
+        storeUrl: a.string(),
+        region: a.string(),
+        lat: a.float(),
+        lng: a.float(),
+        serviceMode: a.string(),
+        categoryIds: a.string().required().array(),
+      })
+      .returns(a.string().required())
+      .authorization((allow) => [allow.groups(['FACILITY_OWNER', 'admin'])])
+      .handler(a.handler.function(facilityOwner)),
+
+    ownerSaveTrainer: a
+      .mutation()
+      .arguments({
+        facilityId: a.id().required(),
+        trainerId: a.id(),
+        name: a.string().required(),
+        title: a.string(),
+        bio: a.string(),
+        image: a.string().required(),
+        specialties: a.string().required().array(),
+        skills: a.string().required().array(),
+        yearsExperience: a.integer().required(),
+        pricePerSession: a.integer().required(),
+        languages: a.string().required().array(),
+        certifications: a.string().required().array(),
+        departmentId: a.string(),
+      })
+      .returns(a.string().required())
+      .authorization((allow) => [allow.groups(['FACILITY_OWNER', 'admin'])])
+      .handler(a.handler.function(facilityOwner)),
+
+    // weeklyHours / actions are JSON: [{weekday, open, close}] / [{bookingId, action: keep | reassign, trainerId}]
+    ownerSetTrainerAvailability: a
+      .mutation()
+      .arguments({
+        trainerId: a.id().required(),
+        unavailable: a.boolean().required(),
+        unavailableFrom: a.string(),
+        unavailableUntil: a.string(),
+        weeklyHours: a.json(),
+        actions: a.json(),
+      })
+      .returns(a.ref('AvailabilityChange').required())
+      .authorization((allow) => [allow.groups(['FACILITY_OWNER', 'admin'])])
+      .handler(a.handler.function(facilityOwner)),
+
+    ownerReplyReview: a
+      .mutation()
+      .arguments({ reviewId: a.id().required(), reply: a.string().required() })
+      .returns(a.boolean().required())
+      .authorization((allow) => [allow.groups(['FACILITY_OWNER', 'admin'])])
+      .handler(a.handler.function(facilityOwner)),
+
     PendingReview: a.customType({
       bookingId: a.string().required(),
       targetType: a.string().required(), // 'gym' | 'trainer'
@@ -663,6 +885,7 @@ const schema = a
     allow.resource(catalogue).to(['query']),
     allow.resource(adminOps).to(['query', 'mutate']),
     allow.resource(completeBookings).to(['query', 'mutate']),
+    allow.resource(facilityOwner).to(['query', 'mutate']),
   ]);
 
 export type Schema = ClientSchema<typeof schema>;

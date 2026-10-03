@@ -20,6 +20,11 @@ export const colors = {
   error: '#A3302F',
   snackbar: '#241C1B',
   overlayDark: 'rgba(0,0,0,0.35)',
+  // Dashboards (facility and admin): dark burgundy side menu (BRIEF v2 §4).
+  sidebar: '#2A000F',
+  sidebarActive: '#5A0020',
+  sidebarText: '#F7F0EA',
+  sidebarMuted: '#C9A9B1',
 } as const;
 
 export const radius = { sm: 12, md: 16, lg: 20, pill: 999, tile: 14 } as const;

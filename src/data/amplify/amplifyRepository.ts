@@ -55,6 +55,11 @@ async function signedInSession() {
   return s;
 }
 
+// The signed-in user's owner key ("<sub>::<username>").
+export async function currentOwnerKey() {
+  return (await signedInSession()).owner;
+}
+
 type Result<T> = { data: T; errors?: readonly { message: string; errorType?: string | null }[]; nextToken?: string | null };
 
 // A request that hangs (captive portal, dead connection) surfaces as NETWORK instead of spinning forever.
@@ -202,6 +207,7 @@ const accountFromClaims = (claims: Record<string, unknown>): Account => ({
   email: String(claims.email ?? ''),
   phone: claims.phone_number ? normaliseQatarPhone(String(claims.phone_number)) : '',
   isAdmin: Array.isArray(claims['cognito:groups']) && claims['cognito:groups'].includes('admin'),
+  isOwner: Array.isArray(claims['cognito:groups']) && claims['cognito:groups'].includes('FACILITY_OWNER'),
 });
 
 // ── Guest bookings kept on this device ("<bookingId>.<secret>" tokens from placeBooking) ──

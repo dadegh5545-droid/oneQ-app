@@ -14,7 +14,8 @@
     "fromPerMonth": "ابتداءً من {{price}} / شهريًا",
     "addFavorite": "إضافة إلى المفضلة",
     "removeFavorite": "إزالة من المفضلة",
-    "keep": "إبقاء"
+    "keep": "إبقاء",
+    "comingSoon": "قريباً"
   },
   "tabs": {
     "home": "الرئيسية",
@@ -382,7 +383,14 @@
     "confirmedMembership": "تم تأكيد عضويتك في {{gym}}.",
     "reminderTitle": "جلسة قادمة",
     "reminderTomorrow": "جلستك في {{gym}} غدًا الساعة {{time}}.",
-    "reminderSoon": "تبدأ جلستك في {{gym}} بعد ساعة."
+    "reminderSoon": "تبدأ جلستك في {{gym}} بعد ساعة.",
+    "facilityStatus": "حالة {{name}} الآن: {{status}}",
+    "trainerUnavailable": "{{trainer}} غير متاح لجلستك يوم {{date}} في {{gym}}. النادي سيتواصل معك.",
+    "trainerReassigned": "جلستك يوم {{date}} في {{gym}} صارت مع {{trainer}}.",
+    "trainerBlocked": "تم تعليم {{trainer}} غير متاح، وتأثرت {{count}} حجوزات قادمة.",
+    "bookingCancelled": "أُلغي حجزك في {{gym}}",
+    "freezeLimit": "استنفد {{name}} مرات تجميد خطة {{plan}} ويطلب التواصل معه.",
+    "generic": "لديك إشعار جديد"
   },
   "calendar": {
     "added": "تمت الإضافة إلى تقويمك.",
@@ -479,5 +487,274 @@
     "removed": "تم حذف تقييمك.",
     "stars": "{{count}} من 5 نجوم",
     "confirmRemove": "حذف تقييمك؟ لا يمكن التراجع عن ذلك."
+  },
+  "dashboard": {
+    "profileLink": "لوحة المنشأة",
+    "menu": {
+      "overview": "لوحة التحكم",
+      "analytics": "التحليلات",
+      "members": "الأعضاء",
+      "customers": "العملاء",
+      "plans": "الاشتراكات",
+      "services": "الخدمات والأسعار",
+      "photos": "صور النادي",
+      "practitioners": "الفريق",
+      "trainers": "المدربون",
+      "specialists": "الأخصائيات",
+      "doctors": "الأطباء",
+      "departments": "الأقسام الفرعية",
+      "bookings": "الحجوزات",
+      "appointments": "المواعيد",
+      "reviews": "التقييمات",
+      "gallery": "معرض الأعمال",
+      "clients": "العملاء",
+      "patients": "المرضى"
+    },
+    "shell": {
+      "menu": "القائمة",
+      "customerView": "عرض تجربة العميل",
+      "myFacilities": "منشآتي"
+    },
+    "notFound": "هذه المنشأة غير متاحة",
+    "loadError": "تعذّر تحميل هذه الصفحة",
+    "viewAll": "عرض الكل",
+    "edit": "تعديل",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "saved": "تم الحفظ",
+    "required": "مطلوب",
+    "none": "بدون",
+    "all": "الكل",
+    "period": {
+      "30d": "30 يوماً",
+      "month": "هذا الشهر",
+      "90d": "90 يوماً",
+      "12m": "12 شهراً"
+    },
+    "facilityStatus": {
+      "pending": "بانتظار الموافقة",
+      "approved": "معتمدة",
+      "suspended": "موقوفة"
+    },
+    "facilityStatusHint": {
+      "pending": "ستظهر المنشأة للعملاء بعد موافقة OneQ.",
+      "approved": "يستطيع العملاء إيجاد المنشأة والحجز فيها.",
+      "suspended": "المنشأة مخفية عن العملاء. تواصل مع OneQ للتفاصيل."
+    },
+    "memberStatus": {
+      "active": "نشط",
+      "frozen": "مجمّد",
+      "expired": "منتهٍ",
+      "cancelled": "ملغى"
+    },
+    "overview": {
+      "title": "لوحة التحكم",
+      "totalMembers": "إجمالي الأعضاء",
+      "activeMembers": "الأعضاء النشطون",
+      "newMembers": "أعضاء جدد",
+      "revenue": "الإيرادات",
+      "trainerBookings": "حجوزات المدربين",
+      "planDistribution": "توزيع الاشتراكات",
+      "latestReviews": "آخر التقييمات",
+      "expiringSoon": "تنتهي قريباً",
+      "endsOn": "ينتهي {{date}}",
+      "remind": "تذكير",
+      "latestBookings": "آخر الحجوزات",
+      "quickActions": "أزرار سريعة",
+      "notifications": "الإشعارات",
+      "pushSoon": "الإشعارات الفورية: قريباً. الإشعارات محفوظة داخل التطبيق."
+    },
+    "empty": {
+      "members": "لا يوجد أعضاء بعد",
+      "reviews": "لا توجد تقييمات بعد",
+      "expiring": "لا اشتراكات تنتهي خلال أسبوعين",
+      "bookings": "لا حجوزات في هذه الفترة",
+      "notifications": "لا توجد إشعارات",
+      "plans": "لا توجد خطط اشتراك بعد",
+      "practitioners": "لا يوجد أعضاء في الفريق بعد"
+    },
+    "analytics": {
+      "title": "التحليلات",
+      "popularPlan": "الخطة الأكثر شعبية",
+      "membersGrowth": "نمو الأعضاء",
+      "revenueTrend": "اتجاه الإيرادات",
+      "newMembers": "أعضاء جدد"
+    },
+    "members": {
+      "title": "الأعضاء",
+      "count": "{{count}} معروض",
+      "export": "تصدير",
+      "search": "ابحث بالاسم أو الهاتف",
+      "name": "الاسم",
+      "phone": "الهاتف",
+      "plan": "الخطة",
+      "start": "البداية",
+      "end": "الانتهاء",
+      "status": "الحالة",
+      "amount": "المبلغ"
+    },
+    "plans": {
+      "title": "الاشتراكات",
+      "subtitle": "المدد والأسعار وما يراه العملاء",
+      "add": "إضافة خطة",
+      "editTitle": "تعديل الخطة",
+      "newTitle": "خطة جديدة",
+      "name": "اسم الخطة",
+      "duration": "المدة",
+      "durations": {
+        "1": "شهر",
+        "2": "شهران",
+        "3": "3 أشهر",
+        "6": "6 أشهر",
+        "12": "سنة"
+      },
+      "price": "السعر (ر.ق)",
+      "badgeLabel": "الشارة",
+      "badge": {
+        "popular": "الأكثر اختياراً",
+        "bestValue": "أفضل قيمة"
+      },
+      "visible": "ظاهرة للعملاء",
+      "hidden": "مخفية",
+      "freezeOn": "التجميد مسموح",
+      "autoRenewOn": "تجديد تلقائي",
+      "discount": "خصم مباشر (يتحمله النادي)",
+      "discountType": {
+        "percent": "نسبة",
+        "amount": "مبلغ"
+      },
+      "discountPercent": "الخصم (%)",
+      "discountAmount": "الخصم (ر.ق)",
+      "discountMax": "90% كحد أقصى",
+      "noCodes": "الخصم يُطبَّق مباشرة على السعر. لا توجد أكواد خصم.",
+      "visibleToggle": "ظاهرة للعملاء",
+      "freezeToggle": "السماح بالتجميد",
+      "freezeHint": "حتى {{count}} تجميد لكل اشتراك، كل واحد حتى {{days}} يوماً.",
+      "autoRenewToggle": "إتاحة التجديد التلقائي",
+      "autoRenewHint": "اختياري للعميل."
+    },
+    "photos": {
+      "title": "صور النادي",
+      "subtitle": "الغلاف والشعار والمعرض",
+      "gallery": "المعرض",
+      "coverHint": "الصورة الأولى هي الغلاف الذي يراه العميل أولاً.",
+      "cover": "الغلاف",
+      "moveEarlier": "تقديم",
+      "moveLater": "تأخير",
+      "remove": "حذف الصورة",
+      "addLink": "رابط الصورة (https)",
+      "add": "إضافة صورة",
+      "uploadSoon": "رفع الصور من جهازك: قريباً.",
+      "logo": "الشعار",
+      "logoLink": "رابط الشعار (https)",
+      "preview": "هكذا يظهر ناديك",
+      "httpsOnly": "استخدم رابطاً يبدأ بـ https"
+    },
+    "practitioners": {
+      "trainer": "مدرب",
+      "add": "إضافة {{label}}",
+      "addTrainer": "إضافة مدرب",
+      "unavailable": "غير متاح",
+      "available": "متاح",
+      "editTitle": "تعديل الملف",
+      "newTitle": "ملف جديد",
+      "name": "الاسم الكامل",
+      "photo": "رابط الصورة (https)",
+      "title": "المسمّى",
+      "specialties": "التخصصات",
+      "skills": "المهارات",
+      "years": "سنوات الخبرة",
+      "price": "سعر الجلسة (ر.ق)",
+      "bio": "نبذة",
+      "languages": "اللغات",
+      "editProfile": "تعديل الملف"
+    },
+    "skills": {
+      "hiit": "تمارين HIIT",
+      "powerlifting": "رفع الأثقال",
+      "yoga": "يوغا",
+      "pilates": "بيلاتس",
+      "boxing": "ملاكمة",
+      "nutrition": "التغذية",
+      "rehab": "إعادة التأهيل",
+      "swimming": "سباحة",
+      "crossfit": "كروس فت",
+      "stretching": "إطالة"
+    },
+    "availability": {
+      "title": "التوفر",
+      "unavailable": "غير متاح",
+      "unavailableHint": "لا يستطيع العملاء الحجز معه أثناء عدم التوفر.",
+      "openEnded": "بلا انتهاء",
+      "period": "فترة من–إلى",
+      "from": "من (yyyy-mm-dd)",
+      "until": "إلى (yyyy-mm-dd)",
+      "dateFormat": "اكتب التاريخ بصيغة yyyy-mm-dd",
+      "weeklyHours": "الساعات الأسبوعية",
+      "weeklyHint": "اختر أيام العمل؛ بدون اختيار تُطبَّق أوقات النادي الافتراضية.",
+      "opens": "من (HH:mm)",
+      "closes": "إلى (HH:mm)",
+      "timeFormat": "اكتب الوقت بصيغة HH:mm، والبداية قبل النهاية",
+      "affectedTitle": "تتأثر {{count}} حجوزات قادمة",
+      "affectedHint": "أبقِ كل حجز (يرى العميل أن النادي سيتواصل معه) أو انقله لمدرب آخر.",
+      "keep": "إبقاء والتواصل",
+      "moveTo": "نقل إلى {{name}}",
+      "confirm": "تأكيد",
+      "savedWithBookings": "تم الحفظ. حُدّثت {{count}} حجوزات وأُبلغ العملاء داخل التطبيق."
+    },
+    "schedule": {
+      "title": "الجدول",
+      "share": "مشاركة",
+      "hint": "شارك جدول اليوم أو الأسبوع مع المدرب.",
+      "today": "اليوم",
+      "week": "هذا الأسبوع",
+      "empty": "لا جلسات",
+      "shareTitleDay": "جدول اليوم — {{name}}",
+      "shareTitleWeek": "جدول الأسبوع — {{name}}",
+      "pdfSoon": "التصدير بصيغة PDF: قريباً."
+    },
+    "bookings": {
+      "title": "الحجوزات",
+      "count": "{{count}} حجز",
+      "when": "التاريخ",
+      "customer": "العميل",
+      "what": "الحجز",
+      "home": "خدمة منزلية",
+      "phoneAfterConfirm": "يظهر بعد التأكيد",
+      "trainerUnavailable": "المدرب غير متاح",
+      "range": {
+        "day": "اليوم",
+        "week": "هذا الأسبوع",
+        "month": "هذا الشهر"
+      },
+      "type": {
+        "session": "مدرب",
+        "membership": "اشتراك"
+      }
+    },
+    "reviews": {
+      "title": "التقييمات",
+      "readOnly": "التقييم لا يُعدَّل؛ يمكنك الرد علناً مرة واحدة.",
+      "average": "متوسط التقييم",
+      "count": "{{count}} تقييم",
+      "distribution": "التوزيع",
+      "notSatisfied": "غير راضٍ",
+      "yourReply": "ردّك",
+      "replyLabel": "الرد",
+      "send": "إرسال الرد",
+      "reply": "رد",
+      "replied": "نُشر الرد"
+    },
+    "picker": {
+      "title": "منشآتي",
+      "emptyTitle": "لا توجد منشآت بعد",
+      "emptyBody": "OneQ تربط المنشآت بحسابك. تواصل معنا لإضافة منشأتك."
+    },
+    "guard": {
+      "signInTitle": "سجّل الدخول للمتابعة",
+      "signInBody": "اللوحة لأصحاب المنشآت ومشرفي OneQ.",
+      "noAccessTitle": "لا صلاحية للوحة",
+      "noAccessBody": "هذا الحساب غير مرتبط بمنشأة."
+    }
   }
 }
