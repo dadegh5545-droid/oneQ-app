@@ -2,7 +2,7 @@ import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
 import { Button } from '@/components/Button';
@@ -17,7 +17,7 @@ import type { Gym, Trainer } from '@/domain/models';
 import { useDraft } from '@/features/booking/draftStore';
 import { ReviewPrompt } from '@/features/reviews/ReviewPrompt';
 import { track } from '@/services/analytics';
-import { colors, radius, space } from '@/theme';
+import { makeStyles, radius, space, useTheme } from '@/theme';
 import { qar, rating } from '@/utils/format';
 
 // S10
@@ -57,6 +57,8 @@ export function TrainerScreen({ id }: { id: string }) {
 }
 
 function TrainerProfile({ trainer, gym }: { trainer: Trainer; gym: Gym }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const { t } = useTranslation();
 
   const onBook = () => {
@@ -121,6 +123,7 @@ function TrainerProfile({ trainer, gym }: { trainer: Trainer; gym: Gym }) {
 }
 
 function TrainerReviews({ trainerId }: { trainerId: string }) {
+  const { colors } = useTheme();
   const { t } = useTranslation();
   const reviews = useTrainerReviews(trainerId);
   if (reviews.isPending) return <LoadingState />;
@@ -132,6 +135,7 @@ function TrainerReviews({ trainerId }: { trainerId: string }) {
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  const styles = useStyles();
   return (
     <View style={styles.section}>
       <AppText variant="headline">{title}</AppText>
@@ -141,6 +145,8 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 function Stat({ value, label }: { value: string; label: string }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   return (
     <View style={styles.stat}>
       <AppText variant="headline">{value}</AppText>
@@ -152,6 +158,8 @@ function Stat({ value, label }: { value: string; label: string }) {
 }
 
 function InfoLine({ label, value }: { label: string; value: string }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   return (
     <View style={styles.infoLine}>
       <AppText color={colors.textSecondary}>{label}</AppText>
@@ -162,7 +170,7 @@ function InfoLine({ label, value }: { label: string; value: string }) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(({ colors }) => ({
   content: { gap: space.xxl },
   header: { flexDirection: 'row', gap: space.lg },
   photo: { width: 118, height: 132, borderRadius: radius.md, backgroundColor: colors.surfaceVariant },
@@ -181,4 +189,4 @@ const styles = StyleSheet.create({
   wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
   infoLine: { flexDirection: 'row', justifyContent: 'space-between', gap: space.lg },
   infoValue: { flexShrink: 1, fontSize: 15 },
-});
+}));

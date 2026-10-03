@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router, Stack } from 'expo-router';
 import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
 import { Button } from '@/components/Button';
@@ -18,7 +18,7 @@ import type { AmenityKey, AvailabilityRule, Booking, MembershipPlan, Review, Spe
 import { slotLabel } from '@/domain/rules';
 import { useSession } from '@/features/auth/sessionStore';
 import { ltr } from '@/i18n';
-import { colors, radius, space } from '@/theme';
+import { makeStyles, radius, space, useTheme } from '@/theme';
 import { confirmAction } from '@/utils/confirm';
 import { errorMessage } from '@/utils/errorMessage';
 import { localizeTime, qar } from '@/utils/format';
@@ -45,6 +45,8 @@ function AdminOnly({ children }: { children: ReactNode }) {
 }
 
 function LinkRow({ label, detail, onPress }: { label: string; detail?: string; onPress: () => void }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={detail ? `${label}, ${detail}` : label} onPress={onPress} style={styles.row}>
       <View style={styles.flex}>
@@ -57,6 +59,7 @@ function LinkRow({ label, detail, onPress }: { label: string; detail?: string; o
 }
 
 function ChipGroup<T extends string>({ label, options, selected, onToggle, optionLabel }: { label: string; options: T[]; selected: T[]; onToggle: (v: T) => void; optionLabel: (v: T) => string }) {
+  const styles = useStyles();
   return (
     <View style={styles.group}>
       <AppText variant="label">{label}</AppText>
@@ -95,6 +98,8 @@ function useSaver() {
 // ── Home: gyms + bookings ──
 
 export function AdminHomeScreen() {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const { t } = useTranslation();
   const gyms = useGyms();
   return (
@@ -144,6 +149,7 @@ function MissingRecord() {
 }
 
 function GymForm({ id, initial }: { id: string | null; initial: GymInput | null }) {
+  const styles = useStyles();
   const { t } = useTranslation();
   const { saving, save } = useSaver();
   const [f, setF] = useState({
@@ -209,6 +215,8 @@ function GymForm({ id, initial }: { id: string | null; initial: GymInput | null 
 }
 
 function GymPlans({ gymId }: { gymId: string }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const { t } = useTranslation();
   const plans = usePlans(gymId);
   return (
@@ -220,6 +228,7 @@ function GymPlans({ gymId }: { gymId: string }) {
 }
 
 function PlanEditor({ gymId, plan }: { gymId: string; plan: MembershipPlan }) {
+  const styles = useStyles();
   const { t } = useTranslation();
   const { saving, save } = useSaver();
   const [price, setPrice] = useState(String(plan.price));
@@ -241,6 +250,8 @@ function PlanEditor({ gymId, plan }: { gymId: string; plan: MembershipPlan }) {
 }
 
 function GymTrainers({ gymId }: { gymId: string }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const { t } = useTranslation();
   const trainers = useTrainers(gymId, null);
   return (
@@ -273,6 +284,8 @@ export function AdminTrainerScreen({ id, gymId }: { id: string; gymId?: string }
 }
 
 function TrainerForm({ id, initial, gymId }: { id: string | null; initial: TrainerInput | null; gymId: string }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const { t } = useTranslation();
   const { saving, save } = useSaver();
   const gyms = useGyms();
@@ -339,6 +352,7 @@ function TrainerForm({ id, initial, gymId }: { id: string | null; initial: Train
 // ── Bookings overview ──
 
 export function AdminBookingsScreen() {
+  const styles = useStyles();
   const { t } = useTranslation();
   const isAdmin = useSession((s) => s.user?.isAdmin === true);
   const bookings = useQuery({ queryKey: ['admin', 'bookings'], queryFn: () => adminRepository.listAllBookings(), enabled: isAdmin });
@@ -356,6 +370,8 @@ export function AdminBookingsScreen() {
 }
 
 function AdminBookingRow({ booking: b }: { booking: Booking }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const { t } = useTranslation();
   const { saving, save } = useSaver();
   const when = b.date ? `${b.date.slice(0, 10)} ${b.timeLabel ?? ''}` : `${b.membershipStart ?? ''} → ${b.membershipEnd ?? ''}`;
@@ -381,6 +397,7 @@ function AdminBookingRow({ booking: b }: { booking: Booking }) {
 // ── Reviews moderation ──
 
 export function AdminReviewsScreen() {
+  const styles = useStyles();
   const { t } = useTranslation();
   const isAdmin = useSession((s) => s.user?.isAdmin === true);
   const reviews = useQuery({ queryKey: ['admin', 'reviews'], queryFn: () => adminRepository.listAllReviews(), enabled: isAdmin });
@@ -397,6 +414,8 @@ export function AdminReviewsScreen() {
 }
 
 function AdminReviewRow({ review: r }: { review: Review }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const { t } = useTranslation();
   const { saving, save } = useSaver();
   return (
@@ -432,6 +451,8 @@ const parseTime = (value: string) => {
 };
 
 export function AdminAvailabilityScreen() {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const { t } = useTranslation();
   const isAdmin = useSession((s) => s.user?.isAdmin === true);
   const gyms = useGyms();
@@ -489,6 +510,8 @@ export function AdminAvailabilityScreen() {
 
 // A date-specific rule (holiday, blocked slot, extra times) that overrides the weekly schedule.
 function DateOverride({ scope, grid, rules, fallbackRules }: { scope: string; grid: number[]; rules: AvailabilityRule[]; fallbackRules: AvailabilityRule[] }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const { t } = useTranslation();
   const [date, setDate] = useState('');
   const day = new Date(`${date}T00:00:00`);
@@ -526,6 +549,8 @@ function DayEditor({
   fallback: AvailabilityRule | null;
   grid: number[];
 }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const { t } = useTranslation();
   const { saving, save } = useSaver();
   const start = own ?? fallback;
@@ -568,7 +593,7 @@ function DayEditor({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(({ colors }) => ({
   content: { gap: space.lg },
   flex: { flex: 1, gap: 2 },
   group: { gap: space.sm },
@@ -586,4 +611,4 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
   },
   card: { gap: space.sm, padding: space.lg, borderRadius: radius.md, borderWidth: 1, borderColor: colors.outline, backgroundColor: colors.surface },
-});
+}));

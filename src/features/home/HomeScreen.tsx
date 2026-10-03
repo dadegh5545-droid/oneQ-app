@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { FlatList, Pressable, ScrollView, TextInput, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
 import { Chip } from '@/components/Chip';
@@ -17,7 +17,7 @@ import { FavoriteButton } from '@/features/favorites/FavoriteButton';
 import { GymListCard, openGym } from '@/features/gyms/GymListCard';
 import { alignStart, currentLanguage } from '@/i18n';
 import { track } from '@/services/analytics';
-import { arabicFonts, colors, fonts, radius, screenPadding, space } from '@/theme';
+import { makeStyles, radius, screenPadding, space, useTheme } from '@/theme';
 import { perMonthLabel } from '@/utils/format';
 
 type Category = 'all' | 'gyms' | 'classes' | 'trainers';
@@ -25,6 +25,8 @@ const CATEGORIES: Category[] = ['all', 'gyms', 'classes', 'trainers'];
 
 // S02–S06
 export function HomeScreen() {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const { t } = useTranslation();
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState<Category>('all');
@@ -108,6 +110,8 @@ export function HomeScreen() {
 }
 
 function SearchField({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const { arabicFonts, colors, fonts } = useTheme();
+  const styles = useStyles();
   const { t } = useTranslation();
   const inputTextStyle = useInputTextStyle();
   const [focused, setFocused] = useState(false);
@@ -138,6 +142,7 @@ function SearchField({ value, onChange }: { value: string; onChange: (v: string)
 }
 
 function Discover({ gyms }: { gyms: Gym[] }) {
+  const styles = useStyles();
   const { t } = useTranslation();
   const featured = gyms.filter((g) => g.isFeatured);
   const nearby = gyms.filter((g) => g.isNearby && !g.isFeatured);
@@ -180,6 +185,7 @@ function Discover({ gyms }: { gyms: Gym[] }) {
 }
 
 function GymList({ title, gyms }: { title: string; gyms: Gym[] }) {
+  const styles = useStyles();
   return (
     <View style={styles.section}>
       <AppText variant="headline">{title}</AppText>
@@ -193,6 +199,8 @@ function GymList({ title, gyms }: { title: string; gyms: Gym[] }) {
 const FEATURED_WIDTH = 228;
 
 function FeaturedCard({ gym }: { gym: Gym }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   return (
     // The favorite button overlays the card as a sibling, never nested inside the pressable.
     <View style={styles.featured}>
@@ -219,6 +227,8 @@ function FeaturedCard({ gym }: { gym: Gym }) {
 }
 
 function CompactCard({ gym }: { gym: Gym }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={`${gym.name}, ${gymLocation(gym)}`} onPress={() => openGym(gym)} style={styles.compact}>
       <Image source={gym.images[0]} style={styles.compactImage} contentFit="cover" transition={150} />
@@ -235,7 +245,7 @@ function CompactCard({ gym }: { gym: Gym }) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(({ colors }) => ({
   content: { gap: space.xl },
   wordmark: { fontSize: 22 },
   headings: { gap: space.xs },
@@ -272,4 +282,4 @@ const styles = StyleSheet.create({
   },
   compactImage: { width: 88, height: 88, backgroundColor: colors.surfaceVariant },
   compactBody: { flex: 1, justifyContent: 'center', gap: 2, paddingHorizontal: space.md },
-});
+}));

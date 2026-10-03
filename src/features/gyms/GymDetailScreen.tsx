@@ -2,7 +2,7 @@ import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { FlatList, Pressable, ScrollView, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
@@ -21,7 +21,7 @@ import { gymLocation, type AmenityKey, type Gym } from '@/domain/models';
 import { FavoriteButton } from '@/features/favorites/FavoriteButton';
 import { ReviewPrompt } from '@/features/reviews/ReviewPrompt';
 import { track } from '@/services/analytics';
-import { colors, radius, screenPadding, space } from '@/theme';
+import { makeStyles, radius, screenPadding, space, useTheme } from '@/theme';
 import { qar } from '@/utils/format';
 
 type Tab = 'overview' | 'reviews' | 'memberships';
@@ -68,6 +68,8 @@ export function GymDetailScreen({ id }: { id: string }) {
 }
 
 function GymDetail({ gym }: { gym: Gym }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const { t } = useTranslation();
   const [tab, setTab] = useState<Tab>('overview');
   const trainers = useTrainers(gym.id, null);
@@ -115,6 +117,8 @@ function GymDetail({ gym }: { gym: Gym }) {
 }
 
 function BackButton({ overlay }: { overlay?: boolean }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const { t } = useTranslation();
   return (
     <Pressable
@@ -130,6 +134,8 @@ function BackButton({ overlay }: { overlay?: boolean }) {
 }
 
 function Hero({ gym }: { gym: Gym }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const [page, setPage] = useState(0);
@@ -164,6 +170,8 @@ function Hero({ gym }: { gym: Gym }) {
 type PathCardProps = { icon: IconName; title: string; subtitle: string; price: string; highlighted?: boolean; onPress: () => void };
 
 function PathCard({ icon, title, subtitle, price, highlighted, onPress }: PathCardProps) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   return (
     <SelectableCard role="button" selected={false} onPress={onPress} accessibilityLabel={`${title}. ${subtitle}. ${price}`} style={highlighted ? styles.pathHighlighted : undefined}>
       <View style={[styles.iconTile, highlighted && styles.iconTileFilled]}>
@@ -186,6 +194,8 @@ function PathCard({ icon, title, subtitle, price, highlighted, onPress }: PathCa
 }
 
 function Overview({ gym }: { gym: Gym }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const { t } = useTranslation();
   return (
     <View style={styles.tabBody}>
@@ -227,6 +237,8 @@ function Overview({ gym }: { gym: Gym }) {
 }
 
 function Reviews({ gymId, gymName }: { gymId: string; gymName: string }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const { t } = useTranslation();
   const reviews = useGymReviews(gymId);
   const prompt = <ReviewPrompt target={{ type: 'gym', id: gymId }} name={gymName} />;
@@ -246,6 +258,8 @@ function Reviews({ gymId, gymName }: { gymId: string; gymName: string }) {
 }
 
 function Memberships({ gymId }: { gymId: string }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const { t } = useTranslation();
   const plans = usePlans(gymId);
   if (plans.isPending) return <LoadingState />;
@@ -276,7 +290,7 @@ function Memberships({ gymId }: { gymId: string }) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(({ colors }) => ({
   root: { flex: 1, backgroundColor: colors.background },
   scroll: { paddingBottom: space.xxxl },
   body: { paddingHorizontal: screenPadding, paddingTop: space.xl, gap: space.xxl },
@@ -299,4 +313,4 @@ const styles = StyleSheet.create({
   iconTileFilled: { backgroundColor: colors.primary },
   pathHighlighted: { borderColor: colors.primary, borderWidth: 1.4 },
   pathPrice: { marginTop: space.xs, fontSize: 14 },
-});
+}));

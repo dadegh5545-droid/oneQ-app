@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Text, type TextProps } from 'react-native';
 
 import { alignStart, type Language } from '@/i18n';
-import { arabicFonts, fonts, typography, useTheme, type TypographyVariant } from '@/theme';
+import { typography, useTheme, type TypographyVariant } from '@/theme';
 
 type Props = TextProps & {
   variant?: TypographyVariant;
@@ -13,7 +13,7 @@ type Props = TextProps & {
 
 export function AppText({ variant = 'bodyM', color, lang, style, ...rest }: Props) {
   const { i18n } = useTranslation();
-  const { colors } = useTheme();
+  const { arabicFonts, colors, fonts } = useTheme();
   const { font, ...metrics } = typography[variant];
   const fontFamily = (lang ?? i18n.language) === 'ar' ? arabicFonts[font] : fonts[font];
 

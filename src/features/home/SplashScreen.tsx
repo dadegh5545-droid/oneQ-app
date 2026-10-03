@@ -2,9 +2,9 @@ import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import * as NativeSplash from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
-import { AccessibilityInfo, Animated, StyleSheet, View } from 'react-native';
+import { AccessibilityInfo, Animated, View } from 'react-native';
 
-import { colors } from '@/theme';
+import { makeStyles } from '@/theme';
 
 // The native launch screen shows this same image at the same size in the same place (app.json, imageWidth 172),
 // so the hand-off from the native splash is seamless. An image, not text: text line boxes differ per platform.
@@ -18,6 +18,7 @@ const hideNativeSplash = () => NativeSplash.hide();
 
 // S01 — the wordmark from the native splash gains its underline, then Home (≤ 1.5 s).
 export function SplashScreen() {
+  const styles = useStyles();
   const [line] = useState(() => new Animated.Value(0));
 
   useEffect(() => {
@@ -55,10 +56,10 @@ export function SplashScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(({ colors }) => ({
   root: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.primary },
   // 172 × 61 pt: the 64 pt Playfair wordmark plus 1 pt of margin, exactly as the native splash draws it.
   wordmark: { width: 172, height: 61 },
   // Hangs below the wordmark without moving it off the centre the native splash uses.
   underline: { position: 'absolute', top: 66, left: 52, width: 68, height: 1, backgroundColor: 'rgba(247,240,234,0.7)' },
-});
+}));

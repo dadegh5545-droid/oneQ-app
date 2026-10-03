@@ -25,7 +25,7 @@ import i18n, { currentLanguage, initI18n } from '@/i18n';
 import { track } from '@/services/analytics';
 import { installGlobalErrorHandler, reportError } from '@/services/monitoring';
 import { useNotificationNavigation } from '@/services/notifications';
-import { arabicFonts, colors, fonts, ThemeProvider } from '@/theme';
+import { colors, ThemeProvider, useTheme } from '@/theme';
 
 import outputs from '../../amplify_outputs.json';
 
@@ -93,6 +93,7 @@ function RootStack() {
 
   useEffect(() => listenForSessionExpiry(() => toast(t('errors.SESSION_EXPIRED'))), [toast, t]);
   useNotificationNavigation();
+  const { arabicFonts, fonts } = useTheme();
   const titleFont = currentLanguage() === 'ar' ? arabicFonts.bodySemi : fonts.bodySemi;
 
   return (

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Platform, Pressable, StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
 
 import { alignLeft, alignStart, currentLanguage, isRTL } from '@/i18n';
-import { arabicFonts, colors, fonts, radius, space, useTheme } from '@/theme';
+import { colors, radius, space, useTheme } from '@/theme';
 
 import { AppText } from './AppText';
 import { Icon } from './Icon';
@@ -51,6 +51,7 @@ export function TextField({ label, error, prefix, password, ...input }: Props) {
   const inputTextStyle = useInputTextStyle();
   const [focused, setFocused] = useState(false);
   const [hidden, setHidden] = useState(true);
+  const { arabicFonts, fonts } = useTheme();
   const fontFamily = currentLanguage() === 'ar' ? arabicFonts.body : fonts.body;
   const multiline = !!input.multiline;
   // Phone numbers, emails, passwords and numbers always read left-to-right, also in Arabic.

@@ -1,9 +1,9 @@
 import { useTranslation } from 'react-i18next';
-import { Pressable, StyleSheet } from 'react-native';
+import { Pressable } from 'react-native';
 
 import { Icon } from '@/components/Icon';
 import { useToast } from '@/components/Toast';
-import { colors } from '@/theme';
+import { makeStyles, useTheme } from '@/theme';
 import { errorMessage } from '@/utils/errorMessage';
 
 import { useFavorites, useIsFavorite } from './store';
@@ -15,6 +15,8 @@ type Props = {
 };
 
 export function FavoriteButton({ gymId, variant = 'outlined' }: Props) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const { t } = useTranslation();
   const toast = useToast();
   const saved = useIsFavorite(gymId);
@@ -39,8 +41,8 @@ export function FavoriteButton({ gymId, variant = 'outlined' }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(({ colors }) => ({
   circle: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
   overlay: { backgroundColor: colors.overlayDark },
   outlined: { borderWidth: 1, borderColor: colors.outline, backgroundColor: colors.surface },
-});
+}));

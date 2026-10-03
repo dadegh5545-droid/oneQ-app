@@ -1,7 +1,7 @@
 import { router, Stack } from 'expo-router';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
 import { Button } from '@/components/Button';
@@ -12,7 +12,7 @@ import { useAvailability } from '@/data';
 import type { AvailabilityDay } from '@/data/repository';
 import type { Gym, Trainer } from '@/domain/models';
 import { slotLabel } from '@/domain/rules';
-import { colors, radius, screenPadding, space } from '@/theme';
+import { makeStyles, radius, screenPadding, space, useTheme } from '@/theme';
 import { errorMessage } from '@/utils/errorMessage';
 import { formatDate, localizeTime, qar, shortDate } from '@/utils/format';
 
@@ -44,6 +44,8 @@ export function BookSessionScreen() {
 }
 
 function BookSession({ gym, trainer }: { gym: Gym; trainer: Trainer }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const { t } = useTranslation();
   const availability = useAvailability(trainer.id);
   const date = useDraft((s) => s.date);
@@ -133,6 +135,8 @@ function BookSession({ gym, trainer }: { gym: Gym; trainer: Trainer }) {
 }
 
 function DateStrip({ days, selected, onSelect }: { days: AvailabilityDay[]; selected?: string; onSelect: (d: string) => void }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const { t } = useTranslation();
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.bleed} contentContainerStyle={styles.strip}>
@@ -164,7 +168,7 @@ function DateStrip({ days, selected, onSelect }: { days: AvailabilityDay[]; sele
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(({ colors }) => ({
   content: { gap: space.xl },
   section: { gap: space.md },
   bleed: { marginHorizontal: -screenPadding },
@@ -198,4 +202,4 @@ const styles = StyleSheet.create({
   pillDisabled: { backgroundColor: colors.surfaceVariant, borderColor: colors.surfaceVariant },
   pillText: { fontSize: 14 },
   strike: { textDecorationLine: 'line-through' },
-});
+}));

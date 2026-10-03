@@ -2,14 +2,14 @@ import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import type { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
 import { Icon } from '@/components/Icon';
 import { useGym, useTrainer } from '@/data';
 import type { Booking } from '@/domain/models';
 import { planKindFromId } from '@/domain/rules';
-import { colors, radius, space } from '@/theme';
+import { makeStyles, radius, space, useTheme } from '@/theme';
 import { formatDate, localizeTime } from '@/utils/format';
 
 export const planName = (b: Booking, t: TFunction) => {
@@ -19,6 +19,8 @@ export const planName = (b: Booking, t: TFunction) => {
 
 // S16 booking card: title = trainer ?? plan ?? "Membership" (09 §1).
 export function BookingCard({ booking }: { booking: Booking }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const { t } = useTranslation();
   const trainer = useTrainer(booking.trainerId ?? '');
   const gym = useGym(booking.gymId);
@@ -64,7 +66,7 @@ export function BookingCard({ booking }: { booking: Booking }) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(({ colors }) => ({
   card: {
     minHeight: 115,
     flexDirection: 'row',
@@ -88,4 +90,4 @@ const styles = StyleSheet.create({
     backgroundColor: colors.successTint,
   },
   image: { width: 72, height: 88, borderRadius: radius.sm, backgroundColor: colors.surfaceVariant },
-});
+}));

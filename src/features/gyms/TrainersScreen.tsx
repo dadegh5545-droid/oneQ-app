@@ -2,7 +2,7 @@ import { Image } from 'expo-image';
 import { router, Stack } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
 import { Chip } from '@/components/Chip';
@@ -13,11 +13,13 @@ import { EmptyState, LoadingState } from '@/components/StateView';
 import { useGym, useTrainers } from '@/data';
 import type { Trainer } from '@/domain/models';
 import { chipToSpecialty, SPECIALTY_CHIPS, type SpecialtyChip } from '@/domain/rules';
-import { colors, radius, screenPadding, space } from '@/theme';
+import { makeStyles, radius, screenPadding, space, useTheme } from '@/theme';
 import { qar } from '@/utils/format';
 
 // S09
 export function TrainersScreen({ gymId }: { gymId: string }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const { t } = useTranslation();
   const [chip, setChip] = useState<SpecialtyChip>('All');
   const gym = useGym(gymId);
@@ -68,6 +70,8 @@ export function TrainersScreen({ gymId }: { gymId: string }) {
 }
 
 function TrainerCard({ trainer }: { trainer: Trainer }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const { t } = useTranslation();
   const specialty = trainer.specialties[0];
   const meta = t('trainers.yearsPrice', { years: trainer.yearsExperience, price: qar(trainer.pricePerSession) });
@@ -92,7 +96,7 @@ function TrainerCard({ trainer }: { trainer: Trainer }) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(({ colors }) => ({
   content: { gap: space.lg },
   headings: { gap: space.xs },
   bleed: { marginHorizontal: -screenPadding },
@@ -110,4 +114,4 @@ const styles = StyleSheet.create({
   },
   cardBody: { flex: 1, gap: space.xs },
   photo: { width: 82, height: 82, borderRadius: radius.sm, backgroundColor: colors.surfaceVariant },
-});
+}));

@@ -9,10 +9,12 @@ import { Screen } from '@/components/Screen';
 import { signOut } from '@/features/auth/session';
 import { useSession } from '@/features/auth/sessionStore';
 import { currentLanguage, type Language } from '@/i18n';
-import { colors, radius, space } from '@/theme';
+import { makeStyles, radius, space, useTheme } from '@/theme';
 
 // S19
 export function ProfileScreen() {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const { t } = useTranslation();
   const user = useSession((s) => s.user);
 
@@ -63,6 +65,8 @@ export function ProfileScreen() {
 }
 
 function Group({ label, children }: { label: string; children: React.ReactNode }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   return (
     <View style={styles.group}>
       <AppText variant="overline" color={colors.textTertiary}>
@@ -74,6 +78,8 @@ function Group({ label, children }: { label: string; children: React.ReactNode }
 }
 
 function Row({ label, value, valueLang, href }: { label: string; value?: string; valueLang?: Language; href: Href }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={value ? `${label}, ${value}` : label} onPress={() => router.push(href)} style={styles.row}>
       <AppText variant="bodyL" style={styles.flex}>
@@ -89,7 +95,7 @@ function Row({ label, value, valueLang, href }: { label: string; value?: string;
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(({ colors }) => ({
   content: { gap: space.xxl },
   card: { gap: space.sm, padding: space.xl, borderRadius: radius.md, borderWidth: 1, borderColor: colors.outline, backgroundColor: colors.surface },
   wordmark: { fontSize: 22 },
@@ -107,4 +113,4 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.outline,
   },
   flex: { flex: 1 },
-});
+}));

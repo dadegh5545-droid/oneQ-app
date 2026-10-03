@@ -1,7 +1,7 @@
 import { Redirect, router } from 'expo-router';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BackHandler, StyleSheet, View } from 'react-native';
+import { BackHandler, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
 import { Button } from '@/components/Button';
@@ -13,7 +13,7 @@ import { useBooking } from '@/data';
 import type { Booking } from '@/domain/models';
 import { useBookingRows } from '@/features/bookings/BookingDetailsScreen';
 import { useAddToCalendar } from '@/features/bookings/useAddToCalendar';
-import { colors, space } from '@/theme';
+import { makeStyles, space, useTheme } from '@/theme';
 import { qar } from '@/utils/format';
 
 const goHome = () => router.navigate('/home');
@@ -38,6 +38,8 @@ export function SuccessScreen({ id }: { id: string }) {
 }
 
 function Success({ booking }: { booking: Booking }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const { t } = useTranslation();
   const calendar = useAddToCalendar();
   const rows = useBookingRows(booking).slice(0, 6);
@@ -68,7 +70,7 @@ function Success({ booking }: { booking: Booking }) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(({ colors }) => ({
   content: { gap: space.xxl, alignItems: 'stretch' },
   badge: {
     width: 72,
@@ -84,4 +86,4 @@ const styles = StyleSheet.create({
   center: { textAlign: 'center' },
   actions: { gap: space.md },
   home: { alignSelf: 'center' },
-});
+}));

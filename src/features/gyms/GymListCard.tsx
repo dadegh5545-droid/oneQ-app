@@ -1,14 +1,14 @@
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
 import { RatingInline } from '@/components/RatingInline';
 import { gymLocation, type Gym } from '@/domain/models';
 import { useDraft } from '@/features/booking/draftStore';
 import { FavoriteButton } from '@/features/favorites/FavoriteButton';
-import { colors, radius, space } from '@/theme';
+import { makeStyles, radius, space, useTheme } from '@/theme';
 import { rating } from '@/utils/format';
 
 export const openGym = (gym: Gym) => {
@@ -18,6 +18,8 @@ export const openGym = (gym: Gym) => {
 
 // Gym list card (S03, S04, S06, S18)
 export function GymListCard({ gym }: { gym: Gym }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const { t } = useTranslation();
   const a11y = `${gym.name}, ${gymLocation(gym)}, ${rating(gym.rating)}, ${t('common.reviewsCount', { count: gym.reviewCount })}`;
 
@@ -43,7 +45,7 @@ export function GymListCard({ gym }: { gym: Gym }) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(({ colors }) => ({
   card: {
     minHeight: 114,
     flexDirection: 'row',
@@ -57,4 +59,4 @@ const styles = StyleSheet.create({
   pressable: { flex: 1, alignSelf: 'stretch', flexDirection: 'row', alignItems: 'center', gap: space.md, padding: space.lg },
   body: { flex: 1, gap: space.xs },
   image: { width: 80, height: 80, borderRadius: radius.sm, backgroundColor: colors.surfaceVariant },
-});
+}));
