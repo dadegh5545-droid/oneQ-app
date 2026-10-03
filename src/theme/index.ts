@@ -1,7 +1,7 @@
 import { colors as tokenColors, spacing } from './tokens';
 
-// Theme entry point. New code reads the active theme with useTheme() (or makeStyles); the static exports
-// below keep the files that are not migrated yet working with identical values (Phase 1 batches).
+// Theme entry point. Components read the active theme with useTheme() (or makeStyles); importing the static
+// `colors` below is a lint error outside src/theme (Phase 1 is complete).
 
 /** @deprecated — use useTheme() */
 export const colors = tokenColors;

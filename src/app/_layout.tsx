@@ -21,11 +21,11 @@ import { EmptyState } from '@/components/StateView';
 import { ToastProvider, useToast } from '@/components/Toast';
 import { queryClient } from '@/data';
 import { listenForSessionExpiry, restoreSession } from '@/features/auth/session';
-import i18n, { currentLanguage, initI18n } from '@/i18n';
+import i18n, { initI18n } from '@/i18n';
 import { track } from '@/services/analytics';
 import { installGlobalErrorHandler, reportError } from '@/services/monitoring';
 import { useNotificationNavigation } from '@/services/notifications';
-import { colors, ThemeProvider, useTheme } from '@/theme';
+import { ThemeProvider, useTheme } from '@/theme';
 
 import outputs from '../../amplify_outputs.json';
 
@@ -78,7 +78,7 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <SafeAreaProvider>
           <ToastProvider>
-            <StatusBar style="dark" />
+            <ThemedStatusBar />
             <RootStack />
           </ToastProvider>
         </SafeAreaProvider>
@@ -87,14 +87,20 @@ export default function RootLayout() {
   );
 }
 
+function ThemedStatusBar() {
+  const { statusBarStyle } = useTheme();
+  return <StatusBar style={statusBarStyle} />;
+}
+
+// Header colours and fonts come from the theme.
 function RootStack() {
   const { t } = useTranslation();
   const toast = useToast();
 
   useEffect(() => listenForSessionExpiry(() => toast(t('errors.SESSION_EXPIRED'))), [toast, t]);
   useNotificationNavigation();
-  const { arabicFonts, fonts } = useTheme();
-  const titleFont = currentLanguage() === 'ar' ? arabicFonts.bodySemi : fonts.bodySemi;
+  const { arabicFonts, colors, fonts, isRTL } = useTheme();
+  const titleFont = isRTL ? arabicFonts.bodySemi : fonts.bodySemi;
 
   return (
     <Stack
@@ -137,13 +143,16 @@ function RootStack() {
 }
 
 // Last-resort crash screen (Expo Router error boundary): reported, then the shared empty/error state with Retry.
+// It renders outside RootLayout, so it gets its own ThemeProvider (fonts follow the UI language).
 export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
   useEffect(() => reportError(error, { area: 'render' }), [error]);
   return (
-    <SafeAreaProvider>
-      <Screen>
-        <EmptyState icon="alert-circle-outline" title={i18n.t('errors.generic')} action={{ label: i18n.t('common.retry'), onPress: retry }} />
-      </Screen>
-    </SafeAreaProvider>
+    <ThemeProvider>
+      <SafeAreaProvider>
+        <Screen>
+          <EmptyState icon="alert-circle-outline" title={i18n.t('errors.generic')} action={{ label: i18n.t('common.retry'), onPress: retry }} />
+        </Screen>
+      </SafeAreaProvider>
+    </ThemeProvider>
   );
 }

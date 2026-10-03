@@ -1,4 +1,3 @@
-import { useTranslation } from 'react-i18next';
 import { Text, type TextProps } from 'react-native';
 
 import { alignStart, type Language } from '@/i18n';
@@ -12,10 +11,9 @@ type Props = TextProps & {
 };
 
 export function AppText({ variant = 'bodyM', color, lang, style, ...rest }: Props) {
-  const { i18n } = useTranslation();
-  const { arabicFonts, colors, fonts } = useTheme();
+  const { arabicFonts, colors, fonts, isRTL } = useTheme();
   const { font, ...metrics } = typography[variant];
-  const fontFamily = (lang ?? i18n.language) === 'ar' ? arabicFonts[font] : fonts[font];
+  const fontFamily = (lang ? lang === 'ar' : isRTL) ? arabicFonts[font] : fonts[font];
 
   return <Text style={[{ fontFamily, color: color ?? colors.textPrimary, textAlign: alignStart() }, metrics, style]} {...rest} />;
 }

@@ -1,15 +1,15 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Platform, Pressable, StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
+import { Platform, Pressable, TextInput, View, type TextInputProps } from 'react-native';
 
-import { alignLeft, alignStart, currentLanguage, isRTL } from '@/i18n';
-import { colors, radius, space, useTheme } from '@/theme';
+import { alignLeft, alignStart, isRTL as isLayoutRTL } from '@/i18n';
+import { makeStyles, radius, space, useTheme } from '@/theme';
 
 import { AppText } from './AppText';
 import { Icon } from './Icon';
 
 // Undo the RTL row mirroring (native flips row in RTL; the web flips it via dir=rtl).
-const ltrRow = () => ({ flexDirection: isRTL() ? ('row-reverse' as const) : ('row' as const) });
+const ltrRow = () => ({ flexDirection: isLayoutRTL() ? ('row-reverse' as const) : ('row' as const) });
 
 // Shared input text style (also used by the Home search field). Android gives TextInput the EditText background
 // padding (larger at the bottom) plus the custom fonts' extra font padding, which pushed typed text above the
@@ -47,12 +47,13 @@ type Props = Omit<TextInputProps, 'style'> & {
 
 // Outlined text field (06 intro): label above, 48 tall (grows with larger text), radius 16, error text below.
 export function TextField({ label, error, prefix, password, ...input }: Props) {
+  const { arabicFonts, colors, fonts, isRTL } = useTheme();
+  const styles = useStyles();
   const { t } = useTranslation();
   const inputTextStyle = useInputTextStyle();
   const [focused, setFocused] = useState(false);
   const [hidden, setHidden] = useState(true);
-  const { arabicFonts, fonts } = useTheme();
-  const fontFamily = currentLanguage() === 'ar' ? arabicFonts.body : fonts.body;
+  const fontFamily = isRTL ? arabicFonts.body : fonts.body;
   const multiline = !!input.multiline;
   // Phone numbers, emails, passwords and numbers always read left-to-right, also in Arabic.
   const ltrContent = !!prefix || !!password || ['email-address', 'phone-pad', 'number-pad', 'numbers-and-punctuation', 'url'].includes(input.keyboardType ?? '');
@@ -110,7 +111,7 @@ export function TextField({ label, error, prefix, password, ...input }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(({ colors }) => ({
   wrapper: { gap: space.xs + 2 },
   field: {
     minHeight: 48,
@@ -128,4 +129,4 @@ const styles = StyleSheet.create({
   errorBorder: { borderColor: colors.error },
   prefix: { writingDirection: 'ltr', ...(Platform.OS === 'android' ? { includeFontPadding: false } : null) },
   inputMultiline: { textAlignVertical: 'top', minHeight: 86 },
-});
+}));

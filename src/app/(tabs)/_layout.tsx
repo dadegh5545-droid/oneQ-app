@@ -4,8 +4,7 @@ import type { ComponentProps } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { currentLanguage } from '@/i18n';
-import { colors, useTheme } from '@/theme';
+import { useTheme } from '@/theme';
 
 type IconName = ComponentProps<typeof MaterialCommunityIcons>['name'];
 
@@ -20,8 +19,8 @@ const TABS: { name: string; label: string; icon: IconName; iconActive: IconName 
 export default function TabsLayout() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
-  const { arabicFonts, fonts } = useTheme();
-  const labelFont = currentLanguage() === 'ar' ? arabicFonts.bodySemi : fonts.bodySemi;
+  const { arabicFonts, colors, fonts, isRTL } = useTheme();
+  const labelFont = isRTL ? arabicFonts.bodySemi : fonts.bodySemi;
 
   return (
     <Tabs

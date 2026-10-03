@@ -15,7 +15,7 @@ import { gymLocation, type Gym } from '@/domain/models';
 import { greetingKey, matchesQuery } from '@/domain/rules';
 import { FavoriteButton } from '@/features/favorites/FavoriteButton';
 import { GymListCard, openGym } from '@/features/gyms/GymListCard';
-import { alignStart, currentLanguage } from '@/i18n';
+import { alignStart } from '@/i18n';
 import { track } from '@/services/analytics';
 import { makeStyles, radius, screenPadding, space, useTheme } from '@/theme';
 import { perMonthLabel } from '@/utils/format';
@@ -110,12 +110,12 @@ export function HomeScreen() {
 }
 
 function SearchField({ value, onChange }: { value: string; onChange: (v: string) => void }) {
-  const { arabicFonts, colors, fonts } = useTheme();
+  const { arabicFonts, colors, fonts, isRTL } = useTheme();
   const styles = useStyles();
   const { t } = useTranslation();
   const inputTextStyle = useInputTextStyle();
   const [focused, setFocused] = useState(false);
-  const fontFamily = currentLanguage() === 'ar' ? arabicFonts.body : fonts.body;
+  const fontFamily = isRTL ? arabicFonts.body : fonts.body;
   return (
     <View style={[styles.search, focused && styles.searchFocused]}>
       <TextInput
