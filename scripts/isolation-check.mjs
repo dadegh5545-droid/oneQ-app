@@ -24,7 +24,7 @@ Amplify.configure(outputs);
 const client = generateClient();
 
 const aws = (...args) => {
-  const out = execFileSync('aws', [...args, '--region', region, '--output', 'json'], { encoding: 'utf8' });
+  const out = execFileSync('aws', [...args, '--region', region, '--output', 'json'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
   return out ? JSON.parse(out) : {};
 };
 
@@ -77,12 +77,21 @@ async function denied(request, what) {
   assert(/unauthori[sz]ed|not authorized/i.test(text(r)), `${what} was not denied: ${text(r) || JSON.stringify(r.data)?.slice(0, 200)}`);
 }
 
+// A signed-in user's list on an owner-rule model is filtered to their own records: denied or empty both mean
+// nothing leaked.
+async function deniedOrEmpty(request, what) {
+  const r = await call(request);
+  if (/unauthori[sz]ed|not authorized/i.test(text(r))) return;
+  assert(!r.errors?.length, `${what}: ${text(r)}`);
+  assert(Array.isArray(r.data) && r.data.length === 0, `${what} returned records: ${JSON.stringify(r.data)?.slice(0, 200)}`);
+}
+
 const HIDDEN_SECTION = 'isolation-hidden';
 const NEVER_PUBLIC = ['isolation-a-pending', 'isolation-b-suspended', 'isolation-b-hidden'];
 
 async function customerChecks(label, authMode) {
   await check(`${label}: Section model list denied`, () => denied(client.models.Section.list({ authMode }), 'Section.list'));
-  await check(`${label}: Gym model list denied`, () => denied(client.models.Gym.list({ authMode }), 'Gym.list'));
+  await check(`${label}: Gym model list denied or empty`, () => deniedOrEmpty(client.models.Gym.list({ authMode, limit: 1000 }), 'Gym.list'));
   await check(`${label}: Gym model get denied`, () => denied(client.models.Gym.get({ id: 'isolation-a-pending' }, { authMode }), 'Gym.get'));
   await check(`${label}: listVisibleSections has no hidden section`, async () => {
     const r = await call(client.queries.listVisibleSections({ authMode }));
