@@ -17,7 +17,11 @@ export type ErrorCode =
   | 'UNAUTHORIZED'
   | 'REVIEW_NOT_ELIGIBLE'
   | 'DUPLICATE_REVIEW'
-  | 'CONFLICT';
+  | 'CONFLICT'
+  | 'ACCOUNT_EXISTS'
+  | 'SECTION_NOT_EMPTY'
+  | 'FREEZE_NOT_ALLOWED'
+  | 'FREEZE_LIMIT';
 
 export function fail(code: ErrorCode): never {
   throw new Error(code);

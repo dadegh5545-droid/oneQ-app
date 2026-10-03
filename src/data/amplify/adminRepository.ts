@@ -29,8 +29,14 @@ export const adminRepository: AdminRepository = {
     }
     const gyms = await listAll((nextToken) => data().models.Gym.list({ ...asUser, nextToken, limit: 100 }));
     const gymId = newId(input.name, 'gym', gyms.map((g) => g.id));
-    // Ratings start empty: rating/reviewCount are written only by the reviews function.
-    await run(data().models.Gym.create({ id: gymId, ...input, openingHours: DEFAULT_HOURS, sortOrder: gyms.length }, asUser));
+    // Ratings start empty: rating/reviewCount are written only by the reviews function. A gym created by an admin
+    // is approved directly.
+    await run(
+      data().models.Gym.create(
+        { id: gymId, ...input, openingHours: DEFAULT_HOURS, sortOrder: gyms.length, sectionId: 'gym', status: 'approved', createdBy: 'admin', categoryIds: [] },
+        asUser,
+      ),
+    );
     // A new gym gets the standard three plans (04 §3 formula); prices can then be edited per plan.
     for (const { id: planId, kind, name, price, description, badge } of buildPlans(gymId, input.monthlyPrice)) {
       await run(data().models.MembershipPlan.create({ id: planId, gymId, kind, name, price, description, badge, durationMonths: PLAN_MONTHS[kind] }, asUser));

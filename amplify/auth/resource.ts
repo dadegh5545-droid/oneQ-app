@@ -11,7 +11,8 @@ export const auth = defineAuth({
     fullname: { required: true, mutable: true },
     phoneNumber: { required: true, mutable: true },
   },
-  groups: ['admin'],
+  // `admin` is the existing platform-admin group (unchanged); FACILITY_OWNER accounts own facilities.
+  groups: ['admin', 'FACILITY_OWNER'],
   triggers: { preSignUp },
   access: (allow) => [allow.resource(preSignUp).to(['listUsers'])],
 });

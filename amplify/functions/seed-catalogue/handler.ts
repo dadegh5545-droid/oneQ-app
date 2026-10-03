@@ -6,7 +6,9 @@ import { env } from '$amplify/env/seed-catalogue';
 import { buildPlans, PLAN_MONTHS } from '../../../src/domain/rules';
 import type { Schema } from '../../data/resource';
 import { DEFAULT_AVAILABILITY, GYMS, REVIEWS, TRAINERS } from '../../seed/catalogue';
+import { SECTIONS } from '../../seed/sections';
 import { check } from '../shared/data';
+import { listAll } from '../shared/facilities';
 
 const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env);
 Amplify.configure(resourceConfig, libraryOptions);
@@ -44,14 +46,126 @@ async function backfillRatingSums() {
   return n;
 }
 
-export const handler = async (event?: { overwrite?: boolean }) => {
+// Preset sections and their categories (category ids are derived from the section and position).
+async function seedSections(count: (r: 'created' | 'updated' | 'unchanged') => void) {
+  for (const { categories, ...section } of SECTIONS) {
+    count(
+      await upsert(
+        `Section ${section.slug}`,
+        () => client.models.Section.get({ slug: section.slug }),
+        () => client.models.Section.create(section),
+        () => client.models.Section.update(section),
+      ),
+    );
+    for (const [order, c] of categories.entries()) {
+      const category = { id: `${section.slug}-cat-${order + 1}`, sectionId: section.slug, nameAr: c.nameAr, nameEn: c.nameEn, order: order + 1 };
+      count(
+        await upsert(
+          `SectionCategory ${category.id}`,
+          () => client.models.SectionCategory.get({ id: category.id }),
+          () => client.models.SectionCategory.create(category),
+          () => client.models.SectionCategory.update(category),
+        ),
+      );
+    }
+  }
+}
+
+// Facilities from before sections become approved gyms. Only missing fields are written; the owner is the
+// platform admin account when one is given (temporary until each gym has its own owner account).
+async function migrateFacilities(adminOwnerKey: string | null) {
+  let migrated = 0;
+  for (const g of await listAll((nextToken) => client.models.Gym.list({ nextToken, limit: 100 }))) {
+    const patch = {
+      ...(g.sectionId == null ? { sectionId: 'gym' } : {}),
+      ...(g.status == null ? { status: 'approved' as const } : {}),
+      ...(g.createdBy == null ? { createdBy: 'owner' as const } : {}),
+      ...(g.ownerId == null && adminOwnerKey ? { ownerId: adminOwnerKey } : {}),
+    };
+    if (Object.keys(patch).length === 0) continue;
+    check(await client.models.Gym.update({ id: g.id, ...patch }));
+    migrated += 1;
+  }
+  return migrated;
+}
+
+// Fixtures for scripts/isolation-check.mjs: a hidden section and facilities that customers must never read.
+// Owned by the two test owner accounts the script creates; never approved in a visible section.
+const fixtureFacility = (id: string, name: string, ownerId: string, status: 'pending' | 'suspended' | 'approved', sectionId: string, sortOrder: number) => ({
+  id,
+  name,
+  area: 'Isolation test',
+  description: 'Automated isolation test record (scripts/isolation-check.mjs).',
+  address: 'Isolation test',
+  monthlyPrice: 0,
+  trainerFromMonthly: 0,
+  images: [],
+  amenities: [],
+  openingHours: [],
+  isFeatured: false,
+  isNearby: false,
+  sortOrder,
+  sectionId,
+  ownerId,
+  status,
+  createdBy: 'admin' as const,
+  categoryIds: [],
+});
+
+async function seedIsolationFixtures({ ownerA, ownerB }: { ownerA: string; ownerB: string }) {
+  const section = {
+    slug: 'isolation-hidden',
+    nameAr: 'قسم اختبار العزل',
+    nameEn: 'Isolation test section',
+    icon: 'flask-outline',
+    colorKey: 'slate',
+    order: 99,
+    status: 'hidden' as const,
+    bookingMode: 'appointment' as const,
+    hasPractitioners: false,
+    hasServices: false,
+    hasDepartments: false,
+    hasPackages: false,
+    hasGallery: false,
+    presetType: 'other' as const,
+  };
+  const saved = overwrite;
+  overwrite = true;
+  await upsert('Section isolation-hidden', () => client.models.Section.get({ slug: section.slug }), () => client.models.Section.create(section), () => client.models.Section.update(section));
+  const records = [
+    fixtureFacility('isolation-a-pending', 'Isolation A (pending)', ownerA, 'pending', 'gym', 901),
+    fixtureFacility('isolation-b-suspended', 'Isolation B (suspended)', ownerB, 'suspended', 'gym', 902),
+    fixtureFacility('isolation-b-hidden', 'Isolation B (hidden section)', ownerB, 'approved', 'isolation-hidden', 903),
+  ];
+  for (const r of records) {
+    await upsert(`Gym ${r.id}`, () => client.models.Gym.get({ id: r.id }), () => client.models.Gym.create(r), () => client.models.Gym.update(r));
+  }
+  overwrite = saved;
+  return records.map((r) => r.id);
+}
+
+type SeedEvent = { overwrite?: boolean; adminOwnerKey?: string | null; isolationFixtures?: { ownerA: string; ownerB: string } };
+
+export const handler = async (event?: SeedEvent) => {
   overwrite = event?.overwrite === true;
+  if (event?.isolationFixtures) return { isolationFixtures: await seedIsolationFixtures(event.isolationFixtures) };
   const outcome = { created: 0, updated: 0, unchanged: 0 };
   const count = (r: 'created' | 'updated' | 'unchanged') => (outcome[r] += 1);
 
+  await seedSections(count);
+
   for (const [sortOrder, { id, ...gym }] of GYMS.entries()) {
     // ratingSum = the imported average × count, so later verified reviews update the average correctly.
-    const record = { id, ...gym, sortOrder, ratingSum: ratingSum(gym.rating, gym.reviewCount) };
+    const record = {
+      id,
+      ...gym,
+      sortOrder,
+      ratingSum: ratingSum(gym.rating, gym.reviewCount),
+      sectionId: 'gym',
+      status: 'approved' as const,
+      createdBy: 'owner' as const,
+      categoryIds: [],
+    };
     count(await upsert(`Gym ${id}`, () => client.models.Gym.get({ id }), () => client.models.Gym.create(record), () => client.models.Gym.update(record)));
 
     for (const { id: planId, kind, name, price, description, badge } of buildPlans(id, gym.monthlyPrice)) {
@@ -106,7 +220,18 @@ export const handler = async (event?: { overwrite?: boolean }) => {
 
   // Records created before rating aggregates existed get their ratingSum (nothing else is touched).
   const backfilled = await backfillRatingSums();
+  const migrated = await migrateFacilities(event?.adminOwnerKey ?? null);
 
   const plans = GYMS.length * 3;
-  return { ...outcome, backfilled, gyms: GYMS.length, plans, trainers: TRAINERS.length, reviews: REVIEWS.length, availabilityRules: DEFAULT_AVAILABILITY.length };
+  return {
+    ...outcome,
+    backfilled,
+    migrated,
+    sections: SECTIONS.length,
+    gyms: GYMS.length,
+    plans,
+    trainers: TRAINERS.length,
+    reviews: REVIEWS.length,
+    availabilityRules: DEFAULT_AVAILABILITY.length,
+  };
 };

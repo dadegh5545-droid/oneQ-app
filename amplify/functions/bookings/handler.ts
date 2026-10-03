@@ -26,7 +26,7 @@ import {
   type Args,
   type ResolverEvent,
 } from '../shared/data';
-import { resolveDay, type AvailabilityRuleData } from './availability';
+import { applyTrainerAvailability, resolveDay, type AvailabilityRuleData } from './availability';
 
 const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env);
 Amplify.configure(resourceConfig, libraryOptions);
@@ -60,6 +60,8 @@ async function loadRules(trainerId: string) {
   }
   return rules;
 }
+
+const loadTrainerAvailability = (trainerId: string) => unwrap(client.models.TrainerAvailability.get({ trainerId }));
 
 // ── Draft validation (shared by quote and create) ──
 
@@ -105,7 +107,12 @@ async function validateDraft(args: Args) {
   if (!trainer || trainer.gymId !== gym.id) fail('INVALID_BOOKING');
 
   const date = ymd(day);
-  const schedule = resolveDay(await loadRules(trainerId), trainerId, date, day.getDay());
+  const schedule = applyTrainerAvailability(
+    resolveDay(await loadRules(trainerId), trainerId, date, day.getDay()),
+    await loadTrainerAvailability(trainerId),
+    date,
+    day.getDay(),
+  );
   const bookable =
     next14Days(now).some((d) => ymd(d) === date) && !schedule.closed && schedule.slots.includes(minutes) && isSlotInFuture(day, minutes, now);
   if (!bookable) fail('SLOT_UNAVAILABLE');
@@ -228,6 +235,7 @@ async function createBooking(args: Args, owner: string | null) {
     gymId: draft.gym.id,
     gymName: draft.gym.name,
     gymLocation: gymLocation(draft.gym),
+    sectionId: draft.gym.sectionId ?? 'gym',
     trainerId: session ? draft.trainer.id : null,
     trainerName: session ? draft.trainer.name : null,
     planId: session ? null : draft.plan.id,
@@ -262,17 +270,28 @@ async function createBooking(args: Args, owner: string | null) {
   return toView(created.data, secret ? `${id}.${secret}` : null);
 }
 
-// Admin only (resolver rule + this check): mark cancelled and release the trainer slot / membership lock.
-async function adminCancelBooking(id: unknown, identity: ResolverEvent['identity']) {
+// Admin only (resolver rule + this check): mark cancelled (with an optional reason shown to the customer) and
+// release the trainer slot / membership lock.
+async function adminCancelBooking(id: unknown, reasonArg: unknown, identity: ResolverEvent['identity']) {
   if (!isAdmin(identity)) fail('UNAUTHORIZED');
   const bookingId = text(id, 64) ?? fail('VALIDATION');
+  const reason = reasonArg == null || reasonArg === '' ? null : (text(reasonArg, 500) ?? fail('VALIDATION'));
   const booking = (await unwrap(client.models.Booking.get({ id: bookingId }))) ?? fail('NOT_FOUND');
   if (booking.type === 'session' && booking.trainerId && booking.date) {
     await mutateIf(client, 'delete', 'SlotReservation', { trainerId: booking.trainerId, startAt: booking.date }, { bookingId: { eq: booking.id } });
   } else if (booking.type === 'membership') {
     await releaseMembershipLock(booking.guestPhone, booking.gymId, booking.id);
   }
-  const updated = await unwrap(client.models.Booking.update({ id: booking.id, status: 'cancelled' }));
+  const updated = await unwrap(client.models.Booking.update({ id: booking.id, status: 'cancelled', cancelReason: reason }));
+  if (booking.owner) {
+    check(
+      await client.models.Notification.create({
+        recipient: booking.owner,
+        kind: 'bookingCancelled',
+        params: JSON.stringify({ bookingId: booking.id, gymName: booking.gymName, reason }),
+      }),
+    );
+  }
   return toView(updated ?? booking, null);
 }
 
@@ -298,6 +317,7 @@ async function trainerAvailability(trainerId: unknown) {
   const now = qatarNow();
   const days = next14Days(now);
   const rules = await loadRules(id);
+  const facilityAvailability = await loadTrainerAvailability(id);
   const booked = new Set<string>();
   let nextToken: string | null | undefined;
   do {
@@ -312,7 +332,7 @@ async function trainerAvailability(trainerId: unknown) {
     nextToken = page.nextToken;
   } while (nextToken);
 
-  const schedules = days.map((d) => resolveDay(rules, id, ymd(d), d.getDay()));
+  const schedules = days.map((d) => applyTrainerAvailability(resolveDay(rules, id, ymd(d), d.getDay()), facilityAvailability, ymd(d), d.getDay()));
   // Every day shows the same grid of start times (unavailable ones disabled), as in the approved UI.
   const grid = [...new Set(schedules.flatMap((s) => s.slots))].sort((a, b) => a - b);
   return days.map((d, i) => {
@@ -342,7 +362,7 @@ export const handler = async (event: ResolverEvent) => {
     case 'guestBookings':
       return guestBookings(args.tokens);
     case 'adminCancelBooking':
-      return adminCancelBooking(args.id, event.identity);
+      return adminCancelBooking(args.id, args.reason, event.identity);
     default:
       throw new Error('UNSUPPORTED_OPERATION');
   }

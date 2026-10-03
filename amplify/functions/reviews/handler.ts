@@ -13,6 +13,7 @@ import {
   mutateIf,
   ownerOf,
   qatarNow,
+  sameOwner,
   sha256,
   text,
   unwrap,
@@ -179,9 +180,82 @@ async function removeReview(args: Args, identity: ResolverEvent['identity']) {
   return { ...toView(review), mine: own };
 }
 
+// ── One review per completed booking (the one-time rating prompt) ──
+
+const bookingReviewIdFor = (bookingId: string) => `rv-b-${hex(`booking|${bookingId}`)}`;
+
+// A session is rated on its trainer; a membership or an appointment on the facility.
+const bookingTarget = (b: BookingRecord): Target =>
+  b.type === 'session' && b.trainerId ? { type: 'trainer', id: b.trainerId } : { type: 'gym', id: b.gymId };
+
+async function ownBooking(owner: string, id: unknown) {
+  const bookingId = text(id, 64) ?? fail('VALIDATION');
+  const booking = (await unwrap(client.models.Booking.get({ id: bookingId }))) ?? fail('NOT_FOUND');
+  if (!sameOwner(booking.owner, owner)) fail('NOT_FOUND');
+  return booking;
+}
+
+async function pendingReviewPrompt(owner: string) {
+  const candidates: BookingRecord[] = [];
+  let nextToken: string | null | undefined;
+  do {
+    const page = check(await client.models.Booking.listBookingsByOwner({ owner }, { nextToken }));
+    candidates.push(...page.data.filter((b) => b.status === 'completed' && !b.reviewPrompted));
+    nextToken = page.nextToken;
+  } while (nextToken);
+  candidates.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+  for (const b of candidates) {
+    if (await unwrap(client.models.Review.get({ id: bookingReviewIdFor(b.id) }))) continue;
+    const t = bookingTarget(b);
+    return { bookingId: b.id, targetType: t.type, targetId: t.id, targetName: t.type === 'trainer' ? (b.trainerName ?? b.gymName) : b.gymName };
+  }
+  return null;
+}
+
+async function submitBookingReview(args: Args, owner: string) {
+  const booking = await ownBooking(owner, args.bookingId);
+  if (booking.status !== 'completed') fail('REVIEW_NOT_ELIGIBLE');
+  const rating = args.rating;
+  if (typeof rating !== 'number' || !Number.isInteger(rating) || rating < 1 || rating > 5) fail('VALIDATION');
+  const reviewText = typeof args.text === 'string' ? args.text.trim() : '';
+  if (reviewText.length > MAX_TEXT) fail('VALIDATION');
+  const satisfied = typeof args.satisfied === 'boolean' ? args.satisfied : null;
+  const t = bookingTarget(booking);
+  if (!(await getTarget(t))) fail('NOT_FOUND');
+
+  const created = await client.models.Review.create({
+    id: bookingReviewIdFor(booking.id),
+    ...(t.type === 'gym' ? { gymId: t.id } : { trainerId: t.id }),
+    authorName: await authorName(owner),
+    authorKey: authorKeyFor(owner),
+    bookingId: booking.id,
+    rating,
+    satisfied,
+    text: reviewText,
+    date: ymd(qatarNow()),
+  });
+  if (isConditionalFailure(created.errors)) fail('DUPLICATE_REVIEW');
+  const review = check(created).data ?? fail('NOT_FOUND');
+  await adjustAggregate(t, rating, 1);
+  check(await client.models.Booking.update({ id: booking.id, reviewPrompted: true }));
+  return toView(review);
+}
+
+async function dismissReviewPrompt(args: Args, owner: string) {
+  const booking = await ownBooking(owner, args.bookingId);
+  check(await client.models.Booking.update({ id: booking.id, reviewPrompted: true }));
+  return true;
+}
+
 export const handler = async (event: ResolverEvent) => {
   const owner = ownerOf(event.identity);
   switch (event.fieldName) {
+    case 'pendingReviewPrompt':
+      return pendingReviewPrompt(owner ?? fail('UNAUTHORIZED'));
+    case 'submitBookingReview':
+      return submitBookingReview(event.arguments, owner ?? fail('UNAUTHORIZED'));
+    case 'dismissReviewPrompt':
+      return dismissReviewPrompt(event.arguments, owner ?? fail('UNAUTHORIZED'));
     case 'reviewStatus':
       return reviewStatus(event.arguments, owner ?? fail('UNAUTHORIZED'));
     case 'submitReview':

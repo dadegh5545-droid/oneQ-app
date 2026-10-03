@@ -5,13 +5,29 @@ import { preSignUp } from './auth/pre-sign-up/resource';
 import { auth } from './auth/resource';
 import { data } from './data/resource';
 import { adminAccess } from './functions/admin-access/resource';
+import { adminOps } from './functions/admin-ops/resource';
 import { bookings } from './functions/bookings/resource';
+import { catalogue } from './functions/catalogue/resource';
+import { completeBookings } from './functions/complete-bookings/resource';
 import { phoneLogin } from './functions/phone-login/resource';
 import { reviews } from './functions/reviews/resource';
 import { sandboxFixtures } from './functions/sandbox-fixtures/resource';
 import { seedCatalogue } from './functions/seed-catalogue/resource';
 
-const backend = defineBackend({ auth, data, preSignUp, bookings, reviews, phoneLogin, seedCatalogue, adminAccess, sandboxFixtures });
+const backend = defineBackend({
+  auth,
+  data,
+  preSignUp,
+  bookings,
+  reviews,
+  phoneLogin,
+  seedCatalogue,
+  adminAccess,
+  sandboxFixtures,
+  catalogue,
+  adminOps,
+  completeBookings,
+});
 
 const { userPool, cfnResources } = backend.auth.resources;
 
@@ -39,6 +55,23 @@ backend.adminAccess.addEnvironment('USER_POOL_ID', userPool.userPoolId);
 backend.adminAccess.resources.lambda.addToRolePolicy(
   new PolicyStatement({
     actions: ['cognito-idp:ListUsers', 'cognito-idp:AdminAddUserToGroup', 'cognito-idp:AdminRemoveUserFromGroup'],
+    resources: [userPool.userPoolArn],
+  }),
+);
+
+// Platform administration from the app (admin group only): invite facility owners by email, suspend accounts.
+backend.adminOps.addEnvironment('USER_POOL_ID', userPool.userPoolId);
+backend.adminOps.resources.lambda.addToRolePolicy(
+  new PolicyStatement({
+    actions: [
+      'cognito-idp:AdminCreateUser',
+      'cognito-idp:AdminAddUserToGroup',
+      'cognito-idp:AdminGetUser',
+      'cognito-idp:AdminDisableUser',
+      'cognito-idp:AdminEnableUser',
+      'cognito-idp:ListUsers',
+      'cognito-idp:ListUsersInGroup',
+    ],
     resources: [userPool.userPoolArn],
   }),
 );

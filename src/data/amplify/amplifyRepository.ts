@@ -112,7 +112,7 @@ const isConditionalFailure = (e: unknown) =>
 
 // ── Mapping (backend → domain) ──
 
-type GymRecord = Schema['Gym']['type'];
+type GymRecord = Schema['Gym']['type'] | Schema['FacilityView']['type'];
 type PlanRecord = Schema['MembershipPlan']['type'];
 type TrainerRecord = Schema['Trainer']['type'];
 type ReviewRecord = Schema['Review']['type'] | Schema['ReviewView']['type'];
@@ -273,15 +273,16 @@ async function auth<T>(request: Promise<T>): Promise<T> {
 // ── Repository ──
 
 export const amplifyRepository: Repository = {
+  // Customers read approved facilities of visible sections only, filtered by the server (catalogue function).
   async listGyms() {
     const { mode } = await session();
-    const gyms = await listAll((nextToken) => data().models.Gym.list({ authMode: mode, nextToken, limit: 100 }));
-    return gyms.sort((a, b) => a.sortOrder - b.sortOrder).map(toGym);
+    const { data: facilities } = await run(data().queries.listApprovedFacilities({ sectionId: 'gym' }, { authMode: mode }));
+    return required(facilities).map(toGym);
   },
   async getGym(id) {
     const { mode } = await session();
-    const gym = await getOrNull(data().models.Gym.get({ id }, { authMode: mode }));
-    return gym ? toGym(gym) : null;
+    const { data: facility } = await run(data().queries.getApprovedFacility({ id }, { authMode: mode }));
+    return facility ? toGym(facility) : null;
   },
   async getPlans(gymId) {
     const { mode } = await session();
