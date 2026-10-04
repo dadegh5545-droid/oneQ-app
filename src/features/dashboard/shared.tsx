@@ -37,13 +37,13 @@ export function bookingWhen(b: BookingRow) {
   return b.membershipStart ? `${shortDay(b.membershipStart)} → ${shortDay(b.membershipEnd)}` : shortDay(b.createdAt);
 }
 
-const BOOKING_TONES: Record<string, Tone> = { confirmed: 'success', completed: 'neutral', cancelled: 'danger' };
+const BOOKING_TONES: Record<string, Tone> = { pending: 'warning', confirmed: 'success', completed: 'neutral', cancelled: 'danger' };
 
 export function BookingStatusBadge({ booking }: { booking: BookingRow }) {
   const { t } = useTranslation();
   return (
     <View style={{ gap: 4 }}>
-      <Badge label={t(`bookings.status.${booking.status}`)} tone={BOOKING_TONES[booking.status] ?? 'neutral'} />
+      <Badge label={t(`console.bookingStatus.${booking.status}`)} tone={BOOKING_TONES[booking.status] ?? 'neutral'} />
       {booking.trainerUnavailable && booking.status === 'confirmed' ? <Badge label={t('dashboard.bookings.trainerUnavailable')} tone="warning" /> : null}
     </View>
   );

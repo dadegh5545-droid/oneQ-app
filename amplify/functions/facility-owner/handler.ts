@@ -165,6 +165,21 @@ async function insights(caller: Caller, args: Args) {
   for (const b of memberships.filter((m) => inPeriod(m.membershipStart))) periodPlans.set(b.planName ?? '—', (periodPlans.get(b.planName ?? '—') ?? 0) + 1);
   const popular = [...periodPlans.entries()].sort((a, b) => b[1] - a[1])[0];
 
+  // Appointment facilities (salons, clinics): bookings with a date and a service.
+  const timed = live.filter((b) => !!b.date);
+  const firstDay = new Map<string, string>();
+  for (const b of live) {
+    const day = createdDay(b);
+    const seen = firstDay.get(b.guest.phone);
+    if (!seen || day < seen) firstDay.set(b.guest.phone, day);
+  }
+  const byService = new Map<string, number>();
+  for (const b of timed.filter((x) => inPeriod(createdDay(x)))) {
+    const label = b.serviceName ?? b.trainerName ?? '—';
+    byService.set(label, (byService.get(label) ?? 0) + 1);
+  }
+  const nowMs = Date.now();
+
   const trainerNames = new Map(trainers.map((t) => [t.id, t.name]));
   const ratings = [1, 2, 3, 4, 5].map((star) => reviews.filter((r) => r.rating === star).length);
   const ratingCount = reviews.length;
@@ -192,6 +207,14 @@ async function insights(caller: Caller, args: Args) {
     ratingAverage,
     ratingCount,
     ratingDistribution: ratings,
+    appointmentsToday: timed.filter((b) => (b.date ?? '').slice(0, 10) === today).length,
+    upcomingAppointments: timed.filter((b) => (b.status === 'confirmed' || b.status === 'pending') && sessionStart(b.date!).getTime() > nowMs).length,
+    pendingRequests: live.filter((b) => b.status === 'pending').length,
+    customers: firstDay.size,
+    newCustomers: [...firstDay.values()].filter((d) => inPeriod(d)).length,
+    topServices: [...byService.entries()].map(([label, count]) => ({ label, count })).sort((a, b) => b.count - a.count).slice(0, 6),
+    appointmentsSeries: ranges.map((r) => ({ start: r.start, value: timed.filter((b) => createdDay(b) >= r.start && createdDay(b) < r.end).length })),
+    newCustomersSeries: ranges.map((r) => ({ start: r.start, value: [...firstDay.values()].filter((d) => d >= r.start && d < r.end).length })),
   };
 }
 
@@ -424,6 +447,83 @@ async function setTrainerAvailability(caller: Caller, args: Args) {
   return { affected: affected.length };
 }
 
+// ── Appointments (salons, clinics): services, departments, customers, confirmation ──
+
+async function customersOf(caller: Caller, args: Args) {
+  const facility = await ownFacility(caller, args.facilityId);
+  const byPhone = new Map<string, { name: string; phone: string | null; visits: number; lastVisit: string | null; totalSpent: number; firstVisit: string | null }>();
+  for (const b of await facilityBookingsAll(facility.id)) {
+    if (b.status === 'cancelled') continue;
+    const key = b.guest.phone;
+    const day = createdDay(b);
+    const row = byPhone.get(key) ?? { name: b.guest.fullName, phone: null, visits: 0, lastVisit: null, totalSpent: 0, firstVisit: null };
+    row.visits += 1;
+    row.totalSpent += b.priceQar;
+    if (showsPhone(b)) row.phone = b.guest.phone;
+    if (!row.lastVisit || day > row.lastVisit) row.lastVisit = day;
+    if (!row.firstVisit || day < row.firstVisit) row.firstVisit = day;
+    byPhone.set(key, row);
+  }
+  return [...byPhone.values()]
+    .sort((a, b) => (b.lastVisit ?? '').localeCompare(a.lastVisit ?? ''))
+    .map((row, i) => ({ id: `customer-${i + 1}`, ...row }));
+}
+
+async function saveService(caller: Caller, args: Args) {
+  const facility = await ownFacility(caller, args.facilityId);
+  const record = {
+    facilityId: facility.id,
+    nameAr: text(args.nameAr, 80) ?? fail('VALIDATION'),
+    nameEn: optionalText(args.nameEn, 80),
+    categoryId: optionalText(args.categoryId, 64),
+    priceQar: wholeNumber(args.priceQar, 100_000),
+    durationMinutes: wholeNumber(args.durationMinutes, 600),
+    homeAvailable: args.homeAvailable === true,
+    active: args.active !== false,
+    sortOrder: args.sortOrder == null ? 0 : wholeNumber(args.sortOrder, 999),
+  };
+  if (args.serviceId != null) {
+    const id = text(args.serviceId, 80) ?? fail('VALIDATION');
+    const existing = (await unwrap(client.models.Service.get({ id }))) ?? fail('NOT_FOUND');
+    if (existing.facilityId !== facility.id) fail('UNAUTHORIZED');
+    check(await client.models.Service.update({ id, ...record }));
+    return id;
+  }
+  const id = newId('svc', record.nameEn ?? record.nameAr);
+  check(await client.models.Service.create({ id, ...record }));
+  return id;
+}
+
+async function saveDepartment(caller: Caller, args: Args) {
+  const facility = await ownFacility(caller, args.facilityId);
+  const record = {
+    facilityId: facility.id,
+    nameAr: text(args.nameAr, 80) ?? fail('VALIDATION'),
+    nameEn: optionalText(args.nameEn, 80),
+    sortOrder: args.sortOrder == null ? 0 : wholeNumber(args.sortOrder, 999),
+  };
+  if (args.departmentId != null) {
+    const id = text(args.departmentId, 80) ?? fail('VALIDATION');
+    const existing = (await unwrap(client.models.Department.get({ id }))) ?? fail('NOT_FOUND');
+    if (existing.facilityId !== facility.id) fail('UNAUTHORIZED');
+    check(await client.models.Department.update({ id, ...record }));
+    return id;
+  }
+  const id = newId('dep', record.nameEn ?? record.nameAr);
+  check(await client.models.Department.create({ id, ...record }));
+  return id;
+}
+
+// A requested appointment (home service) is confirmed by the facility; only then does it see the phone number.
+async function confirmBooking(caller: Caller, args: Args) {
+  const id = text(args.bookingId, 64) ?? fail('VALIDATION');
+  const booking = (await unwrap(client.models.Booking.get({ id }))) ?? fail('NOT_FOUND');
+  await ownFacility(caller, booking.gymId);
+  if (booking.status !== 'pending') fail('CONFLICT');
+  check(await client.models.Booking.update({ id, status: 'confirmed' }));
+  return bookingRow({ ...booking, status: 'confirmed' }, true);
+}
+
 async function replyReview(caller: Caller, args: Args) {
   const id = text(args.reviewId, 80) ?? fail('VALIDATION');
   const reply = text(args.reply, 1000) ?? fail('VALIDATION');
@@ -461,6 +561,14 @@ export const handler = async (event: ResolverEvent) => {
       return setTrainerAvailability(caller, args);
     case 'ownerReplyReview':
       return replyReview(caller, args);
+    case 'facilityCustomers':
+      return customersOf(caller, args);
+    case 'ownerSaveService':
+      return saveService(caller, args);
+    case 'ownerSaveDepartment':
+      return saveDepartment(caller, args);
+    case 'ownerConfirmBooking':
+      return confirmBooking(caller, args);
     default:
       throw new Error('UNSUPPORTED_OPERATION');
   }

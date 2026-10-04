@@ -139,6 +139,7 @@ function RootStack() {
       <Stack.Screen name="review/[type]/[id]" options={{ title: '' }} />
       {/* Facility dashboards: their own frame (side menu / top bar), no stack header. */}
       <Stack.Screen name="dashboard" options={{ headerShown: false }} />
+      <Stack.Screen name="console" options={{ headerShown: false }} />
       <Stack.Screen name="+not-found" options={{ headerShown: false }} />
     </Stack>
   );

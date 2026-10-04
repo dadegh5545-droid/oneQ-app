@@ -5,6 +5,7 @@ import { reportError } from '@/services/monitoring';
 
 import { adminRepository as amplifyAdminRepository } from './amplify/adminRepository';
 import { amplifyRepository } from './amplify/amplifyRepository';
+import { consoleRepository as amplifyConsoleRepository, type ConsoleRepository } from './amplify/consoleRepository';
 import { dashboardRepository as amplifyDashboardRepository, type DashboardRepository } from './amplify/dashboardRepository';
 import './network';
 import { RepositoryError, type AdminRepository, type Repository } from './repository';
@@ -12,6 +13,7 @@ import { RepositoryError, type AdminRepository, type Repository } from './reposi
 export const repository: Repository = amplifyRepository;
 export const adminRepository: AdminRepository = amplifyAdminRepository;
 export const dashboardRepository: DashboardRepository = amplifyDashboardRepository;
+export const consoleRepository: ConsoleRepository = amplifyConsoleRepository;
 
 // Only transient failures are retried; validation, auth and not-found errors are final.
 const retryable = (e: unknown) => !(e instanceof RepositoryError) || e.code === 'NETWORK';

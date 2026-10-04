@@ -6,7 +6,19 @@ import { env } from '$amplify/env/seed-catalogue';
 import { buildPlans, PLAN_MONTHS } from '../../../src/domain/rules';
 import type { Schema } from '../../data/resource';
 import { DEFAULT_AVAILABILITY, GYMS, REVIEWS, TRAINERS } from '../../seed/catalogue';
-import { sampleActivity, sampleGym, SAMPLE_PLANS, SAMPLE_TRAINERS } from '../../seed/samples';
+import {
+  SAMPLE_CLINIC,
+  SAMPLE_DEPARTMENTS,
+  SAMPLE_PLANS,
+  SAMPLE_SALON,
+  SAMPLE_TRAINERS,
+  sampleActivity,
+  sampleAppointmentFacility,
+  sampleAppointments,
+  sampleGym,
+  samplePractitioners,
+  sampleServices,
+} from '../../seed/samples';
 import { SECTIONS } from '../../seed/sections';
 import { check } from '../shared/data';
 import { listAll } from '../shared/facilities';
@@ -175,8 +187,40 @@ async function seedSamples(adminOwnerKey: string | null) {
   for (const r of reviews) {
     await put(r.id, () => client.models.Review.get({ id: r.id }), () => client.models.Review.create(r), () => client.models.Review.update(r));
   }
+  // Sample salon and clinic: services, specialists / doctors, departments, appointments and reviews.
+  const appointmentTotals: Record<string, number> = {};
+  for (const [i, f] of [SAMPLE_SALON, SAMPLE_CLINIC].entries()) {
+    const facility = sampleAppointmentFacility(f, adminOwnerKey, 810 + i);
+    await put(f.id, () => client.models.Gym.get({ id: f.id }), () => client.models.Gym.create(facility), () => client.models.Gym.update(facility));
+    for (const s of sampleServices(f)) {
+      await put(s.id, () => client.models.Service.get({ id: s.id }), () => client.models.Service.create(s), () => client.models.Service.update(s));
+    }
+    for (const p of samplePractitioners(f)) {
+      await put(p.id, () => client.models.Trainer.get({ id: p.id }), () => client.models.Trainer.create(p), () => client.models.Trainer.update(p));
+    }
+    const { appointments, reviews: facilityReviews } = sampleAppointments(f, new Date(Date.now() + 3 * 3_600_000), 4100 + i);
+    for (const a of appointments) {
+      await put(a.id, () => client.models.Booking.get({ id: a.id }), () => client.models.Booking.create(a), () => client.models.Booking.update(a));
+    }
+    for (const r of facilityReviews) {
+      await put(r.id, () => client.models.Review.get({ id: r.id }), () => client.models.Review.create(r), () => client.models.Review.update(r));
+    }
+    appointmentTotals[f.id] = appointments.length;
+  }
+  for (const d of SAMPLE_DEPARTMENTS) {
+    await put(d.id, () => client.models.Department.get({ id: d.id }), () => client.models.Department.create(d), () => client.models.Department.update(d));
+  }
   overwrite = saved;
-  return { sampleGym: gym.id, plans: SAMPLE_PLANS.length, trainers: SAMPLE_TRAINERS.length, memberships: memberships.length, sessions: sessions.length, freezes: freezes.length, reviews: reviews.length };
+  return {
+    sampleGym: gym.id,
+    plans: SAMPLE_PLANS.length,
+    trainers: SAMPLE_TRAINERS.length,
+    memberships: memberships.length,
+    sessions: sessions.length,
+    freezes: freezes.length,
+    reviews: reviews.length,
+    appointments: appointmentTotals,
+  };
 }
 
 type SeedEvent = {

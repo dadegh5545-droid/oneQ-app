@@ -498,6 +498,52 @@ const schema = a
       .authorization((allow) => [allow.group('admin')])
       .handler(a.handler.function(adminOps)),
 
+    OwnerRow: a.customType({
+      username: a.string().required(),
+      ownerKey: a.string().required(),
+      email: a.string().required(),
+      fullName: a.string().required(),
+      phone: a.string(),
+      enabled: a.boolean().required(),
+      createdAt: a.string(),
+      facilities: a.integer().required(),
+    }),
+
+    ConsoleStats: a.customType({
+      bookingsToday: a.integer().required(),
+      pendingFacilities: a.integer().required(),
+      activeFacilities: a.integer().required(),
+      newCustomers: a.integer().required(), // accounts created in the last 30 days
+    }),
+
+    adminListOwners: a
+      .query()
+      .returns(a.ref('OwnerRow').required().array().required())
+      .authorization((allow) => [allow.group('admin')])
+      .handler(a.handler.function(adminOps)),
+
+    adminStats: a
+      .query()
+      .returns(a.ref('ConsoleStats').required())
+      .authorization((allow) => [allow.group('admin')])
+      .handler(a.handler.function(adminOps)),
+
+    // Wizard save: creates (slug null) or edits a section and its categories (input is JSON, at most 12 categories).
+    adminSaveSection: a
+      .mutation()
+      .arguments({ slug: a.string(), input: a.json().required() })
+      .returns(a.string().required())
+      .authorization((allow) => [allow.group('admin')])
+      .handler(a.handler.function(adminOps)),
+
+    // Creates (facilityId null; approved, createdBy admin) or edits a facility; the owner is required.
+    adminSaveFacility: a
+      .mutation()
+      .arguments({ facilityId: a.id(), input: a.json().required() })
+      .returns(a.string().required())
+      .authorization((allow) => [allow.group('admin')])
+      .handler(a.handler.function(adminOps)),
+
     // Refused (SECTION_NOT_EMPTY) while any facility belongs to the section.
     adminDeleteSection: a
       .mutation()
@@ -686,7 +732,66 @@ const schema = a
       ratingAverage: a.float().required(),
       ratingCount: a.integer().required(),
       ratingDistribution: a.integer().required().array().required(), // 1★…5★
+      // Appointment facilities (salons, clinics)
+      appointmentsToday: a.integer().required(),
+      upcomingAppointments: a.integer().required(),
+      pendingRequests: a.integer().required(),
+      customers: a.integer().required(),
+      newCustomers: a.integer().required(),
+      topServices: a.ref('CountItem').required().array().required(),
+      appointmentsSeries: a.ref('SeriesPoint').required().array().required(),
+      newCustomersSeries: a.ref('SeriesPoint').required().array().required(),
     }),
+
+    CustomerRow: a.customType({
+      id: a.string().required(),
+      name: a.string().required(),
+      phone: a.string(), // null until one of the customer's bookings is confirmed (home service)
+      visits: a.integer().required(),
+      firstVisit: a.string(),
+      lastVisit: a.string(),
+      totalSpent: a.integer().required(),
+    }),
+
+    facilityCustomers: a
+      .query()
+      .arguments({ facilityId: a.id().required() })
+      .returns(a.ref('CustomerRow').required().array().required())
+      .authorization((allow) => [allow.groups(['FACILITY_OWNER', 'admin'])])
+      .handler(a.handler.function(facilityOwner)),
+
+    ownerSaveService: a
+      .mutation()
+      .arguments({
+        facilityId: a.id().required(),
+        serviceId: a.id(),
+        nameAr: a.string().required(),
+        nameEn: a.string(),
+        categoryId: a.string(),
+        priceQar: a.integer().required(),
+        durationMinutes: a.integer().required(),
+        homeAvailable: a.boolean(),
+        active: a.boolean(),
+        sortOrder: a.integer(),
+      })
+      .returns(a.string().required())
+      .authorization((allow) => [allow.groups(['FACILITY_OWNER', 'admin'])])
+      .handler(a.handler.function(facilityOwner)),
+
+    ownerSaveDepartment: a
+      .mutation()
+      .arguments({ facilityId: a.id().required(), departmentId: a.id(), nameAr: a.string().required(), nameEn: a.string(), sortOrder: a.integer() })
+      .returns(a.string().required())
+      .authorization((allow) => [allow.groups(['FACILITY_OWNER', 'admin'])])
+      .handler(a.handler.function(facilityOwner)),
+
+    // A requested (home-service) appointment becomes confirmed; the facility then sees the customer's phone.
+    ownerConfirmBooking: a
+      .mutation()
+      .arguments({ bookingId: a.id().required() })
+      .returns(a.ref('BookingRow').required())
+      .authorization((allow) => [allow.groups(['FACILITY_OWNER', 'admin'])])
+      .handler(a.handler.function(facilityOwner)),
 
     TrainerRow: a.customType({
       id: a.string().required(),

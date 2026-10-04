@@ -571,7 +571,10 @@
       "bookings": "No bookings in this period",
       "notifications": "No notifications",
       "plans": "No membership plans yet",
-      "practitioners": "No team members yet"
+      "practitioners": "No team members yet",
+      "services": "No services yet",
+      "departments": "No departments yet",
+      "customers": "No customers yet"
     },
     "analytics": {
       "title": "Analytics",
@@ -730,7 +733,9 @@
       "type": {
         "session": "Trainer",
         "membership": "Membership"
-      }
+      },
+      "confirm": "Confirm",
+      "confirmed": "Booking confirmed"
     },
     "reviews": {
       "title": "Reviews",
@@ -748,13 +753,236 @@
     "picker": {
       "title": "My facilities",
       "emptyTitle": "No facilities yet",
-      "emptyBody": "OneQ links facilities to your account. Contact us to add yours."
+      "emptyBody": "OneQ links facilities to your account. Contact us to add yours.",
+      "console": "OneQ console"
     },
     "guard": {
       "signInTitle": "Sign in to continue",
       "signInBody": "The dashboard is for facility owners and OneQ administrators.",
       "noAccessTitle": "No dashboard access",
       "noAccessBody": "This account is not linked to a facility."
+    },
+    "services": {
+      "add": "Add service",
+      "editTitle": "Edit service",
+      "newTitle": "New service",
+      "nameAr": "Name (Arabic)",
+      "nameEn": "Name (English, optional)",
+      "category": "Category",
+      "price": "Price (QAR)",
+      "duration": "Duration (minutes)",
+      "minutes": "{{count}} min",
+      "uncategorized": "Without category",
+      "inactive": "Hidden",
+      "homeToggle": "Available at home",
+      "homeHint": "The salon confirms the booking, then calls the client for the location.",
+      "activeToggle": "Visible to customers"
+    },
+    "departments": {
+      "add": "Add department",
+      "editTitle": "Edit department",
+      "newTitle": "New department",
+      "doctors": "{{count}} doctors"
+    },
+    "customers": {
+      "visits": "Visits",
+      "firstVisit": "First visit",
+      "lastVisit": "Last visit",
+      "spent": "Total spent"
+    },
+    "appointments": {
+      "today": "Today's appointments",
+      "upcoming": "Upcoming",
+      "requests": "Requests to confirm",
+      "newCustomers": "New customers",
+      "topServices": "Top services",
+      "series": "Appointments"
+    }
+  },
+  "console": {
+    "title": "OneQ console",
+    "subtitle": "Platform administration",
+    "noAccess": "The console is for OneQ administrators.",
+    "menu": {
+      "overview": "Overview",
+      "sections": "Sections",
+      "facilities": "Facilities",
+      "requests": "Requests",
+      "bookings": "Bookings",
+      "accounts": "Accounts",
+      "reviews": "Reviews"
+    },
+    "overview": {
+      "title": "Overview",
+      "bookingsToday": "Bookings today",
+      "pending": "Awaiting approval",
+      "active": "Active facilities",
+      "newCustomers": "New customers",
+      "attention": "Needs your attention",
+      "nothing": "Nothing waiting for approval"
+    },
+    "sectionStatus": {
+      "visible": "Visible",
+      "hidden": "Hidden"
+    },
+    "bookingMode": {
+      "appointment": "Timed appointment",
+      "subscription": "Subscription",
+      "both": "Both"
+    },
+    "bookingStatus": {
+      "pending": "Requested",
+      "confirmed": "Confirmed",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "serviceMode": {
+      "inShop": "In the salon",
+      "home": "At home",
+      "both": "Both"
+    },
+    "preset": {
+      "gym": "Gym",
+      "hospital": "Hospital",
+      "clinic": "Clinic",
+      "salon": "Women's salon",
+      "other": "Other type"
+    },
+    "presetHint": {
+      "gym": "Memberships and personal trainers",
+      "hospital": "Departments, doctors and check-ups",
+      "clinic": "Appointments with doctors",
+      "salon": "Services with specialists, in the salon or at home",
+      "other": "Start with every block off"
+    },
+    "sections": {
+      "subtitle": "What customers see on the home screen, in this order",
+      "add": "New section",
+      "empty": "No sections yet",
+      "facilities": "{{count}} facilities",
+      "order": "order {{order}}",
+      "hide": "Hide",
+      "show": "Show",
+      "delete": "Delete",
+      "cannotDelete": "A section with facilities cannot be deleted.",
+      "confirmDelete": "Delete the section {{name}}?",
+      "deleted": "Section deleted"
+    },
+    "wizard": {
+      "newTitle": "New section",
+      "editTitle": "Edit section",
+      "step": "Step {{n}} of {{total}} · {{name}}",
+      "steps": {
+        "type": "Type",
+        "questions": "Questions",
+        "categories": "Categories",
+        "look": "Look",
+        "preview": "Preview"
+      },
+      "typeQuestion": "What kind of section is it?",
+      "q": {
+        "practitioners": "Are there people customers book with?",
+        "services": "Are there priced services?",
+        "departments": "Are there internal departments?",
+        "packages": "Are there packages or bundles?",
+        "gallery": "Is there a photo gallery?",
+        "booking": "How do customers book?"
+      },
+      "hint": {
+        "practitioners": "Like doctors, trainers or specialists. Customers choose one when booking.",
+        "services": "A list of services with price and duration on the facility page.",
+        "departments": "Like hospital departments. Customers choose the department first.",
+        "packages": "Like a full check-up: one price, booked directly.",
+        "gallery": "Work or facility photos on the facility page."
+      },
+      "block": {
+        "practitioners": "People to book with",
+        "services": "Services and prices",
+        "departments": "Departments",
+        "packages": "Packages",
+        "gallery": "Gallery"
+      },
+      "labelAr": "What are they called? (Arabic)",
+      "labelEn": "What are they called? (English)",
+      "blockOffWarning": "{{count}} facilities use this. Turning it off hides their data from customers; nothing is deleted.",
+      "bookingLocked": "The booking type cannot change while the section has facilities.",
+      "categoriesTitle": "Categories (up to {{max}})",
+      "categoryAr": "Name (Arabic)",
+      "categoryEn": "Name (English)",
+      "moveUp": "Move up",
+      "removeCategory": "Remove category",
+      "addCategory": "Add category",
+      "nameAr": "Section name (Arabic)",
+      "nameEn": "Section name (English, optional)",
+      "descAr": "Short description (Arabic)",
+      "descEn": "Short description (English)",
+      "icon": "Icon",
+      "color": "Colour",
+      "order": "Order on the home screen",
+      "visible": "Visible to customers",
+      "visibleHint": "Hidden sections are visible only to admins and facility owners.",
+      "previewTitle": "Preview",
+      "back": "Back",
+      "next": "Next",
+      "save": "Save section",
+      "saved": "Section {{name}} saved"
+    },
+    "facilities": {
+      "count": "{{count}} facilities",
+      "add": "New facility",
+      "search": "Search by name or area",
+      "empty": "No facilities match",
+      "approve": "Approve",
+      "reject": "Reject",
+      "suspend": "Suspend",
+      "move": "Move to section",
+      "changeOwner": "Change owner",
+      "openDashboard": "Open dashboard",
+      "reason": "Reason (sent to the owner)",
+      "rejectedPrefix": "Rejected: ",
+      "ownerRequired": "Choose the owner account",
+      "noOwners": "No facility owner accounts yet. Create one under Accounts or below.",
+      "newTitle": "New facility",
+      "ownerQuestion": "Who owns it?",
+      "existingOwner": "Existing account",
+      "newOwner": "Create account",
+      "section": "Section",
+      "name": "Facility name",
+      "area": "Area",
+      "region": "Region",
+      "address": "Address",
+      "description": "Description",
+      "phone": "Phone",
+      "whatsapp": "WhatsApp",
+      "monthlyPrice": "Monthly price (QAR)",
+      "serviceMode": "Service type",
+      "approvedHint": "A facility created by an admin is approved directly.",
+      "created": "Facility created"
+    },
+    "requests": {
+      "subtitle": "Facilities waiting for approval, oldest first"
+    },
+    "bookings": {
+      "search": "Search by facility or customer",
+      "limited": "Showing the first 200 bookings; refine the filters."
+    },
+    "accounts": {
+      "subtitle": "Facility owner accounts",
+      "add": "New owner account",
+      "fullName": "Full name",
+      "email": "Email",
+      "phone": "Mobile number",
+      "inviteHint": "An email invitation with a temporary password is sent. No SMS.",
+      "invite": "Create and invite",
+      "invited": "Invitation sent by email",
+      "empty": "No facility owner accounts yet",
+      "active": "Active",
+      "disabled": "Suspended",
+      "suspend": "Suspend",
+      "enable": "Reactivate",
+      "confirmSuspend": "Suspend this account? All of its facilities are suspended too.",
+      "confirmEnable": "Reactivate this account? Its facilities stay suspended until approved again.",
+      "suspended": "Account suspended; {{count}} facilities suspended"
     }
   }
 }

@@ -1,5 +1,10 @@
 import type {
   AppNotification,
+  CategoryRow,
+  CustomerRow,
+  DepartmentRow,
+  ServiceInput,
+  ServiceRow,
   AvailabilityInput,
   BookingRow,
   FacilityInput,
@@ -224,7 +229,68 @@ export const dashboardRepository = {
       ratingAverage: v.ratingAverage,
       ratingCount: v.ratingCount,
       ratingDistribution: [...v.ratingDistribution],
+      appointmentsToday: v.appointmentsToday,
+      upcomingAppointments: v.upcomingAppointments,
+      pendingRequests: v.pendingRequests,
+      customers: v.customers,
+      newCustomers: v.newCustomers,
+      topServices: v.topServices.map((c) => ({ label: c.label, count: c.count })),
+      appointmentsSeries: v.appointmentsSeries.map((p) => ({ start: p.start, value: p.value })),
+      newCustomersSeries: v.newCustomersSeries.map((p) => ({ start: p.start, value: p.value })),
     };
+  },
+  async customers(facilityId: string): Promise<CustomerRow[]> {
+    const { data: rows } = await run(data().queries.facilityCustomers({ facilityId }, asUser));
+    return required(rows).map((c) => ({
+      id: c.id,
+      name: c.name,
+      phone: c.phone ?? null,
+      visits: c.visits,
+      firstVisit: c.firstVisit ?? null,
+      lastVisit: c.lastVisit ?? null,
+      totalSpent: c.totalSpent,
+    }));
+  },
+  async services(facilityId: string): Promise<ServiceRow[]> {
+    const items = await listAll((nextToken) => data().models.Service.listServicesByFacility({ facilityId }, { ...asUser, nextToken }));
+    return items
+      .map((s) => ({
+        id: s.id,
+        nameAr: s.nameAr,
+        nameEn: s.nameEn ?? null,
+        categoryId: s.categoryId ?? null,
+        priceQar: s.priceQar,
+        durationMinutes: s.durationMinutes,
+        homeAvailable: s.homeAvailable === true,
+        active: s.active !== false,
+        sortOrder: s.sortOrder ?? 0,
+      }))
+      .sort((a, b) => a.sortOrder - b.sortOrder);
+  },
+  async departments(facilityId: string): Promise<DepartmentRow[]> {
+    const items = await listAll((nextToken) => data().models.Department.listDepartmentsByFacility({ facilityId }, { ...asUser, nextToken }));
+    return items.map((d) => ({ id: d.id, nameAr: d.nameAr, nameEn: d.nameEn ?? null, sortOrder: d.sortOrder ?? 0 }));
+  },
+  async categories(sectionId: string): Promise<CategoryRow[]> {
+    const items = await listAll((nextToken) => data().models.SectionCategory.listCategoriesBySection({ sectionId }, { ...asUser, nextToken }));
+    return items.map((c) => ({ id: c.id, nameAr: c.nameAr, nameEn: c.nameEn ?? null, order: c.order })).sort((a, b) => a.order - b.order);
+  },
+  async saveService(facilityId: string, s: ServiceInput) {
+    const { data: id } = await run(
+      data().mutations.ownerSaveService(
+        { facilityId, serviceId: s.id, nameAr: s.nameAr, nameEn: s.nameEn, categoryId: s.categoryId, priceQar: s.priceQar, durationMinutes: s.durationMinutes, homeAvailable: s.homeAvailable, active: s.active },
+        asUser,
+      ),
+    );
+    return required(id);
+  },
+  async saveDepartment(facilityId: string, d: { id: string | null; nameAr: string; nameEn: string | null; sortOrder: number }) {
+    const { data: id } = await run(data().mutations.ownerSaveDepartment({ facilityId, departmentId: d.id, nameAr: d.nameAr, nameEn: d.nameEn, sortOrder: d.sortOrder }, asUser));
+    return required(id);
+  },
+  async confirmBooking(bookingId: string) {
+    const { data: row } = await run(data().mutations.ownerConfirmBooking({ bookingId }, asUser));
+    return toBookingRow(required(row));
   },
   async members(facilityId: string) {
     const { data: rows } = await run(data().queries.facilityMembers({ facilityId }, asUser));

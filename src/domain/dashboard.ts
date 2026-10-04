@@ -99,6 +99,15 @@ export interface FacilityInsights {
   ratingAverage: number;
   ratingCount: number;
   ratingDistribution: number[]; // 1★…5★
+  // Appointment facilities (salons, clinics)
+  appointmentsToday: number;
+  upcomingAppointments: number;
+  pendingRequests: number;
+  customers: number;
+  newCustomers: number;
+  topServices: CountItem[];
+  appointmentsSeries: SeriesPoint[];
+  newCustomersSeries: SeriesPoint[];
 }
 
 export type WeeklyHours = { weekday: number; open: string; close: string };
@@ -179,3 +188,98 @@ export const discountedPrice = (p: Pick<PlanRow, 'price' | 'discountType' | 'dis
 
 // Up to two freezes of up to 30 days each per membership, when the plan allows freezing.
 export const FREEZE_LIMIT = { count: 2, days: 30 } as const;
+
+// ── Appointments (salons, clinics) ──
+
+export interface ServiceRow {
+  id: string;
+  nameAr: string;
+  nameEn: string | null;
+  categoryId: string | null;
+  priceQar: number;
+  durationMinutes: number;
+  homeAvailable: boolean;
+  active: boolean;
+  sortOrder: number;
+}
+
+export type ServiceInput = Omit<ServiceRow, 'id' | 'sortOrder'> & { id: string | null };
+
+export interface DepartmentRow {
+  id: string;
+  nameAr: string;
+  nameEn: string | null;
+  sortOrder: number;
+}
+
+export interface CustomerRow {
+  id: string;
+  name: string;
+  phone: string | null;
+  visits: number;
+  firstVisit: string | null;
+  lastVisit: string | null;
+  totalSpent: number;
+}
+
+export interface CategoryRow {
+  id: string;
+  nameAr: string;
+  nameEn: string | null;
+  order: number;
+}
+
+// ── Platform admin (console) ──
+
+export interface OwnerRow {
+  username: string;
+  ownerKey: string;
+  email: string;
+  fullName: string;
+  phone: string | null;
+  enabled: boolean;
+  createdAt: string | null;
+  facilities: number;
+}
+
+export interface ConsoleStats {
+  bookingsToday: number;
+  pendingFacilities: number;
+  activeFacilities: number;
+  newCustomers: number;
+}
+
+export interface SectionInput {
+  nameAr: string;
+  nameEn: string | null;
+  descAr: string | null;
+  descEn: string | null;
+  icon: string;
+  colorKey: string;
+  order: number;
+  status: 'visible' | 'hidden';
+  bookingMode: 'appointment' | 'subscription' | 'both';
+  hasPractitioners: boolean;
+  hasServices: boolean;
+  hasDepartments: boolean;
+  hasPackages: boolean;
+  hasGallery: boolean;
+  practitionerLabelAr: string | null;
+  practitionerLabelEn: string | null;
+  presetType: PresetType;
+  categories: { id: string | null; nameAr: string; nameEn: string | null }[];
+}
+
+export interface AdminFacilityInput {
+  ownerId: string;
+  sectionId: string;
+  name: string;
+  area: string;
+  address: string;
+  description: string;
+  phone: string | null;
+  whatsapp: string | null;
+  region: string | null;
+  monthlyPrice: number;
+  serviceMode: ServiceMode | null;
+}

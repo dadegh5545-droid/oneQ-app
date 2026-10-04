@@ -14,8 +14,9 @@ import { qar } from '@/utils/format';
 import { DataTable, type Column } from '../DataTable';
 import { useCurrentFacility } from '../FacilityDashboard';
 import { useFacilityBookings } from '../hooks';
-import { BookingStatusBadge, bookingWhen, QueryState } from '../shared';
+import { bookingWhen, QueryState } from '../shared';
 import { Badge, ChipRow, PageHeader, Panel } from '../ui';
+import { ConfirmButton } from './AppointmentScreens';
 
 type Range = 'day' | 'week' | 'month';
 const ymd = (d: Date) => format(d, 'yyyy-MM-dd');
@@ -66,7 +67,7 @@ export function BookingsScreen() {
         </View>
       ),
     },
-    { key: 'status', title: t('dashboard.members.status'), width: 130, render: (b) => <BookingStatusBadge booking={b} /> },
+    { key: 'status', title: t('dashboard.members.status'), width: 130, render: (b) => <ConfirmButton booking={b} /> },
     { key: 'amount', title: t('dashboard.members.amount'), width: 100, render: (b) => qar(b.priceQar) },
   ];
 
@@ -87,8 +88,8 @@ export function BookingsScreen() {
           </ChipRow>
         ) : null}
         <ChipRow>
-          {['all', 'confirmed', 'completed', 'cancelled'].map((s) => (
-            <Chip key={s} label={s === 'all' ? t('dashboard.all') : t(`bookings.status.${s}`)} selected={status === s} onPress={() => setStatus(s)} />
+          {[...(appointments ? ['all', 'pending'] : ['all']), 'confirmed', 'completed', 'cancelled'].map((s) => (
+            <Chip key={s} label={s === 'all' ? t('dashboard.all') : t(`console.bookingStatus.${s}`)} selected={status === s} onPress={() => setStatus(s)} />
           ))}
         </ChipRow>
       </Panel>

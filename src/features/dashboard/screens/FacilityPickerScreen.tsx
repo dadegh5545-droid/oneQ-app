@@ -41,6 +41,7 @@ export function FacilityPickerScreen() {
         </AppText>
         <Button variant="text" label={t('dashboard.shell.customerView')} onPress={() => router.navigate('/home')} />
       </View>
+      {isAdmin ? <Button variant="outlined" label={t('dashboard.picker.console')} onPress={() => router.push('/console' as Href)} /> : null}
       {facilities.data.length === 0 ? <EmptyState icon="store-outline" title={t('dashboard.picker.emptyTitle')} body={t('dashboard.picker.emptyBody')} /> : null}
       {facilities.data.map((f) => {
         const section = sections.data?.find((s) => s.slug === f.sectionId);

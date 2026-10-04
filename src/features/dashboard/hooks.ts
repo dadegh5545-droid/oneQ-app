@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { dashboardRepository } from '@/data';
-import type { AvailabilityInput, FacilityInput, Period, PlanInput, TrainerInput } from '@/domain/dashboard';
+import type { AvailabilityInput, FacilityInput, Period, PlanInput, ServiceInput, TrainerInput } from '@/domain/dashboard';
 
 // React Query hooks of the facility dashboards. Keys start with "dash" so they are cleared with the session.
 
@@ -33,6 +33,18 @@ export const useFacilityPlans = (facilityId: string) => useQuery({ queryKey: ['d
 
 export const useNotifications = () => useQuery({ queryKey: ['dash', 'notifications'], queryFn: () => dashboardRepository.notifications() });
 
+export const useFacilityCustomers = (facilityId: string) =>
+  useQuery({ queryKey: ['dash', 'customers', facilityId], queryFn: () => dashboardRepository.customers(facilityId) });
+
+export const useFacilityServices = (facilityId: string) =>
+  useQuery({ queryKey: ['dash', 'services', facilityId], queryFn: () => dashboardRepository.services(facilityId) });
+
+export const useFacilityDepartments = (facilityId: string) =>
+  useQuery({ queryKey: ['dash', 'departments', facilityId], queryFn: () => dashboardRepository.departments(facilityId) });
+
+export const useCategories = (sectionId: string) =>
+  useQuery({ queryKey: ['dash', 'categories', sectionId], queryFn: () => dashboardRepository.categories(sectionId), enabled: !!sectionId });
+
 // Writes refresh every dashboard query (counts, lists and the customer catalogue may all change).
 function useDashMutation<A, R>(fn: (args: A) => Promise<R>) {
   const queryClient = useQueryClient();
@@ -55,3 +67,7 @@ export const useSaveTrainer = (facilityId: string) => useDashMutation((input: Tr
 export const useSetAvailability = () => useDashMutation((input: AvailabilityInput) => dashboardRepository.setTrainerAvailability(input));
 export const useReplyReview = () => useDashMutation(({ reviewId, reply }: { reviewId: string; reply: string }) => dashboardRepository.replyReview(reviewId, reply));
 export const useMarkNotificationRead = () => useDashMutation((id: string) => dashboardRepository.markNotificationRead(id));
+export const useSaveService = (facilityId: string) => useDashMutation((input: ServiceInput) => dashboardRepository.saveService(facilityId, input));
+export const useSaveDepartment = (facilityId: string) =>
+  useDashMutation((input: { id: string | null; nameAr: string; nameEn: string | null; sortOrder: number }) => dashboardRepository.saveDepartment(facilityId, input));
+export const useConfirmBooking = () => useDashMutation((bookingId: string) => dashboardRepository.confirmBooking(bookingId));

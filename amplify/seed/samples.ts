@@ -215,3 +215,191 @@ export function sampleActivity(today: Date) {
 
   return { memberships, sessions: uniqueSessions, freezes, reviews };
 }
+
+// ── Salon and clinic samples (Phase 4) ──
+
+type AppointmentFacility = {
+  id: string;
+  sectionId: 'salon' | 'clinic';
+  name: string;
+  area: string;
+  description: string;
+  serviceMode: 'inShop' | 'home' | 'both' | null;
+  lat: number;
+  lng: number;
+  phone: string;
+  images: string[];
+};
+
+export const SAMPLE_SALON: AppointmentFacility = {
+  id: 'sample-salon',
+  sectionId: 'salon',
+  name: 'Sample Beauty Salon',
+  area: 'Al Waab',
+  description: 'Sample data for the OneQ salon dashboard (test branch). Clients and bookings are invented.',
+  serviceMode: 'both',
+  lat: 25.2602,
+  lng: 51.4458,
+  phone: '+97455000301',
+  images: [unsplash('1560066984-138dadb4c035', 1400), unsplash('1522337360788-8b13dee7a37e', 1400)],
+};
+
+export const SAMPLE_CLINIC: AppointmentFacility = {
+  id: 'sample-clinic',
+  sectionId: 'clinic',
+  name: 'Sample Family Clinic',
+  area: 'Al Sadd',
+  description: 'Sample data for the OneQ clinic dashboard (test branch). Patients and appointments are invented.',
+  serviceMode: null,
+  lat: 25.2889,
+  lng: 51.5022,
+  phone: '+97455000401',
+  images: [unsplash('1519494026892-80bbd2d6fd0d', 1400), unsplash('1586773860418-d37222d8fce3', 1400)],
+};
+
+export const sampleAppointmentFacility = (f: AppointmentFacility, ownerId: string | null, sortOrder: number) => ({
+  id: f.id,
+  name: f.name,
+  area: f.area,
+  description: f.description,
+  address: `Sample Street, ${f.area}, Doha`,
+  monthlyPrice: 0,
+  trainerFromMonthly: 0,
+  images: f.images,
+  amenities: [],
+  openingHours: HOURS,
+  isFeatured: false,
+  isNearby: false,
+  sortOrder,
+  sectionId: f.sectionId,
+  status: 'pending' as const,
+  statusReason: 'sample',
+  createdBy: 'admin' as const,
+  categoryIds: f.sectionId === 'salon' ? ['salon-cat-1', 'salon-cat-2', 'salon-cat-3', 'salon-cat-4', 'salon-cat-5'] : ['clinic-cat-1', 'clinic-cat-2', 'clinic-cat-3'],
+  phone: f.phone,
+  whatsapp: f.phone,
+  region: f.area,
+  lat: f.lat,
+  lng: f.lng,
+  ...(f.serviceMode ? { serviceMode: f.serviceMode } : {}),
+  ...(ownerId ? { ownerId } : {}),
+});
+
+const SALON_SERVICES = [
+  { key: 'cut', nameAr: 'قص وتصفيف', nameEn: 'Cut and styling', cat: 'salon-cat-1', price: 180, min: 60, home: true },
+  { key: 'color', nameAr: 'صبغة شعر', nameEn: 'Hair colour', cat: 'salon-cat-1', price: 450, min: 120, home: false },
+  { key: 'mani', nameAr: 'مانيكير', nameEn: 'Manicure', cat: 'salon-cat-2', price: 120, min: 45, home: true },
+  { key: 'pedi', nameAr: 'باديكير', nameEn: 'Pedicure', cat: 'salon-cat-2', price: 140, min: 60, home: true },
+  { key: 'makeup', nameAr: 'مكياج سهرة', nameEn: 'Evening makeup', cat: 'salon-cat-3', price: 400, min: 90, home: true },
+  { key: 'facial', nameAr: 'تنظيف بشرة', nameEn: 'Facial', cat: 'salon-cat-4', price: 300, min: 75, home: false },
+  { key: 'henna', nameAr: 'حناء', nameEn: 'Henna', cat: 'salon-cat-5', price: 150, min: 60, home: true },
+];
+
+const CLINIC_SERVICES = [
+  { key: 'consult', nameAr: 'استشارة طب عام', nameEn: 'General consultation', cat: 'clinic-cat-1', price: 250, min: 30, home: false },
+  { key: 'checkup', nameAr: 'فحص دوري', nameEn: 'Routine check-up', cat: 'clinic-cat-1', price: 400, min: 45, home: false },
+  { key: 'physio', nameAr: 'جلسة علاج طبيعي', nameEn: 'Physiotherapy session', cat: 'clinic-cat-2', price: 300, min: 45, home: false },
+  { key: 'sports', nameAr: 'تقييم إصابة رياضية', nameEn: 'Sports injury assessment', cat: 'clinic-cat-2', price: 350, min: 40, home: false },
+  { key: 'derma', nameAr: 'استشارة جلدية', nameEn: 'Dermatology consultation', cat: 'clinic-cat-3', price: 300, min: 30, home: false },
+];
+
+export const sampleServices = (f: AppointmentFacility) =>
+  (f.sectionId === 'salon' ? SALON_SERVICES : CLINIC_SERVICES).map((s, i) => ({
+    id: `${f.id}-svc-${s.key}`,
+    facilityId: f.id,
+    categoryId: s.cat,
+    nameAr: s.nameAr,
+    nameEn: s.nameEn,
+    priceQar: s.price,
+    durationMinutes: s.min,
+    homeAvailable: f.sectionId === 'salon' && s.home,
+    active: true,
+    sortOrder: i,
+  }));
+
+export const SAMPLE_DEPARTMENTS = [
+  { id: 'sample-clinic-dep-general', facilityId: 'sample-clinic', nameAr: 'الطب العام', nameEn: 'General medicine', sortOrder: 0 },
+  { id: 'sample-clinic-dep-physio', facilityId: 'sample-clinic', nameAr: 'العلاج الطبيعي', nameEn: 'Physiotherapy', sortOrder: 1 },
+  { id: 'sample-clinic-dep-derma', facilityId: 'sample-clinic', nameAr: 'الجلدية', nameEn: 'Dermatology', sortOrder: 2 },
+];
+
+export const samplePractitioners = (f: AppointmentFacility) =>
+  (f.sectionId === 'salon'
+    ? [
+        { key: 'huda', name: 'Huda Karim', title: 'Hair specialist', dep: null },
+        { key: 'reem', name: 'Reem Aziz', title: 'Nail and makeup artist', dep: null },
+        { key: 'lulwa', name: 'Lulwa Fares', title: 'Skin care specialist', dep: null },
+      ]
+    : [
+        { key: 'dr-sami', name: 'Dr. Sami Nasser', title: 'General practitioner', dep: 'sample-clinic-dep-general' },
+        { key: 'dr-dana', name: 'Dr. Dana Rahman', title: 'Physiotherapist', dep: 'sample-clinic-dep-physio' },
+        { key: 'dr-faisal', name: 'Dr. Faisal Hamdan', title: 'Dermatologist', dep: 'sample-clinic-dep-derma' },
+      ]
+  ).map((p, i) => ({
+    id: `${f.id}-pr-${p.key}`,
+    gymId: f.id,
+    name: p.name,
+    title: p.title,
+    bio: 'Sample profile for the dashboards.',
+    image: unsplash(f.sectionId === 'salon' ? '1580618672591-eb180b1a973f' : '1612349317150-e413f6a5b16d', 900),
+    yearsExperience: 4 + i * 3,
+    languages: ['Arabic', 'English'],
+    specialties: [],
+    skills: [],
+    certifications: [],
+    pricePerSession: 0,
+    sortOrder: i,
+    ...(p.dep ? { departmentId: p.dep } : {}),
+  }));
+
+// Appointments from 45 days ago to 10 days ahead. Salon home-service requests stay "pending" until the salon
+// confirms them (the phone is shown only after that).
+export function sampleAppointments(f: AppointmentFacility, today: Date, seed: number) {
+  const r = sequence(seed);
+  const services = sampleServices(f);
+  const practitioners = samplePractitioners(f);
+  const list = [...Array(36)].map((_, i) => {
+    const service = r.pick(services);
+    const practitioner = r.pick(practitioners);
+    const day = addDays(today, r.int(-45, 10));
+    const minutes = r.pick([540, 600, 660, 720, 960, 1020, 1080, 1140]);
+    const past = ymd(day) < ymd(today);
+    const home = f.sectionId === 'salon' && service.homeAvailable && i % 3 === 0;
+    const status = i % 12 === 7 ? 'cancelled' : past ? 'completed' : home && i % 2 === 0 ? 'pending' : 'confirmed';
+    const guest = { fullName: `${FIRST[(i * 5) % FIRST.length]} ${LAST[(i * 3) % LAST.length]}`, phone: `+97466${String(200000 + (i % 24)).slice(-6)}`, email: null };
+    return {
+      id: `${f.id}-appt-${i + 1}`,
+      type: 'appointment',
+      gymId: f.id,
+      gymName: f.name,
+      gymLocation: `${f.area}, Doha`,
+      trainerId: practitioner.id,
+      trainerName: practitioner.name,
+      serviceId: service.id,
+      serviceName: service.nameEn,
+      departmentId: practitioner.departmentId ?? null,
+      date: startAt(day, minutes),
+      timeLabel: timeLabel(minutes),
+      durationMinutes: service.durationMinutes,
+      sessionCount: 1,
+      priceQar: service.priceQar,
+      status,
+      homeService: home,
+      guest,
+      guestPhone: guest.phone,
+      paymentMethod: 'card',
+      paymentId: `sample-pay-${f.id}-${i + 1}`,
+      sectionId: f.sectionId,
+    };
+  });
+  const reviews = [...Array(6)].map((_, i) => ({
+    id: `${f.id}-review-${i + 1}`,
+    gymId: f.id,
+    authorName: `${FIRST[(i * 7 + 2) % FIRST.length]} ${LAST[(i + 4) % LAST.length]![0]}.`,
+    rating: [5, 4, 5, 3, 5, 4][i]!,
+    date: ymd(addDays(today, -r.int(1, 60))),
+    text: f.sectionId === 'salon' ? ['Lovely team and very clean.', 'Great henna design.', 'Booked a home visit, very professional.', 'Waited a little.', 'Best facial in Doha.', 'Friendly and on time.'][i]! : ['The doctor listened carefully.', 'Easy booking, short wait.', 'Physio sessions helped a lot.', 'Parking is difficult.', 'Clear explanation of the treatment.', 'Professional staff.'][i]!,
+    satisfied: i !== 3,
+  }));
+  return { appointments: list, reviews };
+}
